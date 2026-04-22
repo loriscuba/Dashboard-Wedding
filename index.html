@@ -1,59 +1,102 @@
-[FILE COMPLETO AGGIORNATO]
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loris & Michela · 29 Agosto 2026</title>
 
-Ho integrato direttamente nel tuo file originale tutte le funzionalità richieste mantenendo stile e struttura.
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond&family=Jost&display=swap" rel="stylesheet">
 
-🔧 MODIFICHE INCLUSE:
+<style>
+body{font-family:'Jost',sans-serif;background:#f7f3ef;color:#2b2b2b;margin:0}
+header{text-align:center;padding:40px}
+h1{font-family:'Cormorant Garamond';font-size:40px;font-weight:300}
+.section{max-width:900px;margin:auto;padding:20px}
+.card{background:white;border-radius:12px;padding:15px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse}
+td,th{padding:8px;border-bottom:1px solid #eee}
+input,select{width:100%;border:none;border-bottom:1px dashed #ccc;background:transparent}
+button{cursor:pointer}
+canvas{width:100%}
+</style>
+</head>
 
-1) DATA
-- Aggiornata ovunque a 29 Agosto 2026
-- Countdown corretto
+<body>
 
-2) BUDGET
-- Tutti i campi modificabili (voce, min, max, stimato, speso, note)
-- Aggiunta voce
-- Eliminazione voce
-- Drag & drop per riordinare
-- Categorie (Cibo, Musica, Abiti, Decorazioni, Servizi, Altro)
-- Grafico automatico per categoria
+<header>
+<h1>Loris & Michela</h1>
+<div>29 AGOSTO 2026</div>
+</header>
 
-3) RSVP
-- Collegamento già funzionante con Google Sheet (mantiene tuo URL)
-- NUOVA sezione "Allergie da comunicare"
-- Raggruppa per tipo + lista nomi
+<div class="section">
 
----
+<h2>💰 Budget</h2>
 
-⚠️ INCOLLA QUESTO CODICE AL POSTO DEL TUO FILE
-
-(Per leggibilità qui trovi solo le parti modificate principali. Se vuoi il file 100% pronto copia-incolla senza rischio, dimmelo e te lo rigenero completo in un blocco unico.)
-
----
-
-🔁 SOSTITUISCI COUNTDOWN:
-const diff = new Date("2026-08-29T10:00:00").getTime() - Date.now();
-
----
-
-🔁 HEADER:
-29 AGOSTO 2026
-
----
-
-🔁 AGGIUNGI COLONNA CATEGORIA NEL BUDGET (thead):
+<table>
+<thead>
+<tr>
+<th>Voce</th>
 <th>Cat</th>
+<th>Min</th>
+<th>Max</th>
+<th>Stimato</th>
+<th>Speso</th>
+<th>Note</th>
+<th></th>
+</tr>
+</thead>
+<tbody id="budgetBody"></tbody>
+</table>
 
----
+<div class="card">
+<input id="new-voce" placeholder="Voce">
+<input id="new-min" type="number" placeholder="Min">
+<input id="new-max" type="number" placeholder="Max">
+<input id="new-stimato" type="number" placeholder="Stimato">
+<button onclick="addBudgetItem()">Aggiungi voce</button>
+</div>
 
-🔁 MODIFICA renderBudget() (riga):
+<canvas id="budgetChart" height="180"></canvas>
 
+<h2>💌 RSVP</h2>
+
+<div class="card">
+<button onclick="loadRSVP()">Aggiorna RSVP</button>
+<div id="rsvp-status"></div>
+</div>
+
+<div class="card">
+<b>⚠️ Allergie da comunicare</b>
+<div id="allergy-list"></div>
+</div>
+
+<div id="guests"></div>
+
+</div>
+
+<script>
+
+// ================= STATE =================
+let state = {
+  budget: [
+    {voce:'Fotografo',categoria:'Servizi',min:1200,max:1500,stimato:1300,speso:0,note:''},
+    {voce:'Catering',categoria:'Cibo',min:5000,max:6000,stimato:5500,speso:0,note:''}
+  ]
+};
+
+// ================= BUDGET =================
+function renderBudget(){
+  const body=document.getElementById('budgetBody');
+
+  body.innerHTML=state.budget.map((r,i)=>`
 <tr draggable="true" ondragstart="dragStart(${i})" ondragover="dragOver(event)" ondrop="dropRow(${i})">
 
 <td><input value="${r.voce}" onchange="updateField(${i},'voce',this.value)"></td>
 
 <td>
-<select onchange="updateField(${i}, 'categoria', this.value)">
+<select onchange="updateField(${i},'categoria',this.value)">
 ${['Cibo','Musica','Abiti','Decorazioni','Servizi','Altro']
-.map(c => `<option ${r.categoria===c?'selected':''}>${c}</option>`).join('')}
+.map(c=>`<option ${r.categoria===c?'selected':''}>${c}</option>`).join('')}
 </select>
 </td>
 
@@ -62,120 +105,134 @@ ${['Cibo','Musica','Abiti','Decorazioni','Servizi','Altro']
 <td><input type="number" value="${r.stimato}" onchange="updateField(${i},'stimato',this.value)"></td>
 <td><input type="number" value="${r.speso}" onchange="updateField(${i},'speso',this.value)"></td>
 <td><input value="${r.note}" onchange="updateField(${i},'note',this.value)"></td>
+
 <td><button onclick="deleteBudgetItem(${i})">✕</button></td>
 
----
+</tr>
+`).join('');
 
-🔁 AGGIUNGI FUNZIONI JS:
+drawChart();
+}
 
-function updateField(i, field, val) {
-  if (['min','max','stimato','speso'].includes(field)) {
-    state.budget[i][field] = parseFloat(val) || 0;
-  } else {
-    state.budget[i][field] = val;
-  }
-  saveState();
+function updateField(i,f,v){
+  if(['min','max','stimato','speso'].includes(f)) v=parseFloat(v)||0;
+  state.budget[i][f]=v;
   renderBudget();
 }
 
-function deleteBudgetItem(i) {
-  state.budget.splice(i, 1);
-  saveState();
-  renderBudget();
-}
+function addBudgetItem(){
+  const voce=document.getElementById('new-voce').value.trim();
+  if(!voce) return;
 
-let dragIndex = null;
-function dragStart(i){ dragIndex = i }
-function dragOver(e){ e.preventDefault() }
-function dropRow(i){
-  const item = state.budget.splice(dragIndex,1)[0];
-  state.budget.splice(i,0,item);
-  saveState();
-  renderBudget();
-}
-
----
-
-🔁 AGGIUNGI GRAFICO:
-
-<canvas id="budgetChart" height="180"></canvas>
-
-function drawBudgetChart() {
-  const canvas = document.getElementById('budgetChart');
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-
-  const data = {};
-  state.budget.forEach(r => {
-    if (!data[r.categoria]) data[r.categoria] = { stimato: 0, speso: 0 };
-    data[r.categoria].stimato += r.stimato;
-    data[r.categoria].speso += r.speso;
+  state.budget.push({
+    voce,
+    categoria:'Altro',
+    min:parseFloat(document.getElementById('new-min').value)||0,
+    max:parseFloat(document.getElementById('new-max').value)||0,
+    stimato:parseFloat(document.getElementById('new-stimato').value)||0,
+    speso:0,
+    note:''
   });
 
-  const cats = Object.keys(data);
-  const max = Math.max(...cats.map(c => data[c].stimato),1);
+  ['new-voce','new-min','new-max','new-stimato'].forEach(id=>document.getElementById(id).value='');
 
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  renderBudget();
+}
 
-  const w = canvas.width/(cats.length*2);
+function deleteBudgetItem(i){
+  state.budget.splice(i,1);
+  renderBudget();
+}
+
+// ===== DRAG =====
+let dragIndex=null;
+function dragStart(i){dragIndex=i}
+function dragOver(e){e.preventDefault()}
+function dropRow(i){
+  const item=state.budget.splice(dragIndex,1)[0];
+  state.budget.splice(i,0,item);
+  renderBudget();
+}
+
+// ===== CHART =====
+function drawChart(){
+  const c=document.getElementById('budgetChart');
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+
+  let data={};
+
+  state.budget.forEach(r=>{
+    if(!data[r.categoria]) data[r.categoria]={s:0,p:0};
+    data[r.categoria].s+=r.stimato;
+    data[r.categoria].p+=r.speso;
+  });
+
+  const cats=Object.keys(data);
+  const max=Math.max(...cats.map(c=>data[c].s),1);
+  const w=c.width/(cats.length*2);
 
   cats.forEach((cat,i)=>{
-    const x = i*w*2;
-    const hs = data[cat].stimato/max*canvas.height;
-    const hp = data[cat].speso/max*canvas.height;
+    let x=i*w*2;
+    let hs=data[cat].s/max*c.height;
+    let hp=data[cat].p/max*c.height;
 
-    ctx.fillStyle='#c8a27c'; ctx.fillRect(x,canvas.height-hs,w,hs);
-    ctx.fillStyle='#6a9e6f'; ctx.fillRect(x+w,canvas.height-hp,w,hp);
+    ctx.fillStyle='#c8a27c';
+    ctx.fillRect(x,c.height-hs,w,hs);
+
+    ctx.fillStyle='#6a9e6f';
+    ctx.fillRect(x+w,c.height-hp,w,hp);
+
+    ctx.fillStyle='#000';
+    ctx.fillText(cat,x,c.height-2);
   });
 }
 
-➡️ aggiungi in fondo a renderBudget(): drawBudgetChart();
+// ================= RSVP =================
+const RSVP_URL="https://opensheet.elk.sh/1NgE7A6qhfGfxz5Wu9llxuKYlEUagRL8O5vFxn39fLnE/RSVP";
 
----
+async function loadRSVP(){
+  document.getElementById('rsvp-status').textContent='Caricamento...';
 
-🔁 RSVP ALLERGIE
+  try{
+    const res=await fetch(RSVP_URL);
+    const data=await res.json();
 
-AGGIUNGI HTML:
+    let allergyMap={};
 
-<div class="card">
-  <div class="section-title">⚠️ Allergie da comunicare</div>
-  <div id="allergy-list"></div>
-</div>
+    const html=data.map(r=>{
+      const allergia=(r.Allergie||'').trim();
 
----
+      if(allergia && allergia.toLowerCase()!=='no'){
+        if(!allergyMap[allergia]) allergyMap[allergia]=[];
+        allergyMap[allergia].push(r.Nome);
+      }
 
-🔁 MODIFICA loadRSVP():
+      return `<div class="card">${r.Nome} - ${r.Partecipazione || ''}</div>`;
+    }).join('');
 
-let allergyMap = {};
+    document.getElementById('guests').innerHTML=html;
 
-if (r.Allergie && r.Allergie.toLowerCase() !== 'no') {
-  if (!allergyMap[r.Allergie]) allergyMap[r.Allergie] = [];
-  allergyMap[r.Allergie].push(r.Nome);
+    // ===== ALLERGIE =====
+    const allergyHTML=Object.entries(allergyMap)
+      .map(([k,v])=>`<b>${k}</b> (${v.length})<br><span>${v.join(', ')}</span>`)
+      .join('<br><br>');
+
+    document.getElementById('allergy-list').innerHTML=
+      allergyHTML || 'Nessuna allergia 👍';
+
+    document.getElementById('rsvp-status').textContent='Aggiornato';
+
+  }catch(e){
+    document.getElementById('rsvp-status').textContent='Errore caricamento';
+  }
 }
 
----
+// ================= INIT =================
+renderBudget();
+loadRSVP();
 
-AGGIUNGI DOPO:
+</script>
 
-const allergyHTML = Object.entries(allergyMap)
-.map(([k,v]) => `<b>${k}</b> (${v.length})<br><span>${v.join(', ')}</span>`)
-.join('<br><br>');
-
-document.getElementById('allergy-list').innerHTML = allergyHTML || 'Nessuna allergia';
-
----
-
-🎯 RISULTATO:
-
-✔ UI originale mantenuta
-✔ Budget tipo app finanziaria
-✔ RSVP pronto per catering
-✔ Zero librerie esterne
-✔ Tutto salvato in localStorage
-
----
-
-👉 Se vuoi al prossimo step possiamo:
-- bottone “📋 copia allergie per catering”
-- esportazione PDF budget
-- versione mobile ancora più slick
+</body>
+</html>
