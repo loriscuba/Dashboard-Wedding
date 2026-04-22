@@ -3,193 +3,640 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loris & Michela · 28 Agosto 2026</title>
-
+<title>Loris & Michela · 29 Agosto 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
-
 <style>
 :root {
-  --bg:#f7f3ef;
-  --text:#2b2b2b;
-  --accent:#c8a27c;
-  --accent2:#a07850;
-  --soft:#e8ddd4;
-  --white:#fff;
-  --green:#6a9e6f;
-  --red:#c0605a;
-  --orange:#d4935a;
-  --yellow:#c9a840;
-  --muted:#999;
+  --bg: #f7f3ef;
+  --text: #2b2b2b;
+  --accent: #c8a27c;
+  --accent2: #a07850;
+  --soft: #e8ddd4;
+  --white: #ffffff;
+  --green: #6a9e6f;
+  --red: #c0605a;
+  --orange: #d4935a;
+  --yellow: #c9a840;
+  --muted: #999;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Jost', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* HEADER */
+header {
+  text-align: center;
+  padding: 50px 20px 20px;
+  background: linear-gradient(to bottom, #ede5db, var(--bg));
+}
+.header-sub { letter-spacing: 5px; font-size: 10px; color: var(--accent); font-weight: 300; text-transform: uppercase; }
+h1 { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300; margin: 8px 0 4px; letter-spacing: 2px; }
+.header-date { font-size: 11px; letter-spacing: 4px; color: var(--muted); }
+
+/* COUNTDOWN */
+.countdown {
+  display: flex; justify-content: center; gap: 6px;
+  padding: 18px 20px; background: var(--white);
+  border-top: 1px solid var(--soft); border-bottom: 1px solid var(--soft);
+}
+.cd-box { text-align: center; min-width: 54px; padding: 8px 6px; }
+.cd-num { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 300; line-height: 1; color: var(--accent2); }
+.cd-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); margin-top: 3px; text-transform: uppercase; }
+.cd-sep { font-family: 'Cormorant Garamond', serif; font-size: 28px; color: var(--soft); align-self: center; padding-bottom: 12px; }
+
+/* TABS */
+.tabs {
+  display: flex; justify-content: center; gap: 0;
+  background: var(--white); border-bottom: 1px solid var(--soft);
+  position: sticky; top: 0; z-index: 100;
+  overflow-x: auto; white-space: nowrap;
+}
+.tab {
+  border: none; background: none;
+  padding: 14px 18px; cursor: pointer;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted); font-family: 'Jost', sans-serif; font-weight: 300;
+  border-bottom: 2px solid transparent; transition: all .2s;
+}
+.tab:hover { color: var(--accent); }
+.tab.active { color: var(--accent2); border-bottom-color: var(--accent); font-weight: 400; }
+
+/* PANELS */
+.panel { max-width: 720px; margin: 0 auto; padding: 24px 16px; display: none; }
+.panel.active { display: block; }
+
+/* SECTION TITLE */
+.section-title {
+  font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300;
+  color: var(--accent2); margin-bottom: 16px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--soft); display: flex; justify-content: space-between; align-items: center;
 }
 
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Jost,sans-serif;background:var(--bg);color:var(--text)}
+/* CARDS */
+.card { background: var(--white); border-radius: 12px; padding: 16px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
 
-header{text-align:center;padding:50px 20px 20px}
-h1{font-family:"Cormorant Garamond";font-size:48px;font-weight:300}
+/* BUDGET */
+.budget-summary {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px;
+}
+.bstat { background: var(--white); padding: 14px 10px; text-align: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+.bstat-num { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; }
+.bstat-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); margin-top: 3px; text-transform: uppercase; }
+.bstat.neg .bstat-num { color: var(--red); }
+.bstat.ok .bstat-num { color: var(--green); }
 
-.tabs{display:flex;justify-content:center;background:#fff;border-bottom:1px solid var(--soft);position:sticky;top:0;z-index:10}
-.tab{padding:14px 18px;background:none;border:none;cursor:pointer}
+.budget-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.budget-table th { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--soft); text-align: left; font-weight: 400; }
+.budget-table td { padding: 9px 8px; border-bottom: 1px solid #f0ebe5; vertical-align: middle; }
+.budget-table tr:last-child td { border-bottom: none; }
+.budget-table tr:hover td { background: #faf8f5; }
+.budget-table .voce { font-weight: 300; }
+.budget-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.budget-table .speso { font-weight: 400; }
+.budget-table tr.total-row td { font-weight: 400; background: #f7f3ef; border-top: 1px solid var(--soft); }
+.progress-wrap { width: 100%; height: 4px; background: var(--soft); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+.progress-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width .6s ease; }
 
-.panel{display:none;max-width:720px;margin:auto;padding:20px}
-.panel.active{display:block}
+.speso-input { border: none; background: transparent; width: 80px; text-align: right; font-size: 13px; font-family: 'Jost', sans-serif; color: var(--text); border-bottom: 1px dashed var(--soft); outline: none; padding: 2px 0; }
+.speso-input:focus { border-bottom-color: var(--accent); }
+.note-input { border: none; background: transparent; width: 100%; font-size: 11px; font-family: 'Jost', sans-serif; color: var(--muted); border-bottom: 1px dashed transparent; outline: none; }
+.note-input:focus { border-bottom-color: var(--accent); }
 
-.card{background:#fff;padding:16px;border-radius:12px;margin-bottom:10px}
+/* RSVP */
+.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+.stat { background: var(--white); padding: 14px 10px; text-align: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; color: var(--accent2); }
+.stat-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+
+.guest-card { background: var(--white); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; border-left: 3px solid var(--accent); box-shadow: 0 2px 6px rgba(0,0,0,.04); }
+.guest-name { font-weight: 400; font-size: 14px; margin-bottom: 3px; }
+.guest-meta { font-size: 11px; color: var(--muted); }
+.guest-meta span { margin-right: 12px; }
+.guest-allergy { color: var(--orange); font-size: 11px; margin-top: 3px; }
+
+/* TIMELINE */
+.timeline-filter { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.filter-btn { border: 1px solid var(--soft); background: var(--white); padding: 5px 12px; border-radius: 20px; font-size: 11px; cursor: pointer; font-family: 'Jost'; color: var(--muted); transition: all .2s; }
+.filter-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+.task-item {
+  background: var(--white); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
+  display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 2px 6px rgba(0,0,0,.04);
+  transition: opacity .2s;
+}
+.task-item.hidden { display: none; }
+.task-check { width: 18px; height: 18px; min-width: 18px; border-radius: 50%; border: 1.5px solid var(--soft); cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all .2s; }
+.task-check.done { background: var(--green); border-color: var(--green); }
+.task-check.done::after { content: '✓'; color: white; font-size: 10px; }
+.task-body { flex: 1; }
+.task-title { font-size: 13px; font-weight: 300; }
+.task-title.done-text { text-decoration: line-through; color: var(--muted); }
+.task-meta { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+.task-period { font-size: 10px; letter-spacing: 1px; color: var(--muted); }
+.task-note { font-size: 11px; color: var(--muted); font-style: italic; }
+.task-priority { font-size: 10px; padding: 1px 7px; border-radius: 10px; }
+.p-alta { background: #fde8e7; color: var(--red); }
+.p-media { background: #fdeede; color: var(--orange); }
+.p-bassa { background: #fffbe6; color: var(--yellow); }
+.p-speciale { background: #e8f0fd; color: #5a80c0; }
+
+.add-task-form { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
+.form-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.inp { border: 1px solid var(--soft); border-radius: 8px; padding: 8px 10px; font-size: 12px; font-family: 'Jost', sans-serif; background: var(--bg); outline: none; flex: 1; min-width: 120px; }
+.inp:focus { border-color: var(--accent); }
+select.inp { cursor: pointer; }
+.btn { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 12px; font-family: 'Jost', sans-serif; transition: background .2s; }
+.btn:hover { background: var(--accent2); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-ghost { background: transparent; border: 1px solid var(--soft); color: var(--muted); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: transparent; }
+
+/* FORNITORI */
+.supplier-card { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.04); display: flex; gap: 14px; align-items: flex-start; }
+.supplier-icon { width: 38px; height: 38px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 18px; min-width: 38px; }
+.supplier-body { flex: 1; }
+.supplier-name { font-size: 14px; font-weight: 400; margin-bottom: 2px; }
+.supplier-cat { font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+.supplier-details { font-size: 12px; color: var(--muted); margin-top: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
+.supplier-status { font-size: 10px; padding: 3px 9px; border-radius: 10px; margin-top: 6px; display: inline-block; }
+.s-confirmed { background: #e4f3e5; color: var(--green); }
+.s-pending { background: #f7f3ef; color: var(--muted); border: 1px solid var(--soft); }
+.supplier-actions { display: flex; flex-direction: column; gap: 6px; }
+
+.add-supplier-form { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+
+/* MODAL */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+.modal-bg.open { display: flex; }
+.modal { background: var(--white); border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; box-shadow: 0 12px 40px rgba(0,0,0,.15); }
+.modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; margin-bottom: 16px; color: var(--accent2); }
+.modal .form-row { margin-bottom: 10px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+
+/* SAVE INDICATOR */
+.save-badge { display: none; position: fixed; bottom: 20px; right: 20px; background: var(--green); color: white; padding: 8px 14px; border-radius: 20px; font-size: 11px; letter-spacing: 1px; z-index: 300; opacity: 0; transition: opacity .3s; }
+.save-badge.show { display: block; opacity: 1; }
+
+/* PROGRESS RING */
+.progress-ring { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--white); border-radius: 12px; margin-bottom: 14px; }
+.ring-wrap { position: relative; width: 50px; height: 50px; }
+.ring-circle { fill: none; stroke: var(--soft); stroke-width: 4; }
+.ring-progress { fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset .6s ease; }
+.ring-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 13px; }
+.ring-label { font-size: 12px; color: var(--muted); }
+.ring-label b { font-size: 18px; font-family: 'Cormorant Garamond', serif; font-weight: 400; color: var(--text); display: block; }
+
 </style>
 </head>
-
 <body>
 
 <header>
-  <h1>Loris & Michela</h1>
+  <div class="header-sub">Wedding Dashboard</div>
+  <h1>Loris &amp; Michela</h1>
+  <div class="header-date">29 AGOSTO 2026 · CA DI VOI, CALIZZANO</div>
 </header>
 
-<div class="tabs">
-  <button class="tab active" onclick="tab('budget',this)">Budget</button>
-  <button class="tab" onclick="tab('timeline',this)">Timeline</button>
-  <button class="tab" onclick="tab('fornitori',this)">Fornitori</button>
-  <button class="tab" onclick="tab('rsvp',this)">RSVP</button>
+<div class="countdown">
+  <div class="cd-box"><div class="cd-num" id="d">–</div><div class="cd-label">Giorni</div></div>
+  <div class="cd-sep">·</div>
+  <div class="cd-box"><div class="cd-num" id="h">–</div><div class="cd-label">Ore</div></div>
+  <div class="cd-sep">·</div>
+  <div class="cd-box"><div class="cd-num" id="m">–</div><div class="cd-label">Min</div></div>
+  <div class="cd-sep">·</div>
+  <div class="cd-box"><div class="cd-num" id="s">–</div><div class="cd-label">Sec</div></div>
 </div>
 
-<!-- ================= BUDGET ================= -->
-<div id="budget" class="panel active">
+<div class="tabs">
+  <button class="tab active" onclick="tab('budget',this)">💰 Budget</button>
+  <button class="tab" onclick="tab('timeline',this)">📅 Timeline</button>
+  <button class="tab" onclick="tab('fornitori',this)">📋 Fornitori</button>
+  <button class="tab" onclick="tab('rsvp',this)">💌 RSVP</button>
+</div>
 
-  <div class="card">
-    <table width="100%">
+<!-- ========== BUDGET ========== -->
+<div id="budget" class="panel active">
+  <div class="budget-summary">
+    <div class="bstat"><div class="bstat-num" id="bs-stimato">€13.150</div><div class="bstat-label">Stimato</div></div>
+    <div class="bstat"><div class="bstat-num" id="bs-speso">€0</div><div class="bstat-label">Speso</div></div>
+    <div class="bstat neg"><div class="bstat-num" id="bs-margine">−€3.900</div><div class="bstat-label">vs Disponibile</div></div>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table class="budget-table">
       <thead>
         <tr>
           <th>Voce</th>
-          <th>Min</th>
-          <th>Max</th>
-          <th>Stimato</th>
-          <th>Speso</th>
+          <th class="num">Min</th>
+          <th class="num">Max</th>
+          <th class="num">Stimato</th>
+          <th class="num">Speso</th>
           <th>Note</th>
-          <th></th>
         </tr>
       </thead>
-
       <tbody id="budgetBody"></tbody>
     </table>
   </div>
 
+  <div style="margin-top:10px;font-size:11px;color:var(--muted);text-align:center;">
+    💡 Clicca sulla colonna <b>Speso</b> per aggiornare i valori · Le note sono modificabili
+  </div>
 </div>
 
-<!-- ================= TIMELINE ================= -->
+<!-- ========== TIMELINE ========== -->
 <div id="timeline" class="panel">
-  <div class="card">Timeline qui</div>
-</div>
-
-<!-- ================= FORNITORI ================= -->
-<div id="fornitori" class="panel">
-  <div class="card">Fornitori qui</div>
-</div>
-
-<!-- ================= RSVP ================= -->
-<div id="rsvp" class="panel">
-
-  <div class="card">
-    <div id="rsvp-status"></div>
-    <div id="guests"></div>
-    <div id="allergy-list"></div>
+  <div class="progress-ring">
+    <div class="ring-wrap">
+      <svg width="50" height="50">
+        <circle class="ring-circle" cx="25" cy="25" r="20"/>
+        <circle class="ring-progress" id="ringCircle" cx="25" cy="25" r="20" stroke-dasharray="125.6" stroke-dashoffset="125.6"/>
+      </svg>
+      <div class="ring-text" id="ringText">0%</div>
+    </div>
+    <div class="ring-label"><b id="ringDone">0 / 0</b>Task completate</div>
   </div>
 
+  <div class="add-task-form">
+    <div class="section-title" style="font-size:15px;margin-bottom:12px;">+ Nuova Task</div>
+    <div class="form-row">
+      <input class="inp" id="new-task-title" placeholder="Attività..." style="flex:2">
+      <select class="inp" id="new-task-period">
+        <option>Feb–Mar 2026</option>
+        <option>Aprile 2026</option>
+        <option>Maggio 2026</option>
+        <option>Giugno 2026</option>
+        <option>Luglio-Ago 2026</option>
+        <option>29 Ago 2026</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <select class="inp" id="new-task-priority">
+        <option value="🔴 Alta">🔴 Alta</option>
+        <option value="🟠 Media">🟠 Media</option>
+        <option value="🟡 Bassa">🟡 Bassa</option>
+      </select>
+      <input class="inp" id="new-task-note" placeholder="Note (opzionale)">
+      <button class="btn" onclick="addTask()">Aggiungi</button>
+    </div>
+  </div>
+
+  <div class="timeline-filter">
+    <button class="filter-btn active" onclick="filterTasks('all',this)">Tutte</button>
+    <button class="filter-btn" onclick="filterTasks('todo',this)">Da fare</button>
+    <button class="filter-btn" onclick="filterTasks('done',this)">Fatte</button>
+    <button class="filter-btn" onclick="filterTasks('alta',this)">🔴 Alta</button>
+    <button class="filter-btn" onclick="filterTasks('media',this)">🟠 Media</button>
+    <button class="filter-btn" onclick="filterTasks('bassa',this)">🟡 Bassa</button>
+  </div>
+
+  <div id="taskList"></div>
 </div>
 
-<script>
+<!-- ========== FORNITORI ========== -->
+<div id="fornitori" class="panel">
 
-// ===== TAB =====
-function tab(id, el){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  <div class="add-supplier-form card">
+    <div class="section-title" style="font-size:15px;margin-bottom:12px;">+ Nuovo Fornitore</div>
+    <div class="form-row">
+      <input class="inp" id="s-cat" placeholder="Categoria" style="flex:1">
+      <input class="inp" id="s-name" placeholder="Nome" style="flex:2">
+      <input class="inp" id="s-zona" placeholder="Zona">
+    </div>
+    <div class="form-row">
+      <input class="inp" id="s-contact" placeholder="Contatto / Web">
+      <input class="inp" id="s-price" placeholder="Preventivo €" type="number">
+      <select class="inp" id="s-status">
+        <option value="✅ Confermato">✅ Confermato</option>
+        <option value="⬜ Da contattare">⬜ Da contattare</option>
+        <option value="🕐 In attesa">🕐 In attesa</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <input class="inp" id="s-note" placeholder="Note">
+      <button class="btn" onclick="addSupplier()">Aggiungi</button>
+    </div>
+  </div>
+
+  <div id="supplierList"></div>
+</div>
+
+<!-- ========== RSVP ========== -->
+<div id="rsvp" class="panel">
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="conf">–</div><div class="stat-label">Confermati</div></div>
+    <div class="stat"><div class="stat-num" id="allergy">–</div><div class="stat-label">Allergie</div></div>
+    <div class="stat"><div class="stat-num" id="tot">–</div><div class="stat-label">Totale risposte</div></div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:14px;">
+    <button class="btn" onclick="loadRSVP()">🔄 Aggiorna RSVP</button>
+  </div>
+
+  <div id="rsvp-status" style="font-size:12px;color:var(--muted);margin-bottom:10px;"></div>
+  <div id="guests"></div>
+</div>
+
+<!-- SAVE BADGE -->
+<div class="save-badge" id="saveBadge">✓ SALVATO</div>
+
+<script>
+// ===== STATE =====
+let state = {
+  budget: [
+    { voce: 'Agriturismo – Pranzo adulti', min: 4800, max: 5600, stimato: 5200, speso: 0, note: '80 adulti × €60' },
+    { voce: 'Agriturismo – Pranzo bambini', min: 400, max: 400, stimato: 400, speso: 0, note: '20 bambini × €20' },
+    { voce: 'Agriturismo – Gazebo', min: 1800, max: 1800, stimato: 1800, speso: 0, note: 'Affitto fisso' },
+    { voce: 'Comune di Quiliano', min: 250, max: 250, stimato: 250, speso: 0, note: 'Villa Maria' },
+    { voce: 'Aperitivo - Fabio', min: 500, max: 750, stimato: 500, speso: 0, note: 'Sentire Fabio per fattibilità' },
+    { voce: 'Fotografo', min: 1200, max: 1500, stimato: 1350, speso: 0, note: '' },
+    { voce: 'Service audio', min: 500, max: 800, stimato: 650, speso: 0, note: 'Noleggio + setup' },
+    { voce: 'Fiori e decorazioni', min: 800, max: 1000, stimato: 900, speso: 0, note: 'Bouquet, centrotavola, arco' },
+    { voce: 'Abito sposa + look sposo', min: 1000, max: 1000, stimato: 1000, speso: 0, note: '' },
+    { voce: 'Trucco e acconciatura', min: 100, max: 100, stimato: 100, speso: 0, note: 'Prova inclusa' },
+    { voce: 'Torta nuziale', min: 300, max: 400, stimato: 350, speso: 0, note: 'Chiedere a Ivano' },
+    { voce: 'Partecipazioni + bomboniere', min: 300, max: 400, stimato: 350, speso: 0, note: '' },
+    { voce: 'Imprevisti', min: 300, max: 300, stimato: 300, speso: 0, note: 'Fondo di riserva' },
+  ],
+  budgetDisponibile: 10000,
+  budgetContributo: 750,
+
+  tasks: [
+    { id: 1, title: 'Definire budget e distribuzione voci', period: 'Feb–Mar 2026', priority: '🔴 Alta', done: true, note: '' },
+    { id: 2, title: 'Prenotare il fotografo', period: 'Feb–Mar 2026', priority: '🔴 Alta', done: true, note: 'Alessia Mangani, fare aperitivo dopo Pasqua' },
+    { id: 3, title: 'Noleggiare service audio', period: 'Feb–Mar 2026', priority: '🔴 Alta', done: false, note: 'Sentito Dave, sollecitare contatto per definire budget e disponibilità.' },
+    { id: 4, title: 'Rito: Prenotazione Sala', period: 'Feb–Mar 2026', priority: '🔴 Alta', done: false, note: 'Prenotata Sala Comunale, da confermare in settimana' },
+    { id: 5, title: 'Inviare Save the Date', period: 'Feb–Mar 2026', priority: '🔴 Alta', done: false, note: 'Partecipazione via Whatsapp, dopo Pasqua' },
+    { id: 6, title: 'Scegliere e ordinare abito da sposa', period: 'Aprile 2026', priority: '🟠 Media', done: true, note: '' },
+    { id: 7, title: 'Look sposo', period: 'Aprile 2026', priority: '🟠 Media', done: false, note: 'Ego? Serravalle?' },
+    { id: 8, title: 'Contattare e scegliere il fiorista', period: 'Aprile 2026', priority: '🟠 Media', done: false, note: 'Prendere appuntamento per sabato prossimo da Rebella?' },
+    { id: 9, title: 'Partecipazioni e grafica coordinata', period: 'Aprile 2026', priority: '🟠 Media', done: false, note: 'Da fare sito' },
+    { id: 10, title: 'Lista nozze o viaggio di nozze', period: 'Aprile 2026', priority: '🟠 Media', done: false, note: 'Passare da Vado?' },
+    { id: 11, title: 'Conferma Bomboniere', period: 'Aprile 2026', priority: '🟠 Media', done: false, note: 'Entro metà aprile, conferma (3 disegni)' },
+    { id: 12, title: 'Definizione Team allestimento', period: 'Aprile 2026', priority: '🟠 Media', done: false, note: 'Mirko, Vitto? Dave?' },
+    { id: 13, title: 'Conferma definitiva numero ospiti', period: 'Maggio 2026', priority: '🟠 Media', done: false, note: '' },
+    { id: 14, title: 'Menu definitivo con l\'agriturismo', period: 'Maggio 2026', priority: '🟠 Media', done: false, note: 'Da ricevere email da Ca di Voi.' },
+    { id: 15, title: 'Organizzare trasporti per gli ospiti', period: 'Maggio 2026', priority: '🟡 Bassa', done: false, note: '' },
+    { id: 16, title: 'Sistemazione/pernottamento ospiti', period: 'Giugno 2026', priority: '🟡 Bassa', done: false, note: '' },
+    { id: 17, title: 'Ordinare la torta nuziale', period: 'Giugno 2026', priority: '🟡 Bassa', done: false, note: 'Definire con Ivo' },
+    { id: 18, title: 'Preparare bomboniere', period: 'Giugno 2026', priority: '🟡 Bassa', done: false, note: '' },
+    { id: 19, title: 'Conferma finale con tutti i fornitori', period: 'Luglio-Ago 2026', priority: '🔴 Alta', done: false, note: '' },
+    { id: 20, title: 'Consegne e logistica il giorno prima', period: 'Luglio-Ago 2026', priority: '🔴 Alta', done: false, note: '' },
+    { id: 21, title: '🎉 MATRIMONIO!', period: '29 Ago 2026', priority: '⭐ Speciale', done: false, note: 'Godersi ogni momento!' },
+  ],
+
+  suppliers: [
+    { id: 1, cat: 'Location', icon: '🏡', name: 'Agriturismo Ca di Voi', zona: 'Calizzano', contact: '', price: 7400, status: '✅ Confermato', note: 'Pranzo + gazebo' },
+    { id: 2, cat: 'Fotografo', icon: '📸', name: 'Alessia Mangani', zona: 'Savona', contact: '', price: null, status: '⬜ Da contattare', note: '' },
+    { id: 3, cat: 'Service audio', icon: '🎵', name: '–', zona: '', contact: '', price: null, status: '⬜ Da contattare', note: '' },
+    { id: 4, cat: 'Fiorista', icon: '🌸', name: 'Rebella', zona: 'Savona', contact: 'matrimonio.com', price: null, status: '⬜ Da contattare', note: '' },
+    { id: 5, cat: 'Bomboniere', icon: '🎁', name: 'Arbanella', zona: 'Celle Ligure', contact: '', price: null, status: '⬜ Da contattare', note: '' },
+  ],
+  nextSupplierId: 6,
+  nextTaskId: 22,
+};
+
+// ===== PERSIST =====
+function saveState() {
+  try { localStorage.setItem('wedding_state', JSON.stringify(state)); } catch(e){}
+  showSaveBadge();
+}
+function loadState() {
+  try {
+    const s = localStorage.getItem('wedding_state');
+    if (s) state = JSON.parse(s);
+  } catch(e){}
+}
+function showSaveBadge() {
+  const b = document.getElementById('saveBadge');
+  b.classList.add('show');
+  setTimeout(() => b.classList.remove('show'), 1800);
+}
+
+// ===== COUNTDOWN =====
+function tick() {
+  const diff = new Date("2026-08-29T10:00:00").getTime() - Date.now();
+  if (diff <= 0) { document.getElementById("d").textContent = "🎉"; return; }
+  document.getElementById("d").textContent = Math.floor(diff / 86400000);
+  document.getElementById("h").textContent = String(Math.floor(diff % 86400000 / 3600000)).padStart(2,'0');
+  document.getElementById("m").textContent = String(Math.floor(diff % 3600000 / 60000)).padStart(2,'0');
+  document.getElementById("s").textContent = String(Math.floor(diff % 60000 / 1000)).padStart(2,'0');
+}
+setInterval(tick, 1000); tick();
+
+// ===== TABS =====
+function tab(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
 }
 
 // ===== BUDGET =====
-let state = {
-  budget:[
-    {voce:"Location",min:100,max:200,stimato:150,speso:0,note:""},
-    {voce:"Foto",min:500,max:800,stimato:650,speso:0,note:""}
-  ]
-};
+const DISPONIBILE = 10000 - 750; // 9250
 
-function renderBudget(){
-  const body = document.getElementById("budgetBody");
+function renderBudget() {
+  const totalStimato = state.budget.reduce((a, r) => a + r.stimato, 0);
+  const totalSpeso = state.budget.reduce((a, r) => a + r.speso, 0);
+  const margine = DISPONIBILE - totalStimato;
 
-  body.innerHTML = state.budget.map((r,i)=>`
-    <tr>
-      <td>${r.voce}</td>
-      <td>${r.min}</td>
-      <td>${r.max}</td>
-      <td>${r.stimato}</td>
+  document.getElementById('bs-stimato').textContent = '€' + totalStimato.toLocaleString('it');
+  document.getElementById('bs-speso').textContent = '€' + totalSpeso.toLocaleString('it');
+  const mEl = document.getElementById('bs-margine');
+  mEl.textContent = (margine >= 0 ? '+€' : '−€') + Math.abs(margine).toLocaleString('it');
+  mEl.closest('.bstat').className = 'bstat ' + (margine >= 0 ? 'ok' : 'neg');
 
-      <td>
-        <input type="number" value="${r.speso}"
-          onchange="updateSpeso(${i},this.value)">
+  const body = document.getElementById('budgetBody');
+  body.innerHTML = state.budget.map((r, i) => {
+    const pct = r.stimato > 0 ? Math.round(r.speso / r.stimato * 100) : 0;
+    return `<tr>
+      <td class="voce">
+        ${r.voce}
+        <div class="progress-wrap"><div class="progress-bar" style="width:${Math.min(pct,100)}%"></div></div>
       </td>
-
-      <td>
-        <input value="${r.note}"
-          onchange="updateNote(${i},this.value)">
+      <td class="num" style="color:var(--muted);font-size:12px">€${r.min.toLocaleString('it')}</td>
+      <td class="num" style="color:var(--muted);font-size:12px">€${r.max.toLocaleString('it')}</td>
+      <td class="num">€${r.stimato.toLocaleString('it')}</td>
+      <td class="num speso">
+        <input class="speso-input" type="number" value="${r.speso}" min="0"
+          onchange="updateSpeso(${i}, this.value)"
+          onclick="this.select()">
       </td>
+      <td><input class="note-input" value="${r.note}" onchange="updateNote(${i}, this.value)" placeholder="–"></td>
+    </tr>`;
+  }).join('') + `<tr class="total-row">
+    <td colspan="3"><b>TOTALE</b></td>
+    <td class="num"><b>€${totalStimato.toLocaleString('it')}</b></td>
+    <td class="num"><b>€${totalSpeso.toLocaleString('it')}</b></td>
+    <td style="font-size:11px;color:var(--muted)">Budget disponibile: €${DISPONIBILE.toLocaleString('it')}</td>
+  </tr>`;
+}
+function updateSpeso(i, val) { state.budget[i].speso = parseFloat(val) || 0; saveState(); renderBudget(); }
+function updateNote(i, val) { state.budget[i].note = val; saveState(); }
 
-      <td>
-        <button onclick="deleteBudgetItem(${i})">✕</button>
-      </td>
-    </tr>
-  `).join('');
+// ===== TASKS =====
+let taskFilter = 'all';
+
+function renderTasks() {
+  const done = state.tasks.filter(t => t.done).length;
+  const total = state.tasks.length;
+  const pct = total > 0 ? done / total : 0;
+  const circ = 125.6;
+  document.getElementById('ringCircle').style.strokeDashoffset = circ * (1 - pct);
+  document.getElementById('ringText').textContent = Math.round(pct * 100) + '%';
+  document.getElementById('ringDone').textContent = `${done} / ${total}`;
+
+  const list = document.getElementById('taskList');
+  list.innerHTML = state.tasks.map(t => {
+    let priClass = '';
+    if (t.priority.includes('Alta')) priClass = 'p-alta';
+    else if (t.priority.includes('Media')) priClass = 'p-media';
+    else if (t.priority.includes('Bassa')) priClass = 'p-bassa';
+    else priClass = 'p-speciale';
+
+    let hidden = false;
+    if (taskFilter === 'todo' && t.done) hidden = true;
+    if (taskFilter === 'done' && !t.done) hidden = true;
+    if (taskFilter === 'alta' && !t.priority.includes('Alta')) hidden = true;
+    if (taskFilter === 'media' && !t.priority.includes('Media')) hidden = true;
+    if (taskFilter === 'bassa' && !t.priority.includes('Bassa')) hidden = true;
+
+    return `<div class="task-item${hidden?' hidden':''}" id="task-${t.id}">
+      <div class="task-check${t.done?' done':''}" onclick="toggleTask(${t.id})"></div>
+      <div class="task-body">
+        <div class="task-title${t.done?' done-text':''}">${t.title}</div>
+        <div class="task-meta">
+          <span class="task-period">${t.period}</span>
+          <span class="task-priority ${priClass}">${t.priority}</span>
+          ${t.note ? `<span class="task-note">${t.note}</span>` : ''}
+        </div>
+      </div>
+      <button class="btn btn-sm btn-ghost" onclick="deleteTask(${t.id})" style="min-width:28px;padding:4px 8px;">✕</button>
+    </div>`;
+  }).join('');
 }
 
-function updateSpeso(i,v){
-  state.budget[i].speso = parseFloat(v)||0;
-  renderBudget();
+function toggleTask(id) {
+  const t = state.tasks.find(t => t.id === id);
+  if (t) { t.done = !t.done; saveState(); renderTasks(); }
+}
+function deleteTask(id) {
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  saveState(); renderTasks();
+}
+function addTask() {
+  const title = document.getElementById('new-task-title').value.trim();
+  if (!title) return;
+  state.tasks.push({
+    id: state.nextTaskId++,
+    title,
+    period: document.getElementById('new-task-period').value,
+    priority: document.getElementById('new-task-priority').value,
+    done: false,
+    note: document.getElementById('new-task-note').value.trim()
+  });
+  document.getElementById('new-task-title').value = '';
+  document.getElementById('new-task-note').value = '';
+  saveState(); renderTasks();
+}
+function filterTasks(f, el) {
+  taskFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderTasks();
 }
 
-function updateNote(i,v){
-  state.budget[i].note = v;
+// ===== SUPPLIERS =====
+const ICONS = { 'Location':'🏡','Fotografo':'📸','Service audio':'🎵','Fiorista':'🌸','Bomboniere':'🎁','Catering':'🍽️','Musica':'🎶','Trasporti':'🚌','default':'🏢' };
+
+function renderSuppliers() {
+  const list = document.getElementById('supplierList');
+  list.innerHTML = state.suppliers.map(s => {
+    const icon = ICONS[s.cat] || ICONS['default'];
+    const statusClass = s.status.includes('Confermato') ? 's-confirmed' : 's-pending';
+    return `<div class="supplier-card">
+      <div class="supplier-icon">${icon}</div>
+      <div class="supplier-body">
+        <div class="supplier-name">${s.name}</div>
+        <div class="supplier-cat">${s.cat}</div>
+        <div class="supplier-details">
+          ${s.zona ? `📍 ${s.zona}` : ''}
+          ${s.contact ? `🔗 ${s.contact}` : ''}
+          ${s.price ? `💶 €${s.price.toLocaleString('it')}` : ''}
+        </div>
+        ${s.note ? `<div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic;">${s.note}</div>` : ''}
+        <div class="supplier-status ${statusClass}">${s.status}</div>
+      </div>
+      <div class="supplier-actions">
+        <button class="btn btn-sm btn-ghost" onclick="cycleStatus(${s.id})">↻</button>
+        <button class="btn btn-sm btn-ghost" onclick="deleteSupplier(${s.id})" style="color:var(--red);border-color:var(--red);">✕</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-function deleteBudgetItem(i){
-  state.budget.splice(i,1);
-  renderBudget();
+const STATUSES = ['✅ Confermato', '⬜ Da contattare', '🕐 In attesa'];
+function cycleStatus(id) {
+  const s = state.suppliers.find(s => s.id === id);
+  if (s) { s.status = STATUSES[(STATUSES.indexOf(s.status) + 1) % STATUSES.length]; saveState(); renderSuppliers(); }
+}
+function deleteSupplier(id) {
+  state.suppliers = state.suppliers.filter(s => s.id !== id);
+  saveState(); renderSuppliers();
+}
+function addSupplier() {
+  const name = document.getElementById('s-name').value.trim();
+  const cat = document.getElementById('s-cat').value.trim();
+  if (!name || !cat) return;
+  const price = parseFloat(document.getElementById('s-price').value) || null;
+  state.suppliers.push({
+    id: state.nextSupplierId++,
+    cat, name,
+    zona: document.getElementById('s-zona').value.trim(),
+    contact: document.getElementById('s-contact').value.trim(),
+    price,
+    status: document.getElementById('s-status').value,
+    note: document.getElementById('s-note').value.trim()
+  });
+  ['s-cat','s-name','s-zona','s-contact','s-price','s-note'].forEach(id => document.getElementById(id).value = '');
+  saveState(); renderSuppliers();
 }
 
-// ===== RSVP FIX =====
-async function loadRSVP(){
-  const url="https://opensheet.elk.sh/1NgE7A6qhfGfxz5Wu9llxuKYlEUagRL8O5vFxn39fLnE/RSVP";
+// ===== RSVP =====
+const RSVP_URL = "https://opensheet.elk.sh/1NgE7A6qhfGfxz5Wu9llxuKYlEUagRL8O5vFxn39fLnE/RSVP";
 
-  try{
-    const res = await fetch(url);
+async function loadRSVP() {
+  document.getElementById('rsvp-status').textContent = 'Caricamento in corso…';
+  try {
+    const res = await fetch(RSVP_URL);
     const data = await res.json();
-
-    let allergyMap={};
-
-    document.getElementById("guests").innerHTML =
-      data.map(r=>{
-        const a = (r.Allergie||"").trim();
-
-        if(a && a.toLowerCase()!=="no"){
-          allergyMap[a]=(allergyMap[a]||[]).concat(r.Nome);
-        }
-
-        return `<div>${r.Nome||""} - ${r.Partecipazione||""}</div>`;
-      }).join("");
-
-    document.getElementById("allergy-list").innerHTML =
-      Object.entries(allergyMap)
-        .map(([k,v])=>`<b>${k}</b>: ${v.join(", ")}`)
-        .join("<br>");
-
-  }catch(e){
-    document.getElementById("rsvp-status").textContent="Errore RSVP";
+    let ok = 0, all = 0;
+    const html = data.map(r => {
+      const yes = /^s/i.test(r.Partecipazione || '');
+      if (yes) ok++;
+      if (r.Allergie && r.Allergie.toLowerCase() !== 'no') all++;
+      return `<div class="guest-card">
+        <div class="guest-name">${r.Nome || '–'} ${yes ? '✅' : '❌'}</div>
+        <div class="guest-meta">
+          <span>${r.Partecipazione || '–'}</span>
+          ${r.Canzone ? `<span>🎵 ${r.Canzone}</span>` : ''}
+        </div>
+        ${r.Allergie && r.Allergie.toLowerCase() !== 'no' ? `<div class="guest-allergy">⚠️ ${r.Allergie}</div>` : ''}
+      </div>`;
+    }).join('');
+    document.getElementById('guests').innerHTML = html || '<p style="color:var(--muted);font-size:13px;">Nessuna risposta ancora.</p>';
+    document.getElementById('conf').textContent = ok;
+    document.getElementById('allergy').textContent = all;
+    document.getElementById('tot').textContent = data.length;
+    document.getElementById('rsvp-status').textContent = `Ultimo aggiornamento: ${new Date().toLocaleTimeString('it')}`;
+  } catch(e) {
+    document.getElementById('rsvp-status').textContent = '⚠️ Errore nel caricamento. Controlla il foglio Google.';
   }
 }
 
-// INIT
+// ===== INIT =====
+loadState();
 renderBudget();
+renderTasks();
+renderSuppliers();
 loadRSVP();
-
 </script>
-
 </body>
 </html>
