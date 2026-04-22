@@ -220,6 +220,26 @@ select.inp { cursor: pointer; }
     <div class="bstat neg"><div class="bstat-num" id="bs-margine">−€3.900</div><div class="bstat-label">vs Disponibile</div></div>
   </div>
 
+  <div class="card" style="margin-bottom:12px;">
+    <div class="section-title" style="font-size:15px;margin-bottom:12px;">💶 Budget disponibile</div>
+    <div class="form-row">
+      <div style="flex:1">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Budget totale €</div>
+        <input class="inp" id="input-disponibile" type="number" min="0" placeholder="10000"
+          onchange="updateDisponibile('budgetDisponibile', this.value)">
+      </div>
+      <div style="flex:1">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Contributo esterno €</div>
+        <input class="inp" id="input-contributo" type="number" min="0" placeholder="0"
+          onchange="updateDisponibile('budgetContributo', this.value)">
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Netto disponibile</div>
+        <div id="bs-netto" style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--accent2);padding:8px 10px;">€9.250</div>
+      </div>
+    </div>
+  </div>
+
   <div class="card" style="padding:0;overflow:hidden;">
     <table class="budget-table">
       <thead>
@@ -230,6 +250,7 @@ select.inp { cursor: pointer; }
           <th class="num">Stimato</th>
           <th class="num">Speso</th>
           <th>Note</th>
+          <th></th>
         </tr>
       </thead>
       <tbody id="budgetBody"></tbody>
@@ -237,7 +258,25 @@ select.inp { cursor: pointer; }
   </div>
 
   <div style="margin-top:10px;font-size:11px;color:var(--muted);text-align:center;">
-    💡 Clicca sulla colonna <b>Speso</b> per aggiornare i valori · Le note sono modificabili
+    💡 Tutti i campi sono modificabili · Trascina le righe per riordinarle · Clicca ✕ per eliminare una voce
+  </div>
+
+  <div class="add-task-form" style="margin-top:12px;">
+    <div class="section-title" style="font-size:15px;margin-bottom:12px;">+ Nuova Voce</div>
+    <div class="form-row">
+      <input class="inp" id="new-budget-voce" placeholder="Nome voce (es. Bomboniere)" style="flex:2">
+      <input class="inp" id="new-budget-note" placeholder="Note">
+    </div>
+    <div class="form-row">
+      <input class="inp" id="new-budget-min" type="number" placeholder="Min €" min="0">
+      <input class="inp" id="new-budget-max" type="number" placeholder="Max €" min="0">
+      <input class="inp" id="new-budget-stimato" type="number" placeholder="Stimato €" min="0">
+      <button class="btn" onclick="addBudgetItem()">Aggiungi</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px;">
+    <canvas id="budgetChart" height="140"></canvas>
   </div>
 </div>
 
@@ -331,6 +370,12 @@ select.inp { cursor: pointer; }
   </div>
 
   <div id="rsvp-status" style="font-size:12px;color:var(--muted);margin-bottom:10px;"></div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="section-title" style="font-size:15px;">⚠️ Allergie per catering</div>
+    <div id="allergy-list" style="font-size:12px;color:var(--muted);"></div>
+  </div>
+
   <div id="guests"></div>
 </div>
 
@@ -430,12 +475,19 @@ function tab(id, el) {
 }
 
 // ===== BUDGET =====
-const DISPONIBILE = 10000 - 750; // 9250
-
 function renderBudget() {
+  const disponibile = (state.budgetDisponibile || 10000) - (state.budgetContributo || 0);
   const totalStimato = state.budget.reduce((a, r) => a + r.stimato, 0);
   const totalSpeso = state.budget.reduce((a, r) => a + r.speso, 0);
-  const margine = DISPONIBILE - totalStimato;
+  const margine = disponibile - totalStimato;
+
+  // Keep inputs in sync without losing focus
+  const inpDisp = document.getElementById('input-disponibile');
+  const inpContr = document.getElementById('input-contributo');
+  if (inpDisp && document.activeElement !== inpDisp) inpDisp.value = state.budgetDisponibile || 10000;
+  if (inpContr && document.activeElement !== inpContr) inpContr.value = state.budgetContributo || 0;
+  const nettoEl = document.getElementById('bs-netto');
+  if (nettoEl) nettoEl.textContent = '€' + disponibile.toLocaleString('it');
 
   document.getElementById('bs-stimato').textContent = '€' + totalStimato.toLocaleString('it');
   document.getElementById('bs-speso').textContent = '€' + totalSpeso.toLocaleString('it');
@@ -446,30 +498,128 @@ function renderBudget() {
   const body = document.getElementById('budgetBody');
   body.innerHTML = state.budget.map((r, i) => {
     const pct = r.stimato > 0 ? Math.round(r.speso / r.stimato * 100) : 0;
-    return `<tr>
+    return `<tr draggable="true"
+  ondragstart="dragStart(${i})"
+  ondragover="dragOver(event)"
+  ondrop="dropRow(${i})">
       <td class="voce">
-        ${r.voce}
+        <input class="note-input" value="${r.voce}" 
+          onchange="updateField(${i}, 'voce', this.value)">
         <div class="progress-wrap"><div class="progress-bar" style="width:${Math.min(pct,100)}%"></div></div>
       </td>
-      <td class="num" style="color:var(--muted);font-size:12px">€${r.min.toLocaleString('it')}</td>
-      <td class="num" style="color:var(--muted);font-size:12px">€${r.max.toLocaleString('it')}</td>
-      <td class="num">€${r.stimato.toLocaleString('it')}</td>
+      <td class="num" style="color:var(--muted);font-size:12px">
+        <input class="speso-input" type="number" value="${r.min}" 
+          onchange="updateField(${i}, 'min', this.value)">
+      </td>
+      <td class="num" style="color:var(--muted);font-size:12px">
+        <input class="speso-input" type="number" value="${r.max}" 
+          onchange="updateField(${i}, 'max', this.value)">
+      </td>
+      <td class="num">
+        <input class="speso-input" type="number" value="${r.stimato}" 
+          onchange="updateField(${i}, 'stimato', this.value)">
+      </td>
       <td class="num speso">
         <input class="speso-input" type="number" value="${r.speso}" min="0"
-          onchange="updateSpeso(${i}, this.value)"
+          onchange="updateField(${i}, 'speso', this.value)"
           onclick="this.select()">
       </td>
-      <td><input class="note-input" value="${r.note}" onchange="updateNote(${i}, this.value)" placeholder="–"></td>
+      <td><input class="note-input" value="${r.note}" onchange="updateField(${i}, 'note', this.value)" placeholder="–"></td>
+      <td>
+        <button class="btn btn-sm btn-ghost" onclick="deleteBudgetItem(${i})">✕</button>
+      </td>
     </tr>`;
   }).join('') + `<tr class="total-row">
     <td colspan="3"><b>TOTALE</b></td>
     <td class="num"><b>€${totalStimato.toLocaleString('it')}</b></td>
     <td class="num"><b>€${totalSpeso.toLocaleString('it')}</b></td>
-    <td style="font-size:11px;color:var(--muted)">Budget disponibile: €${DISPONIBILE.toLocaleString('it')}</td>
+    <td style="font-size:11px;color:var(--muted)">Budget disponibile: €${disponibile.toLocaleString('it')}</td>
+    <td></td>
   </tr>`;
+  drawBudgetChart();
 }
-function updateSpeso(i, val) { state.budget[i].speso = parseFloat(val) || 0; saveState(); renderBudget(); }
-function updateNote(i, val) { state.budget[i].note = val; saveState(); }
+
+function updateField(i, field, val) {
+  if (['min','max','stimato','speso'].includes(field)) {
+    state.budget[i][field] = parseFloat(val) || 0;
+  } else {
+    state.budget[i][field] = val;
+  }
+  saveState();
+  renderBudget();
+}
+
+let dragIndex = null;
+function dragStart(i){ dragIndex = i; }
+function dragOver(e){ e.preventDefault(); }
+function dropRow(i){
+  const item = state.budget.splice(dragIndex,1)[0];
+  state.budget.splice(i,0,item);
+  saveState();
+  renderBudget();
+}
+
+function deleteBudgetItem(i){
+  state.budget.splice(i,1);
+  saveState();
+  renderBudget();
+}
+
+function updateDisponibile(field, val) {
+  state[field] = parseFloat(val) || 0;
+  saveState();
+  renderBudget();
+}
+
+function addBudgetItem(){
+  const voce = document.getElementById('new-budget-voce').value.trim();
+  if (!voce) return;
+  const min = parseFloat(document.getElementById('new-budget-min').value) || 0;
+  const max = parseFloat(document.getElementById('new-budget-max').value) || 0;
+  const stimato = parseFloat(document.getElementById('new-budget-stimato').value) || 0;
+  const note = document.getElementById('new-budget-note').value.trim();
+  state.budget.push({ voce, min, max, stimato, speso: 0, note });
+  ['new-budget-voce','new-budget-min','new-budget-max','new-budget-stimato','new-budget-note']
+    .forEach(id => document.getElementById(id).value = '');
+  saveState();
+  renderBudget();
+}
+
+function drawBudgetChart(){
+  const c = document.getElementById('budgetChart');
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  c.width = c.parentElement.clientWidth - 32;
+
+  const totalStimato = state.budget.reduce((a,r)=>a+r.stimato,0);
+  const totalSpeso = state.budget.reduce((a,r)=>a+r.speso,0);
+
+  ctx.clearRect(0,0,c.width,c.height);
+
+  const w = c.width * 0.35;
+  const max = Math.max(totalStimato,1);
+  const h = c.height;
+
+  const hs = (totalStimato/max) * (h - 30);
+  const hp = (totalSpeso/max) * (h - 30);
+
+  ctx.fillStyle='#c8a27c';
+  ctx.fillRect(40, h - hs - 20, w, hs);
+
+  ctx.fillStyle='#6a9e6f';
+  ctx.fillRect(40 + w + 20, h - hp - 20, w, hp);
+
+  ctx.fillStyle='#999';
+  ctx.font='11px Jost, sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('Stimato', 40 + w/2, h - 4);
+  ctx.fillText('Speso', 40 + w + 20 + w/2, h - 4);
+
+  ctx.fillStyle='#2b2b2b';
+  ctx.font='12px Jost, sans-serif';
+  ctx.fillText('€' + totalStimato.toLocaleString('it'), 40 + w/2, h - hs - 26);
+  if(hp > 0) ctx.fillText('€' + totalSpeso.toLocaleString('it'), 40 + w + 20 + w/2, h - hp - 26);
+}
 
 // ===== TASKS =====
 let taskFilter = 'all';
@@ -608,10 +758,18 @@ async function loadRSVP() {
     const res = await fetch(RSVP_URL);
     const data = await res.json();
     let ok = 0, all = 0;
+    let allergyMap = {};
     const html = data.map(r => {
       const yes = /^s/i.test(r.Partecipazione || '');
       if (yes) ok++;
       if (r.Allergie && r.Allergie.toLowerCase() !== 'no') all++;
+
+      const allergia = (r.Allergie || '').trim();
+      if (allergia && allergia.toLowerCase() !== 'no') {
+        if (!allergyMap[allergia]) allergyMap[allergia] = [];
+        allergyMap[allergia].push(r.Nome);
+      }
+
       return `<div class="guest-card">
         <div class="guest-name">${r.Nome || '–'} ${yes ? '✅' : '❌'}</div>
         <div class="guest-meta">
@@ -626,6 +784,12 @@ async function loadRSVP() {
     document.getElementById('allergy').textContent = all;
     document.getElementById('tot').textContent = data.length;
     document.getElementById('rsvp-status').textContent = `Ultimo aggiornamento: ${new Date().toLocaleTimeString('it')}`;
+
+    const allergyHTML = Object.entries(allergyMap)
+      .map(([k,v]) => `<b>${k}</b> (${v.length})<br>${v.join(', ')}`)
+      .join('<br><br>');
+    document.getElementById('allergy-list').innerHTML =
+      allergyHTML || 'Nessuna allergia 👍';
   } catch(e) {
     document.getElementById('rsvp-status').textContent = '⚠️ Errore nel caricamento. Controlla il foglio Google.';
   }
