@@ -192,7 +192,7 @@ select.inp { cursor: pointer; }
 <header>
   <div class="header-sub">Wedding Dashboard</div>
   <h1>Loris &amp; Michela</h1>
-  <div class="header-date">28 AGOSTO 2026 · CA DI VOI, CALIZZANO</div>
+  <div class="header-date">29 AGOSTO 2026 · CA DI VOI, CALIZZANO</div>
 </header>
 
 <div class="countdown">
@@ -230,11 +230,17 @@ select.inp { cursor: pointer; }
           <th class="num">Stimato</th>
           <th class="num">Speso</th>
           <th>Note</th>
+           <th><td><button class="btn btn-sm btn-ghost" onclick="deleteBudgetItem(${i})">✕</button></td>
+      </th>
         </tr>
       </thead>
       <tbody id="budgetBody"></tbody>
     </table>
   </div>
+
+  <div class="card" style="margin-top:12px;">
+  <canvas id="budgetChart" height="140"></canvas>
+</div>
 
   <div style="margin-top:10px;font-size:11px;color:var(--muted);text-align:center;">
     💡 Clicca sulla colonna <b>Speso</b> per aggiornare i valori · Le note sono modificabili
@@ -325,6 +331,11 @@ select.inp { cursor: pointer; }
     <div class="stat"><div class="stat-num" id="allergy">–</div><div class="stat-label">Allergie</div></div>
     <div class="stat"><div class="stat-num" id="tot">–</div><div class="stat-label">Totale risposte</div></div>
   </div>
+
+  <div class="card">
+  <div class="section-title" style="font-size:15px;">⚠️ Allergie per catering</div>
+  <div id="allergy-list" style="font-size:12px;color:var(--muted);"></div>
+</div>
 
   <div style="display:flex;gap:8px;margin-bottom:14px;">
     <button class="btn" onclick="loadRSVP()">🔄 Aggiorna RSVP</button>
@@ -446,14 +457,24 @@ function renderBudget() {
   const body = document.getElementById('budgetBody');
   body.innerHTML = state.budget.map((r, i) => {
     const pct = r.stimato > 0 ? Math.round(r.speso / r.stimato * 100) : 0;
-    return `<tr>
-      <td class="voce">
-        ${r.voce}
+    
+    return `<tr draggable="true"
+  ondragstart="dragStart(${i})"
+  ondragover="dragOver(event)"
+  ondrop="dropRow(${i})">
+  
+    <td class="voce">
+  <input class="note-input" value="${r.voce}" 
+    onchange="updateField(${i}, 'voce', this.value)">
+    
         <div class="progress-wrap"><div class="progress-bar" style="width:${Math.min(pct,100)}%"></div></div>
       </td>
-      <td class="num" style="color:var(--muted);font-size:12px">€${r.min.toLocaleString('it')}</td>
-      <td class="num" style="color:var(--muted);font-size:12px">€${r.max.toLocaleString('it')}</td>
-      <td class="num">€${r.stimato.toLocaleString('it')}</td>
+      <td class="num" style="color:var(--muted);font-size:12px"><input class="speso-input" type="number" value="${r.min}" 
+  onchange="updateField(${i}, 'min', this.value)"></td>
+      <td class="num" style="color:var(--muted);font-size:12px"><input class="speso-input" type="number" value="${r.max}" 
+  onchange="updateField(${i}, 'max', this.value)"></td>
+      <td class="num"><input class="speso-input" type="number" value="${r.stimato}" 
+  onchange="updateField(${i}, 'stimato', this.value)"></td>
       <td class="num speso">
         <input class="speso-input" type="number" value="${r.speso}" min="0"
           onchange="updateSpeso(${i}, this.value)"
@@ -467,9 +488,63 @@ function renderBudget() {
     <td class="num"><b>€${totalSpeso.toLocaleString('it')}</b></td>
     <td style="font-size:11px;color:var(--muted)">Budget disponibile: €${DISPONIBILE.toLocaleString('it')}</td>
   </tr>`;
+
+  drawBudgetChart();
+  
 }
 function updateSpeso(i, val) { state.budget[i].speso = parseFloat(val) || 0; saveState(); renderBudget(); }
 function updateNote(i, val) { state.budget[i].note = val; saveState(); }
+
+  function updateField(i, field, val) {
+  if (['min','max','stimato','speso'].includes(field)) {
+    state.budget[i][field] = parseFloat(val) || 0;
+  } else {
+    state.budget[i][field] = val;
+  }
+  saveState();
+  renderBudget();
+}
+
+  let dragIndex = null;
+
+function dragStart(i){ dragIndex = i }
+function dragOver(e){ e.preventDefault() }
+
+function dropRow(i){
+  const item = state.budget.splice(dragIndex,1)[0];
+  state.budget.splice(i,0,item);
+  saveState();
+  renderBudget();
+}
+
+  function deleteBudgetItem(i){
+  state.budget.splice(i,1);
+  saveState();
+  renderBudget();
+}
+
+  function drawBudgetChart(){
+  const c = document.getElementById('budgetChart');
+  if(!c) return;
+  const ctx = c.getContext('2d');
+
+  const totalStimato = state.budget.reduce((a,r)=>a+r.stimato,0);
+  const totalSpeso = state.budget.reduce((a,r)=>a+r.speso,0);
+
+  ctx.clearRect(0,0,c.width,c.height);
+
+  const w = c.width * 0.4;
+  const max = Math.max(totalStimato,1);
+
+  const hs = totalStimato/max*c.height;
+  const hp = totalSpeso/max*c.height;
+
+  ctx.fillStyle='#c8a27c';
+  ctx.fillRect(40,c.height-hs,w,hs);
+
+  ctx.fillStyle='#6a9e6f';
+  ctx.fillRect(40+w+20,c.height-hp,w,hp);
+}
 
 // ===== TASKS =====
 let taskFilter = 'all';
@@ -608,6 +683,7 @@ async function loadRSVP() {
     const res = await fetch(RSVP_URL);
     const data = await res.json();
     let ok = 0, all = 0;
+    let allergyMap = {};
     const html = data.map(r => {
       const yes = /^s/i.test(r.Partecipazione || '');
       if (yes) ok++;
@@ -620,6 +696,14 @@ async function loadRSVP() {
         </div>
         ${r.Allergie && r.Allergie.toLowerCase() !== 'no' ? `<div class="guest-allergy">⚠️ ${r.Allergie}</div>` : ''}
       </div>`;
+      
+      const allergia = (r.Allergie || '').trim();
+
+if (allergia && allergia.toLowerCase() !== 'no') {
+  if (!allergyMap[allergia]) allergyMap[allergia] = [];
+  allergyMap[allergia].push(r.Nome);
+}
+      
     }).join('');
     document.getElementById('guests').innerHTML = html || '<p style="color:var(--muted);font-size:13px;">Nessuna risposta ancora.</p>';
     document.getElementById('conf').textContent = ok;
@@ -630,6 +714,12 @@ async function loadRSVP() {
     document.getElementById('rsvp-status').textContent = '⚠️ Errore nel caricamento. Controlla il foglio Google.';
   }
 }
+  const allergyHTML = Object.entries(allergyMap)
+  .map(([k,v]) => `<b>${k}</b> (${v.length})<br>${v.join(', ')}`)
+  .join('<br><br>');
+
+document.getElementById('allergy-list').innerHTML =
+  allergyHTML || 'Nessuna allergia 👍';
 
 // ===== INIT =====
 loadState();
