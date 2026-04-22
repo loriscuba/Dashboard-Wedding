@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loris & Michela · 28 Agosto 2026</title>
+<style>
+:root {
+  --cream:#faf6f1; --blush:#e8c4b8; --rose:#c17f72; --deep:#7a3d35;
+  --sage:#8a9e8c; --gold:#c9a96e; --dark:#2c1f1c; --muted:#9e8880; --card:#fffcf9;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--cream);color:var(--dark);min-height:100vh;}
+
+header{background:linear-gradient(160deg,#f0e4db,var(--cream));text-align:center;padding:32px 16px 18px;}
+.sub{color:var(--gold);font-size:11px;letter-spacing:4px;font-style:italic;margin-bottom:8px;}
+h1{font-family:Georgia,serif;font-weight:300;font-size:clamp(26px,5vw,48px);color:var(--deep);}
+h1 em{color:var(--rose);font-style:italic;}
+.location{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:8px;}
+
+.countdown{background:var(--deep);display:flex;justify-content:center;align-items:center;gap:24px;padding:16px;flex-wrap:wrap;}
+.cd-unit{text-align:center;min-width:40px;}
+.cd-num{font-family:Georgia,serif;font-size:30px;color:var(--gold);line-height:1;display:block;}
+.cd-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--blush);margin-top:3px;}
+.cd-sep{color:var(--rose);font-size:20px;}
+
+.tabs{display:flex;border-bottom:2px solid var(--blush);background:var(--card);overflow-x:auto;}
+.tab{flex:0 0 auto;padding:12px 16px;border:none;border-bottom:2px solid transparent;
+  background:transparent;color:var(--muted);font-size:12px;cursor:pointer;white-space:nowrap;
+  font-family:inherit;margin-bottom:-2px;transition:all .15s;}
+.tab.active{color:var(--rose);border-bottom-color:var(--rose);}
+
+.panel{max-width:700px;margin:0 auto;padding:22px 14px 80px;display:none;}
+.panel.active{display:block;}
+
+.card{background:var(--card);border-radius:12px;padding:12px 14px;box-shadow:0 1px 5px rgba(0,0,0,.06);margin-bottom:8px;}
+.budget-total{font-family:Georgia,serif;font-size:34px;font-weight:300;color:var(--deep);}
+.budget-total.over{color:var(--rose);}
+.budget-sub{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.bar-bg{height:7px;background:var(--blush);border-radius:99px;margin-bottom:18px;overflow:hidden;}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--rose),var(--gold));border-radius:99px;transition:width .6s;}
+.bar-fill.over{background:linear-gradient(90deg,#c17f72,#8a2222);}
+.budget-row{display:flex;justify-content:space-between;align-items:center;}
+.budget-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-right:8px;}
+.budget-name{font-size:13px;flex:1;}
+.budget-note{font-size:10px;color:var(--muted);}
+.budget-amt{font-weight:600;color:var(--deep);font-size:13px;}
+.del{background:none;border:none;color:var(--blush);cursor:pointer;font-size:13px;padding:0 2px;}
+.del:hover{color:var(--rose);}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+.stat{background:var(--card);border-radius:12px;padding:14px 8px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.06);}
+.stat-num{font-family:Georgia,serif;font-size:30px;line-height:1;}
+.stat-label{font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1px;text-transform:uppercase;}
+
+.guest-card{background:var(--card);border-radius:12px;padding:11px 14px;
+  box-shadow:0 1px 5px rgba(0,0,0,.05);margin-bottom:6px;border-left:3px solid var(--sage);}
+.guest-card.allergie{border-left-color:var(--rose);}
+.guest-head{display:flex;align-items:center;gap:10px;}
+.avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  font-size:10px;font-weight:700;flex-shrink:0;}
+.guest-name{font-size:13px;font-weight:500;}
+.guest-song{font-size:11px;color:var(--muted);margin-top:2px;}
+.guest-allergy{font-size:11px;color:var(--rose);margin-top:2px;}
+
+.allergy-box{background:#fef3f0;border-radius:12px;padding:14px 16px;
+  border:1px solid var(--blush);margin-top:18px;}
+.allergy-title{font-size:12px;font-weight:600;color:var(--rose);margin-bottom:8px;}
+.allergy-row{font-size:12px;margin-bottom:4px;}
+
+.vendor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
+.vendor-card{background:var(--card);border-radius:14px;padding:16px 10px;text-align:center;
+  cursor:pointer;border:2px solid transparent;box-shadow:0 2px 8px rgba(0,0,0,.07);
+  transition:all .2s;position:relative;}
+.vendor-card.ok{border-color:var(--sage);}
+.vendor-check{position:absolute;top:7px;right:9px;font-size:12px;color:var(--sage);font-weight:700;display:none;}
+.vendor-card.ok .vendor-check{display:block;}
+.vendor-emoji{font-size:24px;margin-bottom:6px;}
+.vendor-name{font-size:12px;font-weight:600;color:var(--dark);margin-bottom:3px;}
+.vendor-detail{font-size:10px;color:var(--muted);line-height:1.3;}
+.vendor-stats{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.vendor-stat{background:var(--card);border-radius:10px;padding:10px 16px;font-size:13px;box-shadow:0 1px 5px rgba(0,0,0,.05);}
+
+.progress-bar{margin-bottom:18px;}
+.progress-info{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px;}
+.todo-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;
+  background:var(--card);font-size:13px;box-shadow:0 1px 4px rgba(0,0,0,.05);margin-bottom:6px;}
+.todo-item.done{opacity:.5;}
+.todo-check{width:18px;height:18px;border-radius:50%;flex-shrink:0;cursor:pointer;
+  border:1.5px solid var(--blush);background:transparent;display:grid;place-items:center;
+  font-size:10px;color:transparent;transition:all .2s;}
+.todo-item.done .todo-check{background:var(--sage);border-color:var(--sage);color:white;}
+.todo-text{flex:1;}
+.todo-item.done .todo-text{text-decoration:line-through;}
+.todo-periodo{font-size:10px;color:var(--muted);margin-top:1px;}
+.todo-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.p-high{background:var(--rose);} .p-med{background:var(--gold);} .p-low{background:var(--sage);}
+
+.filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.filter-btn{background:var(--cream);border:1px solid var(--blush);border-radius:99px;
+  padding:4px 14px;font-size:12px;cursor:pointer;color:var(--muted);font-family:inherit;}
+.filter-btn.active{background:var(--deep);color:var(--cream);border-color:var(--deep);}
+
+.add-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.inp{flex:1;min-width:80px;border:1px solid var(--blush);border-radius:8px;padding:8px 11px;
+  font-family:inherit;font-size:13px;background:var(--cream);color:var(--dark);outline:none;}
+.inp:focus{border-color:var(--rose);}
+.add-btn{background:var(--deep);color:var(--cream);border:none;border-radius:8px;
+  padding:8px 18px;font-size:14px;cursor:pointer;font-family:inherit;}
+.add-btn:hover{background:var(--rose);}
+
+.search{width:100%;border:1px solid var(--blush);border-radius:8px;padding:9px 12px;
+  font-family:inherit;font-size:13px;background:var(--card);color:var(--dark);outline:none;margin-bottom:12px;}
+.search:focus{border-color:var(--rose);}
+
+.prog-bg{height:6px;background:var(--blush);border-radius:99px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:99px;transition:width .6s;}
+
+/* RSVP toolbar */
+.rsvp-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.rsvp-status{font-size:11px;color:var(--muted);font-style:italic;}
+.refresh-btn{background:var(--deep);color:var(--cream);border:none;border-radius:8px;
+  padding:7px 14px;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;}
+.refresh-btn:hover{background:var(--rose);}
+.spin{display:inline-block;transition:transform .3s;}
+.loading .spin{animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.skeleton{background:linear-gradient(90deg,var(--blush) 25%,#f5e8e2 50%,var(--blush) 75%);
+  background-size:200%;animation:shimmer 1.2s infinite;border-radius:12px;height:58px;margin-bottom:6px;}
+@keyframes shimmer{0%{background-position:200%}100%{background-position:-200%}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="sub">♡ 28 Agosto 2026 · Ca di Voi, Calizzano ♡</div>
+  <h1>Loris <em>&</em> Michela</h1>
+  <div class="location">Agriturismo Ca di Voi · Calizzano (SV)</div>
+</header>
+
+<div class="countdown">
+  <div class="cd-unit"><span class="cd-num" id="cdD">—</span><div class="cd-label">Giorni</div></div>
+  <div class="cd-sep">·</div>
+  <div class="cd-unit"><span class="cd-num" id="cdH">—</span><div class="cd-label">Ore</div></div>
+  <div class="cd-sep">·</div>
+  <div class="cd-unit"><span class="cd-num" id="cdM">—</span><div class="cd-label">Min</div></div>
+  <div class="cd-sep">·</div>
+  <div class="cd-unit"><span class="cd-num" id="cdS">—</span><div class="cd-label">Sec</div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('budget',this)">💰 Budget</button>
+  <button class="tab" onclick="showTab('ospiti',this)">👥 RSVP</button>
+  <button class="tab" onclick="showTab('fornitori',this)">🤝 Fornitori</button>
+  <button class="tab" onclick="showTab('todo',this)">✅ Checklist</button>
+</div>
+
+<!-- BUDGET -->
+<div class="panel active" id="panel-budget">
+  <div class="budget-total" id="budgetTotal"></div>
+  <div class="budget-sub" id="budgetSub"></div>
+  <div class="bar-bg"><div class="bar-fill" id="budgetBar" style="width:0%"></div></div>
+  <div id="budgetList"></div>
+  <div class="add-row">
+    <input class="inp" id="bName" placeholder="Voce di spesa" style="flex:2">
+    <input class="inp" id="bAmt" placeholder="€" type="number" style="flex:0 0 80px">
+    <button class="add-btn" onclick="addBudget()">+</button>
+  </div>
+</div>
+
+<!-- OSPITI -->
+<div class="panel" id="panel-ospiti">
+  <div class="stats">
+    <div class="stat"><div class="stat-num" style="color:var(--sage)" id="gConf">—</div><div class="stat-label">Confermati</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--gold)" id="gPend">—</div><div class="stat-label">In attesa</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--rose)" id="gAllergy">—</div><div class="stat-label">Con allergie</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px;">
+      <span id="rsvpProgLabel">— confermati</span><span>~100 invitati totali</span>
+    </div>
+    <div class="prog-bg"><div class="prog-fill" id="rsvpBar" style="width:0%;background:linear-gradient(90deg,var(--sage),var(--gold))"></div></div>
+  </div>
+  <input class="search" id="gSearch" placeholder="🔍 Cerca ospite…" oninput="renderGuests()">
+  <div class="rsvp-toolbar">
+    <span class="rsvp-status" id="rsvpStatus">Caricamento…</span>
+    <button class="refresh-btn" id="refreshBtn" onclick="loadRSVP()">
+      <span class="spin" id="spinIcon">↻</span> Aggiorna
+    </button>
+  </div>
+  <div id="guestList"></div>
+  <div id="allergyBox"></div>
+</div>
+
+<!-- FORNITORI -->
+<div class="panel" id="panel-fornitori">
+  <div class="vendor-stats">
+    <div class="vendor-stat">✅ Confermati: <strong id="vOk" style="color:var(--sage)">3</strong></div>
+    <div class="vendor-stat">⬜ Da fare: <strong id="vTodo" style="color:var(--rose)">7</strong></div>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:14px;font-style:italic;">Tocca per segnare come confermato</p>
+  <div class="vendor-grid" id="vendorGrid"></div>
+</div>
+
+<!-- TODO -->
+<div class="panel" id="panel-todo">
+  <div class="progress-bar">
+    <div class="progress-info"><span id="todoProgress"></span><span id="todoPct"></span></div>
+    <div class="prog-bg"><div class="prog-fill" id="todoBar" style="width:0%;background:linear-gradient(90deg,var(--sage),var(--gold))"></div></div>
+  </div>
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterTodo('all',this)">Tutti</button>
+    <button class="filter-btn" onclick="filterTodo('pending',this)">Da fare</button>
+    <button class="filter-btn" onclick="filterTodo('done',this)">Fatti</button>
+  </div>
+  <div id="todoList"></div>
+  <div class="add-row">
+    <input class="inp" id="tText" placeholder="Nuova attività…" style="flex:2">
+    <select class="inp" id="tP" style="flex:0 0 95px">
+      <option value="high">🔴 Alta</option>
+      <option value="med" selected>🟡 Media</option>
+      <option value="low">🟢 Bassa</option>
+    </select>
+    <button class="add-btn" onclick="addTodo()">+</button>
+  </div>
+</div>
+
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmDhnfqSq_pSdJEIyx6sxCKL22kww6TZTfvZQMt-_B3jzcpvfsZ5nk2g7Iaqni7yo/exec";
+const BUDGET_CAP = 9250;
+const ACC = ["#c17f72","#c9a96e","#8a9e8c","#9b7ebd","#7da3c7","#d4956a","#82b09b","#c4869a"];
+
+let guests = [];
+let todoFilter = 'all';
+
+let budget = [
+  {id:1,name:"Agriturismo – Pranzo adulti",amount:5200,note:"80 adulti × €60"},
+  {id:2,name:"Agriturismo – Pranzo bambini",amount:400,note:"20 bambini × €20"},
+  {id:3,name:"Agriturismo – Gazebo",amount:1800,note:"Affitto fisso"},
+  {id:4,name:"Comune di Quiliano",amount:250,note:"Villa Maria"},
+  {id:5,name:"Aperitivo (Fabio)",amount:500,note:"Sentire per fattibilità"},
+  {id:6,name:"Fotografo",amount:1350,note:"Alessia Mangani ✅"},
+  {id:7,name:"Service audio",amount:650,note:"Noleggio + setup"},
+  {id:8,name:"Fiori e decorazioni",amount:900,note:"Bouquet, centrotavola, arco"},
+  {id:9,name:"Abito sposa + look sposo",amount:1000,note:""},
+  {id:10,name:"Trucco e acconciatura",amount:100,note:"Prova inclusa"},
+  {id:11,name:"Torta nuziale",amount:350,note:"Chiedere a Ivano"},
+  {id:12,name:"Partecipazioni + bomboniere",amount:350,note:""},
+  {id:13,name:"Imprevisti",amount:300,note:"Fondo di riserva"},
+];
+
+let vendors = [
+  {id:1,e:"🏰",name:"Agriturismo Ca di Voi",detail:"Calizzano – Pranzo + gazebo",ok:true},
+  {id:2,e:"📸",name:"Fotografo",detail:"Alessia Mangani, Savona",ok:true},
+  {id:3,e:"👗",name:"Abito sposa",detail:"✅ Fatto",ok:true},
+  {id:4,e:"🎵",name:"Service audio",detail:"Sollecitare Dave",ok:false},
+  {id:5,e:"🏛️",name:"Sala Comunale",detail:"Quiliano – da confermare",ok:false},
+  {id:6,e:"💐",name:"Fiorista",detail:"Rebella, Savona",ok:false},
+  {id:7,e:"🎂",name:"Torta nuziale",detail:"Chiedere a Ivano",ok:false},
+  {id:8,e:"🤵",name:"Look sposo",detail:"Ego? Serravalle?",ok:false},
+  {id:9,e:"✉️",name:"Partecipazioni",detail:"Sito da fare",ok:false},
+  {id:10,e:"🎁",name:"Bomboniere",detail:"3 disegni da confermare",ok:false},
+];
+
+let todos = [
+  {id:1,text:"Definire budget e distribuzione voci",done:true,p:"high",periodo:"Feb–Mar 2026"},
+  {id:2,text:"Prenotare il fotografo (Alessia Mangani)",done:true,p:"high",periodo:"Feb–Mar 2026"},
+  {id:3,text:"Abito da sposa",done:true,p:"med",periodo:"Aprile 2026"},
+  {id:4,text:"Noleggiare service audio (sollecitare Dave)",done:false,p:"high",periodo:"Feb–Mar 2026"},
+  {id:5,text:"Conferma Sala Comunale Quiliano",done:false,p:"high",periodo:"Feb–Mar 2026"},
+  {id:6,text:"Inviare Save the Date (WhatsApp)",done:false,p:"high",periodo:"Feb–Mar 2026"},
+  {id:7,text:"Look sposo (Ego? Serravalle?)",done:false,p:"med",periodo:"Aprile 2026"},
+  {id:8,text:"Contattare fiorista Rebella",done:false,p:"med",periodo:"Aprile 2026"},
+  {id:9,text:"Partecipazioni e grafica / sito",done:false,p:"med",periodo:"Aprile 2026"},
+  {id:10,text:"Lista nozze o viaggio di nozze",done:false,p:"med",periodo:"Aprile 2026"},
+  {id:11,text:"Conferma bomboniere (3 disegni)",done:false,p:"med",periodo:"Aprile 2026"},
+  {id:12,text:"Team allestimento (Mirko, Vitto, Dave)",done:false,p:"med",periodo:"Aprile 2026"},
+  {id:13,text:"Conferma definitiva numero ospiti",done:false,p:"med",periodo:"Maggio 2026"},
+  {id:14,text:"Menu definitivo con Ca di Voi",done:false,p:"med",periodo:"Maggio 2026"},
+  {id:15,text:"Organizzare trasporti per gli ospiti",done:false,p:"low",periodo:"Maggio 2026"},
+  {id:16,text:"Pernottamento ospiti",done:false,p:"low",periodo:"Giugno 2026"},
+  {id:17,text:"Ordinare torta nuziale (Ivo)",done:false,p:"low",periodo:"Giugno 2026"},
+  {id:18,text:"Preparare bomboniere",done:false,p:"low",periodo:"Giugno 2026"},
+  {id:19,text:"Conferma finale con tutti i fornitori",done:false,p:"high",periodo:"Luglio-Ago 2026"},
+  {id:20,text:"Logistica il giorno prima",done:false,p:"high",periodo:"Luglio-Ago 2026"},
+];
+
+// ── TABS ──────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── COUNTDOWN ─────────────────────────────────────────────
+function tick() {
+  const diff = new Date('2026-08-28T12:00:00').getTime() - Date.now();
+  if (diff <= 0) return;
+  document.getElementById('cdD').textContent = Math.floor(diff/86400000);
+  document.getElementById('cdH').textContent = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
+  document.getElementById('cdM').textContent = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+  document.getElementById('cdS').textContent = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+}
+tick(); setInterval(tick, 1000);
+
+// ── RSVP ─────────────────────────────────────────────────
+async function loadRSVP() {
+  const btn = document.getElementById('refreshBtn');
+  const status = document.getElementById('rsvpStatus');
+  const spin = document.getElementById('spinIcon');
+  btn.classList.add('loading');
+  status.textContent = 'Aggiornamento…';
+  document.getElementById('guestList').innerHTML = Array(3).fill('<div class="skeleton"></div>').join('');
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const raw = await res.json();
+
+    guests = raw
+      .map((row, i) => {
+        // Legge le colonne per nome (indice o chiave)
+        const keys = Object.keys(row);
+        const nome = row['Nome'] || row[keys[1]] || '';
+        const partecipa = row['Partecipazione'] || row[keys[2]] || '';
+        const allergie = row['Allergie'] || row[keys[3]] || '—';
+        const canzone = row['Canzone'] || row[keys[4]] || '—';
+        return { id: i+1, name: String(nome).trim(), partecipa: String(partecipa).trim(), allergie: String(allergie).trim(), canzone: String(canzone).trim() };
+      })
+      .filter(g => g.name && /^s/i.test(g.partecipa)); // solo chi ha risposto "Sì"
+
+    const ora = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+    status.textContent = `Aggiornato alle ${ora}`;
+    renderGuests();
+  } catch(e) {
+    status.textContent = '⚠️ Errore – riprova';
+    document.getElementById('guestList').innerHTML =
+      `<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px;">
+        Impossibile caricare i dati.<br>Controlla la connessione e riprova.
+       </div>`;
+    console.error(e);
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
+
+function hasAllergia(g) {
+  const a = (g.allergie||'').toLowerCase().trim();
+  return a && !['nessuna','no','—','-',''].includes(a);
+}
+
+function renderGuests() {
+  const q = (document.getElementById('gSearch').value||'').toLowerCase();
+  const filtered = guests.filter(g => g.name.toLowerCase().includes(q));
+  const allergici = guests.filter(hasAllergia);
+
+  document.getElementById('gConf').textContent = guests.length;
+  document.getElementById('gPend').textContent = Math.max(0, 100 - guests.length);
+  document.getElementById('gAllergy').textContent = allergici.length;
+  document.getElementById('rsvpProgLabel').textContent = guests.length + ' confermati';
+  document.getElementById('rsvpBar').style.width = Math.min(100, guests.length) + '%';
+
+  document.getElementById('guestList').innerHTML = filtered.length === 0
+    ? `<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px;">Nessun ospite trovato</div>`
+    : filtered.map((g,i) => {
+        const ini = g.name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+        const col = ACC[i%ACC.length];
+        const all = hasAllergia(g);
+        return `<div class="guest-card ${all?'allergie':''}">
+          <div class="guest-head">
+            <div class="avatar" style="background:${col}22;border:2px solid ${col};color:${col}">${ini}</div>
+            <div style="flex:1">
+              <div class="guest-name">${g.name}</div>
+              <div class="guest-song">🎵 ${g.canzone}</div>
+              ${all?`<div class="guest-allergy">⚠️ ${g.allergie}</div>`:''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+  document.getElementById('allergyBox').innerHTML = allergici.length
+    ? `<div class="allergy-box">
+        <div class="allergy-title">⚠️ Allergie da comunicare al catering (${allergici.length})</div>
+        ${allergici.map(g=>`<div class="allergy-row"><strong>${g.name}</strong>: ${g.allergie}</div>`).join('')}
+       </div>` : '';
+}
+
+// ── BUDGET ────────────────────────────────────────────────
+function renderBudget() {
+  const total = budget.reduce((a,i)=>a+i.amount,0);
+  const pct = Math.min(100,total/BUDGET_CAP*100);
+  const over = total > BUDGET_CAP;
+  document.getElementById('budgetTotal').textContent = '€ '+total.toLocaleString('it-IT');
+  document.getElementById('budgetTotal').className = 'budget-total'+(over?' over':'');
+  document.getElementById('budgetSub').innerHTML = `su € ${BUDGET_CAP.toLocaleString('it-IT')} disponibili · `
+    +(over?`<span style="color:var(--rose)">⚠️ Sforamento € ${(total-BUDGET_CAP).toLocaleString('it-IT')}</span>`
+          :`<span style="color:var(--sage)">✓ Entro budget</span>`);
+  const bar = document.getElementById('budgetBar');
+  bar.style.width = pct+'%';
+  bar.className = 'bar-fill'+(over?' over':'');
+  document.getElementById('budgetList').innerHTML = budget.map((item,i)=>`
+    <div class="card budget-row">
+      <div style="display:flex;align-items:center;gap:8px;flex:1">
+        <div class="budget-dot" style="background:${ACC[i%ACC.length]}"></div>
+        <div><div class="budget-name">${item.name}</div>${item.note?`<div class="budget-note">${item.note}</div>`:''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="budget-amt">€ ${item.amount.toLocaleString('it-IT')}</span>
+        <button class="del" onclick="delBudget(${item.id})">✕</button>
+      </div>
+    </div>`).join('');
+}
+function addBudget(){const n=document.getElementById('bName').value.trim(),a=parseFloat(document.getElementById('bAmt').value);if(!n||isNaN(a)||a<=0)return;budget.push({id:Date.now(),name:n,amount:a,note:''});document.getElementById('bName').value='';document.getElementById('bAmt').value='';renderBudget();}
+function delBudget(id){budget=budget.filter(i=>i.id!==id);renderBudget();}
+
+// ── VENDORS ───────────────────────────────────────────────
+function renderVendors(){
+  const ok=vendors.filter(v=>v.ok).length;
+  document.getElementById('vOk').textContent=ok;
+  document.getElementById('vTodo').textContent=vendors.length-ok;
+  document.getElementById('vendorGrid').innerHTML=vendors.map(v=>`
+    <div class="vendor-card ${v.ok?'ok':''}" onclick="toggleVendor(${v.id})">
+      <span class="vendor-check">✓</span>
+      <div class="vendor-emoji">${v.e}</div>
+      <div class="vendor-name">${v.name}</div>
+      <div class="vendor-detail">${v.detail}</div>
+    </div>`).join('');
+}
+function toggleVendor(id){vendors=vendors.map(v=>v.id===id?{...v,ok:!v.ok}:v);renderVendors();}
+
+// ── TODOS ─────────────────────────────────────────────────
+function renderTodos(){
+  const done=todos.filter(t=>t.done).length;
+  const pct=Math.round(done/todos.length*100);
+  document.getElementById('todoProgress').textContent=`${done} completati su ${todos.length}`;
+  document.getElementById('todoPct').textContent=pct+'%';
+  document.getElementById('todoBar').style.width=pct+'%';
+  const f=todos.filter(t=>todoFilter==='all'?true:todoFilter==='done'?t.done:!t.done);
+  document.getElementById('todoList').innerHTML=f.map(t=>`
+    <div class="todo-item ${t.done?'done':''}">
+      <div class="todo-check" onclick="toggleTodo(${t.id})">${t.done?'✓':''}</div>
+      <div class="todo-text"><div>${t.text}</div><div class="todo-periodo">${t.periodo}</div></div>
+      <div class="todo-dot p-${t.p}"></div>
+      <button class="del" onclick="delTodo(${t.id})">✕</button>
+    </div>`).join('');
+}
+function toggleTodo(id){todos=todos.map(t=>t.id===id?{...t,done:!t.done}:t);renderTodos();}
+function delTodo(id){todos=todos.filter(t=>t.id!==id);renderTodos();}
+function addTodo(){const text=document.getElementById('tText').value.trim(),p=document.getElementById('tP').value;if(!text)return;todos.push({id:Date.now(),text,done:false,p,periodo:'Aggiunto manualmente'});document.getElementById('tText').value='';renderTodos();}
+function filterTodo(f,btn){todoFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTodos();}
+
+// ── INIT ──────────────────────────────────────────────────
+renderBudget();
+renderVendors();
+renderTodos();
+loadRSVP(); // carica RSVP dal Drive all'apertura
+</script>
+</body>
+</html>
