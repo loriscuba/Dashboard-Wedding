@@ -810,7 +810,7 @@ function tab(id, el) {
 
 // ===== BUDGET =====
 function renderBudget() {
-  const disponibile = (state.budgetDisponibile || 10000) - (state.budgetContributo || 0);
+  const disponibile = (state.budgetDisponibile || 10000) + (state.budgetContributo || 0);
   const totalStimato = state.budget.reduce((a, r) => a + r.stimato, 0);
   const totalSpeso = state.budget.reduce((a, r) => a + r.speso, 0);
   const margine = disponibile - totalStimato;
