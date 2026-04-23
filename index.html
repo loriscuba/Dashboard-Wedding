@@ -22,7 +22,6 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Jost', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-/* HEADER */
 header {
   text-align: center;
   padding: 50px 20px 20px;
@@ -32,7 +31,6 @@ header {
 h1 { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300; margin: 8px 0 4px; letter-spacing: 2px; }
 .header-date { font-size: 11px; letter-spacing: 4px; color: var(--muted); }
 
-/* COUNTDOWN */
 .countdown {
   display: flex; justify-content: center; gap: 6px;
   padding: 18px 20px; background: var(--white);
@@ -43,7 +41,6 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300
 .cd-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); margin-top: 3px; text-transform: uppercase; }
 .cd-sep { font-family: 'Cormorant Garamond', serif; font-size: 28px; color: var(--soft); align-self: center; padding-bottom: 12px; }
 
-/* TABS */
 .tabs {
   display: flex; justify-content: center; gap: 0;
   background: var(--white); border-bottom: 1px solid var(--soft);
@@ -60,21 +57,17 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300
 .tab:hover { color: var(--accent); }
 .tab.active { color: var(--accent2); border-bottom-color: var(--accent); font-weight: 400; }
 
-/* PANELS */
 .panel { max-width: 720px; margin: 0 auto; padding: 24px 16px; display: none; }
 .panel.active { display: block; }
 
-/* SECTION TITLE */
 .section-title {
   font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300;
   color: var(--accent2); margin-bottom: 16px; padding-bottom: 8px;
   border-bottom: 1px solid var(--soft); display: flex; justify-content: space-between; align-items: center;
 }
 
-/* CARDS */
 .card { background: var(--white); border-radius: 12px; padding: 16px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
 
-/* BUDGET */
 .budget-summary {
   display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px;
 }
@@ -101,7 +94,6 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300
 .note-input { border: none; background: transparent; width: 100%; font-size: 11px; font-family: 'Jost', sans-serif; color: var(--muted); border-bottom: 1px dashed transparent; outline: none; }
 .note-input:focus { border-bottom-color: var(--accent); }
 
-/* RSVP */
 .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
 .stat { background: var(--white); padding: 14px 10px; text-align: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
 .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; color: var(--accent2); }
@@ -113,7 +105,6 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300
 .guest-meta span { margin-right: 12px; }
 .guest-allergy { color: var(--orange); font-size: 11px; margin-top: 3px; }
 
-/* TIMELINE */
 .timeline-filter { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
 .filter-btn { border: 1px solid var(--soft); background: var(--white); padding: 5px 12px; border-radius: 20px; font-size: 11px; cursor: pointer; font-family: 'Jost'; color: var(--muted); transition: all .2s; }
 .filter-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
@@ -149,8 +140,8 @@ select.inp { cursor: pointer; }
 .btn-sm { padding: 5px 10px; font-size: 11px; }
 .btn-ghost { background: transparent; border: 1px solid var(--soft); color: var(--muted); }
 .btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: transparent; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* FORNITORI */
 .supplier-card { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.04); display: flex; gap: 14px; align-items: flex-start; }
 .supplier-icon { width: 38px; height: 38px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 18px; min-width: 38px; }
 .supplier-body { flex: 1; }
@@ -164,19 +155,31 @@ select.inp { cursor: pointer; }
 
 .add-supplier-form { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
 
-/* MODAL */
-.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
-.modal-bg.open { display: flex; }
-.modal { background: var(--white); border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; box-shadow: 0 12px 40px rgba(0,0,0,.15); }
-.modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; margin-bottom: 16px; color: var(--accent2); }
-.modal .form-row { margin-bottom: 10px; }
-.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+/* SYNC STATUS BAR */
+.sync-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; margin-bottom: 14px;
+  background: var(--white); border-radius: 10px;
+  font-size: 11px; color: var(--muted);
+  box-shadow: 0 2px 6px rgba(0,0,0,.04);
+}
+.sync-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--muted); flex-shrink: 0;
+  transition: background .3s;
+}
+.sync-dot.syncing { background: var(--yellow); animation: pulse 1s infinite; }
+.sync-dot.ok { background: var(--green); }
+.sync-dot.error { background: var(--red); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.sync-text { flex: 1; }
+.sync-btn { background: none; border: 1px solid var(--soft); color: var(--muted); padding: 3px 10px; border-radius: 6px; cursor: pointer; font-size: 10px; font-family:'Jost'; }
+.sync-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-/* SAVE INDICATOR */
 .save-badge { display: none; position: fixed; bottom: 20px; right: 20px; background: var(--green); color: white; padding: 8px 14px; border-radius: 20px; font-size: 11px; letter-spacing: 1px; z-index: 300; opacity: 0; transition: opacity .3s; }
 .save-badge.show { display: block; opacity: 1; }
+.save-badge.error { background: var(--red); }
 
-/* PROGRESS RING */
 .progress-ring { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--white); border-radius: 12px; margin-bottom: 14px; }
 .ring-wrap { position: relative; width: 50px; height: 50px; }
 .ring-circle { fill: none; stroke: var(--soft); stroke-width: 4; }
@@ -185,9 +188,29 @@ select.inp { cursor: pointer; }
 .ring-label { font-size: 12px; color: var(--muted); }
 .ring-label b { font-size: 18px; font-family: 'Cormorant Garamond', serif; font-weight: 400; color: var(--text); display: block; }
 
+/* Loading overlay */
+.loading-overlay {
+  position: fixed; inset: 0; background: rgba(247,243,239,.85);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 999; gap: 12px;
+}
+.loading-overlay.hidden { display: none; }
+.loading-spinner {
+  width: 36px; height: 36px; border: 3px solid var(--soft);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--accent2); letter-spacing: 2px; }
 </style>
 </head>
 <body>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Caricamento dati…</div>
+</div>
 
 <header>
   <div class="header-sub">Wedding Dashboard</div>
@@ -214,10 +237,17 @@ select.inp { cursor: pointer; }
 
 <!-- ========== BUDGET ========== -->
 <div id="budget" class="panel active">
+  <div class="sync-bar" id="syncBarBudget">
+    <div class="sync-dot" id="dotBudget"></div>
+    <div class="sync-text" id="syncTextBudget">Pronto</div>
+    <button class="sync-btn" onclick="forceSave('Budget')">💾 Salva ora</button>
+    <button class="sync-btn" onclick="loadFromSheets()">🔄 Ricarica</button>
+  </div>
+
   <div class="budget-summary">
-    <div class="bstat"><div class="bstat-num" id="bs-stimato">€13.150</div><div class="bstat-label">Stimato</div></div>
+    <div class="bstat"><div class="bstat-num" id="bs-stimato">€0</div><div class="bstat-label">Stimato</div></div>
     <div class="bstat"><div class="bstat-num" id="bs-speso">€0</div><div class="bstat-label">Speso</div></div>
-    <div class="bstat neg"><div class="bstat-num" id="bs-margine">−€3.900</div><div class="bstat-label">vs Disponibile</div></div>
+    <div class="bstat neg"><div class="bstat-num" id="bs-margine">–</div><div class="bstat-label">vs Disponibile</div></div>
   </div>
 
   <div class="card" style="margin-bottom:12px;">
@@ -235,7 +265,7 @@ select.inp { cursor: pointer; }
       </div>
       <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;">
         <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Netto disponibile</div>
-        <div id="bs-netto" style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--accent2);padding:8px 10px;">€9.250</div>
+        <div id="bs-netto" style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--accent2);padding:8px 10px;">€0</div>
       </div>
     </div>
   </div>
@@ -282,6 +312,12 @@ select.inp { cursor: pointer; }
 
 <!-- ========== TIMELINE ========== -->
 <div id="timeline" class="panel">
+  <div class="sync-bar" id="syncBarTimeline">
+    <div class="sync-dot" id="dotTimeline"></div>
+    <div class="sync-text" id="syncTextTimeline">Pronto</div>
+    <button class="sync-btn" onclick="forceSave('Timeline')">💾 Salva ora</button>
+  </div>
+
   <div class="progress-ring">
     <div class="ring-wrap">
       <svg width="50" height="50">
@@ -331,6 +367,11 @@ select.inp { cursor: pointer; }
 
 <!-- ========== FORNITORI ========== -->
 <div id="fornitori" class="panel">
+  <div class="sync-bar" id="syncBarFornitori">
+    <div class="sync-dot" id="dotFornitori"></div>
+    <div class="sync-text" id="syncTextFornitori">Pronto</div>
+    <button class="sync-btn" onclick="forceSave('Fornitori')">💾 Salva ora</button>
+  </div>
 
   <div class="add-supplier-form card">
     <div class="section-title" style="font-size:15px;margin-bottom:12px;">+ Nuovo Fornitore</div>
@@ -364,27 +405,28 @@ select.inp { cursor: pointer; }
     <div class="stat"><div class="stat-num" id="allergy">–</div><div class="stat-label">Allergie</div></div>
     <div class="stat"><div class="stat-num" id="tot">–</div><div class="stat-label">Totale risposte</div></div>
   </div>
-
   <div style="display:flex;gap:8px;margin-bottom:14px;">
     <button class="btn" onclick="loadRSVP()">🔄 Aggiorna RSVP</button>
   </div>
-
   <div id="rsvp-status" style="font-size:12px;color:var(--muted);margin-bottom:10px;"></div>
-
   <div class="card" style="margin-bottom:14px;">
     <div class="section-title" style="font-size:15px;">⚠️ Allergie per catering</div>
     <div id="allergy-list" style="font-size:12px;color:var(--muted);"></div>
   </div>
-
   <div id="guests"></div>
 </div>
 
-<!-- SAVE BADGE -->
 <div class="save-badge" id="saveBadge">✓ SALVATO</div>
 
 <script>
-// ===== STATE =====
-let state = {
+// ===== CONFIG =====
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOGeynHpeljlUgWaLGz5fb-b17bHXcs2hVdKzZfoh5X6kOF2KX8YY50rkr_gkw9ka2/exec';
+const SHEET_ID = '1AwvtL8bCBUSzjCDpnlJKEBc3pigsauAw7B5_8JDRlRY';
+const READ_BASE = `https://opensheet.elk.sh/${SHEET_ID}`;
+const RSVP_URL = `https://opensheet.elk.sh/1NgE7A6qhfGfxz5Wu9llxuKYlEUagRL8O5vFxn39fLnE/RSVP`;
+
+// ===== DEFAULT STATE (fallback se sheets vuoti) =====
+const DEFAULT_STATE = {
   budget: [
     { voce: 'Agriturismo – Pranzo adulti', min: 4800, max: 5600, stimato: 5200, speso: 0, note: '80 adulti × €60' },
     { voce: 'Agriturismo – Pranzo bambini', min: 400, max: 400, stimato: 400, speso: 0, note: '20 bambini × €20' },
@@ -402,7 +444,6 @@ let state = {
   ],
   budgetDisponibile: 10000,
   budgetContributo: 750,
-
   tasks: [
     { id: 1, title: 'Definire budget e distribuzione voci', period: 'Feb–Mar 2026', priority: '🔴 Alta', done: true, note: '' },
     { id: 2, title: 'Prenotare il fotografo', period: 'Feb–Mar 2026', priority: '🔴 Alta', done: true, note: 'Alessia Mangani, fare aperitivo dopo Pasqua' },
@@ -426,7 +467,7 @@ let state = {
     { id: 20, title: 'Consegne e logistica il giorno prima', period: 'Luglio-Ago 2026', priority: '🔴 Alta', done: false, note: '' },
     { id: 21, title: '🎉 MATRIMONIO!', period: '29 Ago 2026', priority: '⭐ Speciale', done: false, note: 'Godersi ogni momento!' },
   ],
-
+  nextTaskId: 22,
   suppliers: [
     { id: 1, cat: 'Location', icon: '🏡', name: 'Agriturismo Ca di Voi', zona: 'Calizzano', contact: '', price: 7400, status: '✅ Confermato', note: 'Pranzo + gazebo' },
     { id: 2, cat: 'Fotografo', icon: '📸', name: 'Alessia Mangani', zona: 'Savona', contact: '', price: null, status: '⬜ Da contattare', note: '' },
@@ -435,24 +476,178 @@ let state = {
     { id: 5, cat: 'Bomboniere', icon: '🎁', name: 'Arbanella', zona: 'Celle Ligure', contact: '', price: null, status: '⬜ Da contattare', note: '' },
   ],
   nextSupplierId: 6,
-  nextTaskId: 22,
 };
 
-// ===== PERSIST =====
-function saveState() {
-  try { localStorage.setItem('wedding_state', JSON.stringify(state)); } catch(e){}
-  showSaveBadge();
+let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+
+// ===== SYNC STATUS =====
+function setSyncStatus(section, status, msg) {
+  const key = section.toLowerCase() === 'budget' ? 'Budget' :
+               section.toLowerCase() === 'timeline' ? 'Timeline' : 'Fornitori';
+  const dotId = 'dot' + key;
+  const textId = 'syncText' + key;
+  const dot = document.getElementById(dotId);
+  const text = document.getElementById(textId);
+  if (!dot || !text) return;
+  dot.className = 'sync-dot ' + status;
+  text.textContent = msg;
 }
-function loadState() {
+
+// ===== SAVE TO SHEETS =====
+let saveTimers = {};
+
+function scheduleSave(section) {
+  clearTimeout(saveTimers[section]);
+  saveTimers[section] = setTimeout(() => saveToSheet(section), 1500);
+  setSyncStatus(section, 'syncing', 'Modifiche in coda…');
+}
+
+async function saveToSheet(section) {
+  setSyncStatus(section, 'syncing', 'Salvataggio…');
+  let rows = [];
+
+  if (section === 'Budget') {
+    // First row: budget meta (disponibile, contributo)
+    rows.push(['__meta__', state.budgetDisponibile || 0, state.budgetContributo || 0, '', '', '']);
+    state.budget.forEach(r => {
+      rows.push([r.voce, r.min, r.max, r.stimato, r.speso, r.note]);
+    });
+  } else if (section === 'Timeline') {
+    state.tasks.forEach(t => {
+      rows.push([t.id, t.title, t.period, t.priority, t.done ? '1' : '0', t.note || '']);
+    });
+    rows.push(['__nextId__', state.nextTaskId, '', '', '', '']);
+  } else if (section === 'Fornitori') {
+    state.suppliers.forEach(s => {
+      rows.push([s.id, s.cat, s.name, s.zona || '', s.contact || '', s.price || '', s.status, s.note || '']);
+    });
+    rows.push(['__nextId__', state.nextSupplierId, '', '', '', '', '', '']);
+  }
+
   try {
-    const s = localStorage.getItem('wedding_state');
-    if (s) state = JSON.parse(s);
-  } catch(e){}
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ sheet: section, rows }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      setSyncStatus(section, 'ok', 'Salvato · ' + new Date().toLocaleTimeString('it'));
+      showSaveBadge(false);
+    } else {
+      throw new Error(data.error || 'Errore sconosciuto');
+    }
+  } catch (e) {
+    setSyncStatus(section, 'error', '⚠️ Errore salvataggio');
+    showSaveBadge(true);
+    console.error('Save error:', e);
+  }
 }
-function showSaveBadge() {
+
+async function forceSave(section) {
+  clearTimeout(saveTimers[section]);
+  await saveToSheet(section);
+}
+
+// ===== LOAD FROM SHEETS =====
+async function loadFromSheets() {
+  document.getElementById('loadingOverlay').classList.remove('hidden');
+  let loaded = { budget: false, timeline: false, fornitori: false };
+
+  // Load Budget
+  try {
+    const res = await fetch(`${READ_BASE}/Budget`);
+    const rows = await res.json();
+    if (rows && rows.length > 0) {
+      const meta = rows.find(r => r.voce === '__meta__');
+      if (meta) {
+        state.budgetDisponibile = parseFloat(meta.min) || 10000;
+        state.budgetContributo = parseFloat(meta.max) || 0;
+      }
+      state.budget = rows
+        .filter(r => r.voce && r.voce !== '__meta__')
+        .map(r => ({
+          voce: r.voce || '',
+          min: parseFloat(r.min) || 0,
+          max: parseFloat(r.max) || 0,
+          stimato: parseFloat(r.stimato) || 0,
+          speso: parseFloat(r.speso) || 0,
+          note: r.note || '',
+        }));
+      loaded.budget = true;
+      setSyncStatus('Budget', 'ok', 'Caricato da Sheets');
+    }
+  } catch(e) {
+    console.warn('Budget load failed, using defaults', e);
+    setSyncStatus('Budget', 'error', 'Dati locali (Sheets non raggiungibile)');
+  }
+
+  // Load Timeline
+  try {
+    const res = await fetch(`${READ_BASE}/Timeline`);
+    const rows = await res.json();
+    if (rows && rows.length > 0) {
+      const nextIdRow = rows.find(r => r.id === '__nextId__');
+      if (nextIdRow) state.nextTaskId = parseInt(nextIdRow.title) || 22;
+      state.tasks = rows
+        .filter(r => r.id && r.id !== '__nextId__')
+        .map(r => ({
+          id: parseInt(r.id),
+          title: r.title || '',
+          period: r.period || '',
+          priority: r.priority || '🟠 Media',
+          done: r.done === '1' || r.done === 'true' || r.done === true,
+          note: r.note || '',
+        }));
+      loaded.timeline = true;
+      setSyncStatus('Timeline', 'ok', 'Caricato da Sheets');
+    }
+  } catch(e) {
+    console.warn('Timeline load failed, using defaults', e);
+    setSyncStatus('Timeline', 'error', 'Dati locali (Sheets non raggiungibile)');
+  }
+
+  // Load Fornitori
+  try {
+    const res = await fetch(`${READ_BASE}/Fornitori`);
+    const rows = await res.json();
+    if (rows && rows.length > 0) {
+      const nextIdRow = rows.find(r => r.id === '__nextId__');
+      if (nextIdRow) state.nextSupplierId = parseInt(nextIdRow.cat) || 6;
+      const ICONS = { 'Location':'🏡','Fotografo':'📸','Service audio':'🎵','Fiorista':'🌸','Bomboniere':'🎁','Catering':'🍽️','Musica':'🎶','Trasporti':'🚌','default':'🏢' };
+      state.suppliers = rows
+        .filter(r => r.id && r.id !== '__nextId__')
+        .map(r => ({
+          id: parseInt(r.id),
+          cat: r.cat || '',
+          icon: ICONS[r.cat] || ICONS['default'],
+          name: r.name || '',
+          zona: r.zona || '',
+          contact: r.contact || '',
+          price: r.price ? parseFloat(r.price) : null,
+          status: r.status || '⬜ Da contattare',
+          note: r.note || '',
+        }));
+      loaded.fornitori = true;
+      setSyncStatus('Fornitori', 'ok', 'Caricato da Sheets');
+    }
+  } catch(e) {
+    console.warn('Fornitori load failed, using defaults', e);
+    setSyncStatus('Fornitori', 'error', 'Dati locali (Sheets non raggiungibile)');
+  }
+
+  renderBudget();
+  renderTasks();
+  renderSuppliers();
+  document.getElementById('loadingOverlay').classList.add('hidden');
+}
+
+// ===== BADGE =====
+function showSaveBadge(isError) {
   const b = document.getElementById('saveBadge');
+  b.textContent = isError ? '⚠️ ERRORE SALVATAGGIO' : '✓ SALVATO';
+  b.className = 'save-badge' + (isError ? ' error' : '');
   b.classList.add('show');
-  setTimeout(() => b.classList.remove('show'), 1800);
+  setTimeout(() => b.classList.remove('show'), 2000);
 }
 
 // ===== COUNTDOWN =====
@@ -481,7 +676,6 @@ function renderBudget() {
   const totalSpeso = state.budget.reduce((a, r) => a + r.speso, 0);
   const margine = disponibile - totalStimato;
 
-  // Keep inputs in sync without losing focus
   const inpDisp = document.getElementById('input-disponibile');
   const inpContr = document.getElementById('input-contributo');
   if (inpDisp && document.activeElement !== inpDisp) inpDisp.value = state.budgetDisponibile || 10000;
@@ -499,24 +693,24 @@ function renderBudget() {
   body.innerHTML = state.budget.map((r, i) => {
     const pct = r.stimato > 0 ? Math.round(r.speso / r.stimato * 100) : 0;
     return `<tr draggable="true"
-  ondragstart="dragStart(${i})"
-  ondragover="dragOver(event)"
-  ondrop="dropRow(${i})">
+      ondragstart="dragStart(${i})"
+      ondragover="dragOver(event)"
+      ondrop="dropRow(${i})">
       <td class="voce">
-        <input class="note-input" value="${r.voce}" 
+        <input class="note-input" value="${escHtml(r.voce)}"
           onchange="updateField(${i}, 'voce', this.value)">
         <div class="progress-wrap"><div class="progress-bar" style="width:${Math.min(pct,100)}%"></div></div>
       </td>
       <td class="num" style="color:var(--muted);font-size:12px">
-        <input class="speso-input" type="number" value="${r.min}" 
+        <input class="speso-input" type="number" value="${r.min}"
           onchange="updateField(${i}, 'min', this.value)">
       </td>
       <td class="num" style="color:var(--muted);font-size:12px">
-        <input class="speso-input" type="number" value="${r.max}" 
+        <input class="speso-input" type="number" value="${r.max}"
           onchange="updateField(${i}, 'max', this.value)">
       </td>
       <td class="num">
-        <input class="speso-input" type="number" value="${r.stimato}" 
+        <input class="speso-input" type="number" value="${r.stimato}"
           onchange="updateField(${i}, 'stimato', this.value)">
       </td>
       <td class="num speso">
@@ -524,7 +718,7 @@ function renderBudget() {
           onchange="updateField(${i}, 'speso', this.value)"
           onclick="this.select()">
       </td>
-      <td><input class="note-input" value="${r.note}" onchange="updateField(${i}, 'note', this.value)" placeholder="–"></td>
+      <td><input class="note-input" value="${escHtml(r.note)}" onchange="updateField(${i}, 'note', this.value)" placeholder="–"></td>
       <td>
         <button class="btn btn-sm btn-ghost" onclick="deleteBudgetItem(${i})">✕</button>
       </td>
@@ -539,14 +733,18 @@ function renderBudget() {
   drawBudgetChart();
 }
 
+function escHtml(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
 function updateField(i, field, val) {
   if (['min','max','stimato','speso'].includes(field)) {
     state.budget[i][field] = parseFloat(val) || 0;
   } else {
     state.budget[i][field] = val;
   }
-  saveState();
   renderBudget();
+  scheduleSave('Budget');
 }
 
 let dragIndex = null;
@@ -555,20 +753,20 @@ function dragOver(e){ e.preventDefault(); }
 function dropRow(i){
   const item = state.budget.splice(dragIndex,1)[0];
   state.budget.splice(i,0,item);
-  saveState();
   renderBudget();
+  scheduleSave('Budget');
 }
 
 function deleteBudgetItem(i){
   state.budget.splice(i,1);
-  saveState();
   renderBudget();
+  scheduleSave('Budget');
 }
 
 function updateDisponibile(field, val) {
   state[field] = parseFloat(val) || 0;
-  saveState();
   renderBudget();
+  scheduleSave('Budget');
 }
 
 function addBudgetItem(){
@@ -581,8 +779,8 @@ function addBudgetItem(){
   state.budget.push({ voce, min, max, stimato, speso: 0, note });
   ['new-budget-voce','new-budget-min','new-budget-max','new-budget-stimato','new-budget-note']
     .forEach(id => document.getElementById(id).value = '');
-  saveState();
   renderBudget();
+  scheduleSave('Budget');
 }
 
 function drawBudgetChart(){
@@ -590,31 +788,23 @@ function drawBudgetChart(){
   if(!c) return;
   const ctx = c.getContext('2d');
   c.width = c.parentElement.clientWidth - 32;
-
   const totalStimato = state.budget.reduce((a,r)=>a+r.stimato,0);
   const totalSpeso = state.budget.reduce((a,r)=>a+r.speso,0);
-
   ctx.clearRect(0,0,c.width,c.height);
-
   const w = c.width * 0.35;
   const max = Math.max(totalStimato,1);
   const h = c.height;
-
   const hs = (totalStimato/max) * (h - 30);
   const hp = (totalSpeso/max) * (h - 30);
-
   ctx.fillStyle='#c8a27c';
   ctx.fillRect(40, h - hs - 20, w, hs);
-
   ctx.fillStyle='#6a9e6f';
   ctx.fillRect(40 + w + 20, h - hp - 20, w, hp);
-
   ctx.fillStyle='#999';
   ctx.font='11px Jost, sans-serif';
   ctx.textAlign='center';
   ctx.fillText('Stimato', 40 + w/2, h - 4);
   ctx.fillText('Speso', 40 + w + 20 + w/2, h - 4);
-
   ctx.fillStyle='#2b2b2b';
   ctx.font='12px Jost, sans-serif';
   ctx.fillText('€' + totalStimato.toLocaleString('it'), 40 + w/2, h - hs - 26);
@@ -640,22 +830,20 @@ function renderTasks() {
     else if (t.priority.includes('Media')) priClass = 'p-media';
     else if (t.priority.includes('Bassa')) priClass = 'p-bassa';
     else priClass = 'p-speciale';
-
     let hidden = false;
     if (taskFilter === 'todo' && t.done) hidden = true;
     if (taskFilter === 'done' && !t.done) hidden = true;
     if (taskFilter === 'alta' && !t.priority.includes('Alta')) hidden = true;
     if (taskFilter === 'media' && !t.priority.includes('Media')) hidden = true;
     if (taskFilter === 'bassa' && !t.priority.includes('Bassa')) hidden = true;
-
     return `<div class="task-item${hidden?' hidden':''}" id="task-${t.id}">
       <div class="task-check${t.done?' done':''}" onclick="toggleTask(${t.id})"></div>
       <div class="task-body">
-        <div class="task-title${t.done?' done-text':''}">${t.title}</div>
+        <div class="task-title${t.done?' done-text':''}">${escHtml(t.title)}</div>
         <div class="task-meta">
           <span class="task-period">${t.period}</span>
           <span class="task-priority ${priClass}">${t.priority}</span>
-          ${t.note ? `<span class="task-note">${t.note}</span>` : ''}
+          ${t.note ? `<span class="task-note">${escHtml(t.note)}</span>` : ''}
         </div>
       </div>
       <button class="btn btn-sm btn-ghost" onclick="deleteTask(${t.id})" style="min-width:28px;padding:4px 8px;">✕</button>
@@ -665,11 +853,11 @@ function renderTasks() {
 
 function toggleTask(id) {
   const t = state.tasks.find(t => t.id === id);
-  if (t) { t.done = !t.done; saveState(); renderTasks(); }
+  if (t) { t.done = !t.done; renderTasks(); scheduleSave('Timeline'); }
 }
 function deleteTask(id) {
   state.tasks = state.tasks.filter(t => t.id !== id);
-  saveState(); renderTasks();
+  renderTasks(); scheduleSave('Timeline');
 }
 function addTask() {
   const title = document.getElementById('new-task-title').value.trim();
@@ -684,7 +872,7 @@ function addTask() {
   });
   document.getElementById('new-task-title').value = '';
   document.getElementById('new-task-note').value = '';
-  saveState(); renderTasks();
+  renderTasks(); scheduleSave('Timeline');
 }
 function filterTasks(f, el) {
   taskFilter = f;
@@ -704,14 +892,14 @@ function renderSuppliers() {
     return `<div class="supplier-card">
       <div class="supplier-icon">${icon}</div>
       <div class="supplier-body">
-        <div class="supplier-name">${s.name}</div>
-        <div class="supplier-cat">${s.cat}</div>
+        <div class="supplier-name">${escHtml(s.name)}</div>
+        <div class="supplier-cat">${escHtml(s.cat)}</div>
         <div class="supplier-details">
-          ${s.zona ? `📍 ${s.zona}` : ''}
-          ${s.contact ? `🔗 ${s.contact}` : ''}
-          ${s.price ? `💶 €${s.price.toLocaleString('it')}` : ''}
+          ${s.zona ? `📍 ${escHtml(s.zona)}` : ''}
+          ${s.contact ? `🔗 ${escHtml(s.contact)}` : ''}
+          ${s.price ? `💶 €${parseFloat(s.price).toLocaleString('it')}` : ''}
         </div>
-        ${s.note ? `<div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic;">${s.note}</div>` : ''}
+        ${s.note ? `<div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic;">${escHtml(s.note)}</div>` : ''}
         <div class="supplier-status ${statusClass}">${s.status}</div>
       </div>
       <div class="supplier-actions">
@@ -725,11 +913,11 @@ function renderSuppliers() {
 const STATUSES = ['✅ Confermato', '⬜ Da contattare', '🕐 In attesa'];
 function cycleStatus(id) {
   const s = state.suppliers.find(s => s.id === id);
-  if (s) { s.status = STATUSES[(STATUSES.indexOf(s.status) + 1) % STATUSES.length]; saveState(); renderSuppliers(); }
+  if (s) { s.status = STATUSES[(STATUSES.indexOf(s.status) + 1) % STATUSES.length]; renderSuppliers(); scheduleSave('Fornitori'); }
 }
 function deleteSupplier(id) {
   state.suppliers = state.suppliers.filter(s => s.id !== id);
-  saveState(); renderSuppliers();
+  renderSuppliers(); scheduleSave('Fornitori');
 }
 function addSupplier() {
   const name = document.getElementById('s-name').value.trim();
@@ -739,6 +927,7 @@ function addSupplier() {
   state.suppliers.push({
     id: state.nextSupplierId++,
     cat, name,
+    icon: ICONS[cat] || ICONS['default'],
     zona: document.getElementById('s-zona').value.trim(),
     contact: document.getElementById('s-contact').value.trim(),
     price,
@@ -746,12 +935,10 @@ function addSupplier() {
     note: document.getElementById('s-note').value.trim()
   });
   ['s-cat','s-name','s-zona','s-contact','s-price','s-note'].forEach(id => document.getElementById(id).value = '');
-  saveState(); renderSuppliers();
+  renderSuppliers(); scheduleSave('Fornitori');
 }
 
 // ===== RSVP =====
-const RSVP_URL = "https://opensheet.elk.sh/1NgE7A6qhfGfxz5Wu9llxuKYlEUagRL8O5vFxn39fLnE/RSVP";
-
 async function loadRSVP() {
   document.getElementById('rsvp-status').textContent = 'Caricamento in corso…';
   try {
@@ -763,13 +950,11 @@ async function loadRSVP() {
       const yes = /^s/i.test(r.Partecipazione || '');
       if (yes) ok++;
       if (r.Allergie && r.Allergie.toLowerCase() !== 'no') all++;
-
       const allergia = (r.Allergie || '').trim();
       if (allergia && allergia.toLowerCase() !== 'no') {
         if (!allergyMap[allergia]) allergyMap[allergia] = [];
         allergyMap[allergia].push(r.Nome);
       }
-
       return `<div class="guest-card">
         <div class="guest-name">${r.Nome || '–'} ${yes ? '✅' : '❌'}</div>
         <div class="guest-meta">
@@ -784,23 +969,17 @@ async function loadRSVP() {
     document.getElementById('allergy').textContent = all;
     document.getElementById('tot').textContent = data.length;
     document.getElementById('rsvp-status').textContent = `Ultimo aggiornamento: ${new Date().toLocaleTimeString('it')}`;
-
     const allergyHTML = Object.entries(allergyMap)
       .map(([k,v]) => `<b>${k}</b> (${v.length})<br>${v.join(', ')}`)
       .join('<br><br>');
-    document.getElementById('allergy-list').innerHTML =
-      allergyHTML || 'Nessuna allergia 👍';
+    document.getElementById('allergy-list').innerHTML = allergyHTML || 'Nessuna allergia 👍';
   } catch(e) {
     document.getElementById('rsvp-status').textContent = '⚠️ Errore nel caricamento. Controlla il foglio Google.';
   }
 }
 
 // ===== INIT =====
-loadState();
-renderBudget();
-renderTasks();
-renderSuppliers();
-loadRSVP();
+loadFromSheets().then(() => loadRSVP());
 </script>
 </body>
 </html>
