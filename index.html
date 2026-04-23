@@ -559,10 +559,16 @@ select.inp { cursor: pointer; }
 
 <script>
 // ===== CONFIG =====
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOGeynHpeljlUgWaLGz5fb-b17bHXcs2hVdKzZfoh5X6kOF2KX8YY50rkr_gkw9ka2/exec';
-const SHEET_ID = '1AwvtL8bCBUSzjCDpnlJKEBc3pigsauAw7B5_8JDRlRY';
-const READ_BASE = `https://opensheet.elk.sh/${SHEET_ID}`;
-const RSVP_URL = `https://opensheet.elk.sh/1NgE7A6qhfGfxz5Wu9llxuKYlEUagRL8O5vFxn39fLnE/RSVP`;
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzrLucWtVE3ckXLeLgXzARZenRnHfkK9dF42RKvXZ2XF1Xzz5b_C8X_BhXoRdW5wdKh/exec';
+const RSVP_URL = 'https://opensheet.elk.sh/1NgE7A6qhfGfxz5Wu9llxuKYlEUagRL8O5vFxn39fLnE/RSVP';
+
+// Legge sempre dati freschi direttamente dall'Apps Script (no cache)
+async function fetchSheet(sheetName) {
+  const res = await fetch(SCRIPT_URL + '?sheet=' + sheetName + '&t=' + Date.now());
+  const data = await res.json();
+  if (!Array.isArray(data)) throw new Error('Risposta non valida per ' + sheetName);
+  return data;
+}
 
 // ===== DEFAULT STATE (fallback se sheets vuoti) =====
 const DEFAULT_STATE = {
@@ -694,8 +700,7 @@ async function loadFromSheets() {
 
   // Load Budget
   try {
-    const res = await fetch(`${READ_BASE}/Budget`);
-    const rows = await res.json();
+    const rows = await fetchSheet('Budget');
     if (rows && rows.length > 0) {
       const meta = rows.find(r => r.voce === '__meta__');
       if (meta) {
@@ -722,8 +727,7 @@ async function loadFromSheets() {
 
   // Load Timeline
   try {
-    const res = await fetch(`${READ_BASE}/Timeline`);
-    const rows = await res.json();
+    const rows = await fetchSheet('Timeline');
     if (rows && rows.length > 0) {
       const nextIdRow = rows.find(r => r.id === '__nextId__');
       if (nextIdRow) state.nextTaskId = parseInt(nextIdRow.title) || 22;
@@ -747,8 +751,7 @@ async function loadFromSheets() {
 
   // Load Fornitori
   try {
-    const res = await fetch(`${READ_BASE}/Fornitori`);
-    const rows = await res.json();
+    const rows = await fetchSheet('Fornitori');
     if (rows && rows.length > 0) {
       const nextIdRow = rows.find(r => r.id === '__nextId__');
       if (nextIdRow) state.nextSupplierId = parseInt(nextIdRow.cat) || 6;
