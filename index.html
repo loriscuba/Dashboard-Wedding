@@ -20,84 +20,151 @@
   --muted: #999;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Jost', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+body { font-family: 'Jost', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-text-size-adjust: 100%; }
 
+/* ── HEADER ── */
 header {
   text-align: center;
-  padding: 50px 20px 20px;
+  padding: 36px 16px 16px;
   background: linear-gradient(to bottom, #ede5db, var(--bg));
 }
 .header-sub { letter-spacing: 5px; font-size: 10px; color: var(--accent); font-weight: 300; text-transform: uppercase; }
-h1 { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300; margin: 8px 0 4px; letter-spacing: 2px; }
-.header-date { font-size: 11px; letter-spacing: 4px; color: var(--muted); }
+h1 { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300; margin: 6px 0 4px; letter-spacing: 2px; }
+.header-date { font-size: 10px; letter-spacing: 3px; color: var(--muted); }
 
+/* ── COUNTDOWN ── */
 .countdown {
-  display: flex; justify-content: center; gap: 6px;
-  padding: 18px 20px; background: var(--white);
+  display: flex; justify-content: center; gap: 4px;
+  padding: 14px 10px; background: var(--white);
   border-top: 1px solid var(--soft); border-bottom: 1px solid var(--soft);
 }
-.cd-box { text-align: center; min-width: 54px; padding: 8px 6px; }
-.cd-num { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 300; line-height: 1; color: var(--accent2); }
-.cd-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); margin-top: 3px; text-transform: uppercase; }
-.cd-sep { font-family: 'Cormorant Garamond', serif; font-size: 28px; color: var(--soft); align-self: center; padding-bottom: 12px; }
+.cd-box { text-align: center; min-width: 48px; padding: 6px 4px; }
+.cd-num { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; line-height: 1; color: var(--accent2); }
+.cd-label { font-size: 8px; letter-spacing: 2px; color: var(--muted); margin-top: 3px; text-transform: uppercase; }
+.cd-sep { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--soft); align-self: center; padding-bottom: 10px; }
 
+/* ── TABS ── */
 .tabs {
   display: flex; justify-content: center; gap: 0;
   background: var(--white); border-bottom: 1px solid var(--soft);
   position: sticky; top: 0; z-index: 100;
   overflow-x: auto; white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
 }
 .tab {
   border: none; background: none;
-  padding: 14px 18px; cursor: pointer;
+  padding: 13px 14px; cursor: pointer;
   font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
   color: var(--muted); font-family: 'Jost', sans-serif; font-weight: 300;
   border-bottom: 2px solid transparent; transition: all .2s;
+  -webkit-tap-highlight-color: transparent;
 }
 .tab:hover { color: var(--accent); }
 .tab.active { color: var(--accent2); border-bottom-color: var(--accent); font-weight: 400; }
 
-.panel { max-width: 720px; margin: 0 auto; padding: 24px 16px; display: none; }
+/* ── PANELS ── */
+.panel { max-width: 720px; margin: 0 auto; padding: 16px 12px; display: none; }
 .panel.active { display: block; }
 
 .section-title {
-  font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300;
-  color: var(--accent2); margin-bottom: 16px; padding-bottom: 8px;
+  font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300;
+  color: var(--accent2); margin-bottom: 14px; padding-bottom: 8px;
   border-bottom: 1px solid var(--soft); display: flex; justify-content: space-between; align-items: center;
 }
 
-.card { background: var(--white); border-radius: 12px; padding: 16px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
+.card { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
 
+/* ── BUDGET SUMMARY ── */
 .budget-summary {
-  display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px;
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px;
 }
-.bstat { background: var(--white); padding: 14px 10px; text-align: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
-.bstat-num { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; }
-.bstat-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); margin-top: 3px; text-transform: uppercase; }
+.bstat { background: var(--white); padding: 12px 8px; text-align: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+.bstat-num { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; }
+.bstat-label { font-size: 8px; letter-spacing: 1.5px; color: var(--muted); margin-top: 3px; text-transform: uppercase; }
 .bstat.neg .bstat-num { color: var(--red); }
 .bstat.ok .bstat-num { color: var(--green); }
 
+/* ── BUDGET TABLE (desktop) ── */
 .budget-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .budget-table th { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--soft); text-align: left; font-weight: 400; }
-.budget-table td { padding: 9px 8px; border-bottom: 1px solid #f0ebe5; vertical-align: middle; }
+.budget-table td { padding: 10px 8px; border-bottom: 1px solid #f0ebe5; vertical-align: middle; }
 .budget-table tr:last-child td { border-bottom: none; }
 .budget-table tr:hover td { background: #faf8f5; }
-.budget-table .voce { font-weight: 300; }
+.budget-table .voce { font-weight: 300; min-width: 160px; }
 .budget-table .num { text-align: right; font-variant-numeric: tabular-nums; }
 .budget-table .speso { font-weight: 400; }
 .budget-table tr.total-row td { font-weight: 400; background: #f7f3ef; border-top: 1px solid var(--soft); }
-.progress-wrap { width: 100%; height: 4px; background: var(--soft); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+
+/* progress bar */
+.progress-wrap { width: 100%; height: 4px; background: var(--soft); border-radius: 2px; overflow: hidden; margin-top: 5px; }
 .progress-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width .6s ease; }
 
-.speso-input { border: none; background: transparent; width: 80px; text-align: right; font-size: 13px; font-family: 'Jost', sans-serif; color: var(--text); border-bottom: 1px dashed var(--soft); outline: none; padding: 2px 0; }
+/* inline editable inputs */
+.speso-input {
+  border: none; background: transparent;
+  width: 72px; text-align: right;
+  font-size: 13px; font-family: 'Jost', sans-serif; color: var(--text);
+  border-bottom: 1px dashed var(--soft); outline: none; padding: 2px 0;
+  -webkit-appearance: none;
+}
 .speso-input:focus { border-bottom-color: var(--accent); }
-.note-input { border: none; background: transparent; width: 100%; font-size: 11px; font-family: 'Jost', sans-serif; color: var(--muted); border-bottom: 1px dashed transparent; outline: none; }
+
+/* voce & note inputs in table — bigger, more readable */
+.voce-input {
+  border: none; background: transparent; width: 100%;
+  font-size: 13px; font-weight: 300; font-family: 'Jost', sans-serif; color: var(--text);
+  border-bottom: 1px dashed transparent; outline: none; padding: 2px 0;
+  min-width: 140px;
+}
+.voce-input:focus { border-bottom-color: var(--accent); }
+.note-input {
+  border: none; background: transparent; width: 100%;
+  font-size: 12px; font-family: 'Jost', sans-serif; color: var(--muted);
+  border-bottom: 1px dashed transparent; outline: none; padding: 2px 0;
+  min-width: 100px;
+}
 .note-input:focus { border-bottom-color: var(--accent); }
 
-.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
-.stat { background: var(--white); padding: 14px 10px; text-align: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+/* ── BUDGET CARDS (mobile) ── */
+.budget-card-list { display: none; }
+.budget-card-item {
+  background: var(--white); border-radius: 12px; padding: 14px;
+  margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  border-left: 3px solid var(--accent);
+}
+.bc-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+.bc-voce {
+  font-size: 14px; font-weight: 400; color: var(--text); flex: 1;
+  border: none; background: transparent; font-family: 'Jost', sans-serif;
+  outline: none; border-bottom: 1px dashed transparent; padding: 0;
+}
+.bc-voce:focus { border-bottom-color: var(--accent); }
+.bc-del { background: none; border: 1px solid #f0ebe5; color: var(--muted); border-radius: 6px; padding: 3px 8px; font-size: 11px; cursor: pointer; flex-shrink: 0; }
+.bc-nums { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.bc-num-item { text-align: center; }
+.bc-num-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.bc-num-input {
+  border: none; background: var(--bg); border-radius: 6px; padding: 6px 4px;
+  font-size: 14px; font-family: 'Cormorant Garamond', serif; font-weight: 400;
+  color: var(--text); text-align: center; width: 100%; outline: none;
+  border: 1px solid var(--soft);
+  -webkit-appearance: none;
+}
+.bc-num-input:focus { border-color: var(--accent); }
+.bc-num-input.speso-val { color: var(--accent2); font-weight: 500; }
+.bc-note {
+  border: none; background: transparent; width: 100%;
+  font-size: 12px; font-family: 'Jost', sans-serif; color: var(--muted);
+  border-bottom: 1px dashed var(--soft); outline: none; padding: 4px 0;
+}
+.bc-note:focus { border-bottom-color: var(--accent); }
+.bc-note::placeholder { color: #ccc; }
+
+/* ── STATS / RSVP ── */
+.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
+.stat { background: var(--white); padding: 12px 8px; text-align: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
 .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; color: var(--accent2); }
-.stat-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+.stat-label { font-size: 8px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; }
 
 .guest-card { background: var(--white); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; border-left: 3px solid var(--accent); box-shadow: 0 2px 6px rgba(0,0,0,.04); }
 .guest-name { font-weight: 400; font-size: 14px; margin-bottom: 3px; }
@@ -105,49 +172,71 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300
 .guest-meta span { margin-right: 12px; }
 .guest-allergy { color: var(--orange); font-size: 11px; margin-top: 3px; }
 
-.timeline-filter { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-.filter-btn { border: 1px solid var(--soft); background: var(--white); padding: 5px 12px; border-radius: 20px; font-size: 11px; cursor: pointer; font-family: 'Jost'; color: var(--muted); transition: all .2s; }
+/* ── TIMELINE ── */
+.timeline-filter { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.filter-btn {
+  border: 1px solid var(--soft); background: var(--white); padding: 6px 12px;
+  border-radius: 20px; font-size: 11px; cursor: pointer; font-family: 'Jost';
+  color: var(--muted); transition: all .2s; -webkit-tap-highlight-color: transparent;
+}
 .filter-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
 
 .task-item {
-  background: var(--white); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
+  background: var(--white); border-radius: 10px; padding: 13px 14px; margin-bottom: 8px;
   display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 2px 6px rgba(0,0,0,.04);
-  transition: opacity .2s;
 }
 .task-item.hidden { display: none; }
-.task-check { width: 18px; height: 18px; min-width: 18px; border-radius: 50%; border: 1.5px solid var(--soft); cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all .2s; }
+.task-check {
+  width: 22px; height: 22px; min-width: 22px; border-radius: 50%;
+  border: 1.5px solid var(--soft); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+  transition: all .2s; -webkit-tap-highlight-color: transparent;
+}
 .task-check.done { background: var(--green); border-color: var(--green); }
-.task-check.done::after { content: '✓'; color: white; font-size: 10px; }
-.task-body { flex: 1; }
-.task-title { font-size: 13px; font-weight: 300; }
+.task-check.done::after { content: '✓'; color: white; font-size: 11px; }
+.task-body { flex: 1; min-width: 0; }
+.task-title { font-size: 14px; font-weight: 300; line-height: 1.4; }
 .task-title.done-text { text-decoration: line-through; color: var(--muted); }
-.task-meta { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+.task-meta { display: flex; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
 .task-period { font-size: 10px; letter-spacing: 1px; color: var(--muted); }
-.task-note { font-size: 11px; color: var(--muted); font-style: italic; }
-.task-priority { font-size: 10px; padding: 1px 7px; border-radius: 10px; }
+.task-note { font-size: 11px; color: var(--muted); font-style: italic; line-height: 1.4; }
+.task-priority { font-size: 10px; padding: 2px 8px; border-radius: 10px; }
 .p-alta { background: #fde8e7; color: var(--red); }
 .p-media { background: #fdeede; color: var(--orange); }
 .p-bassa { background: #fffbe6; color: var(--yellow); }
 .p-speciale { background: #e8f0fd; color: #5a80c0; }
 
+/* ── FORMS ── */
 .add-task-form { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
 .form-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-.inp { border: 1px solid var(--soft); border-radius: 8px; padding: 8px 10px; font-size: 12px; font-family: 'Jost', sans-serif; background: var(--bg); outline: none; flex: 1; min-width: 120px; }
+.inp {
+  border: 1px solid var(--soft); border-radius: 8px; padding: 10px 12px;
+  font-size: 14px; font-family: 'Jost', sans-serif; background: var(--bg);
+  outline: none; flex: 1; min-width: 120px;
+  -webkit-appearance: none;
+}
 .inp:focus { border-color: var(--accent); }
 select.inp { cursor: pointer; }
-.btn { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 12px; font-family: 'Jost', sans-serif; transition: background .2s; }
+.btn {
+  background: var(--accent); color: white; border: none; padding: 10px 18px;
+  border-radius: 8px; cursor: pointer; font-size: 13px; font-family: 'Jost', sans-serif;
+  transition: background .2s; -webkit-tap-highlight-color: transparent;
+  min-height: 40px;
+}
 .btn:hover { background: var(--accent2); }
-.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn:active { background: var(--accent2); }
+.btn-sm { padding: 6px 12px; font-size: 12px; min-height: 32px; }
 .btn-ghost { background: transparent; border: 1px solid var(--soft); color: var(--muted); }
-.btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: transparent; }
+.btn-ghost:hover, .btn-ghost:active { border-color: var(--accent); color: var(--accent); background: transparent; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.supplier-card { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.04); display: flex; gap: 14px; align-items: flex-start; }
+/* ── SUPPLIERS ── */
+.supplier-card { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.04); display: flex; gap: 12px; align-items: flex-start; }
 .supplier-icon { width: 38px; height: 38px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 18px; min-width: 38px; }
-.supplier-body { flex: 1; }
+.supplier-body { flex: 1; min-width: 0; }
 .supplier-name { font-size: 14px; font-weight: 400; margin-bottom: 2px; }
 .supplier-cat { font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
-.supplier-details { font-size: 12px; color: var(--muted); margin-top: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
+.supplier-details { font-size: 12px; color: var(--muted); margin-top: 6px; display: flex; gap: 10px; flex-wrap: wrap; }
 .supplier-status { font-size: 10px; padding: 3px 9px; border-radius: 10px; margin-top: 6px; display: inline-block; }
 .s-confirmed { background: #e4f3e5; color: var(--green); }
 .s-pending { background: #f7f3ef; color: var(--muted); border: 1px solid var(--soft); }
@@ -155,44 +244,56 @@ select.inp { cursor: pointer; }
 
 .add-supplier-form { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
 
-/* SYNC STATUS BAR */
+/* ── SYNC BAR ── */
 .sync-bar {
   display: flex; align-items: center; gap: 8px;
-  padding: 8px 14px; margin-bottom: 14px;
+  padding: 8px 12px; margin-bottom: 12px;
   background: var(--white); border-radius: 10px;
   font-size: 11px; color: var(--muted);
   box-shadow: 0 2px 6px rgba(0,0,0,.04);
+  flex-wrap: wrap;
 }
 .sync-dot {
   width: 8px; height: 8px; border-radius: 50%;
-  background: var(--muted); flex-shrink: 0;
-  transition: background .3s;
+  background: var(--muted); flex-shrink: 0; transition: background .3s;
 }
 .sync-dot.syncing { background: var(--yellow); animation: pulse 1s infinite; }
 .sync-dot.ok { background: var(--green); }
 .sync-dot.error { background: var(--red); }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-.sync-text { flex: 1; }
-.sync-btn { background: none; border: 1px solid var(--soft); color: var(--muted); padding: 3px 10px; border-radius: 6px; cursor: pointer; font-size: 10px; font-family:'Jost'; }
+.sync-text { flex: 1; min-width: 80px; font-size: 11px; }
+.sync-btn {
+  background: none; border: 1px solid var(--soft); color: var(--muted);
+  padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 10px; font-family:'Jost';
+  white-space: nowrap;
+}
 .sync-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-.save-badge { display: none; position: fixed; bottom: 20px; right: 20px; background: var(--green); color: white; padding: 8px 14px; border-radius: 20px; font-size: 11px; letter-spacing: 1px; z-index: 300; opacity: 0; transition: opacity .3s; }
+/* ── SAVE BADGE ── */
+.save-badge {
+  display: none; position: fixed; bottom: 20px; right: 16px;
+  background: var(--green); color: white; padding: 10px 16px;
+  border-radius: 20px; font-size: 12px; letter-spacing: 1px;
+  z-index: 300; opacity: 0; transition: opacity .3s;
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+}
 .save-badge.show { display: block; opacity: 1; }
 .save-badge.error { background: var(--red); }
 
-.progress-ring { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--white); border-radius: 12px; margin-bottom: 14px; }
-.ring-wrap { position: relative; width: 50px; height: 50px; }
+/* ── PROGRESS RING ── */
+.progress-ring { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--white); border-radius: 12px; margin-bottom: 14px; }
+.ring-wrap { position: relative; width: 54px; height: 54px; flex-shrink: 0; }
 .ring-circle { fill: none; stroke: var(--soft); stroke-width: 4; }
 .ring-progress { fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset .6s ease; }
 .ring-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 13px; }
-.ring-label { font-size: 12px; color: var(--muted); }
-.ring-label b { font-size: 18px; font-family: 'Cormorant Garamond', serif; font-weight: 400; color: var(--text); display: block; }
+.ring-label { font-size: 13px; color: var(--muted); }
+.ring-label b { font-size: 20px; font-family: 'Cormorant Garamond', serif; font-weight: 400; color: var(--text); display: block; }
 
-/* Loading overlay */
+/* ── LOADING ── */
 .loading-overlay {
-  position: fixed; inset: 0; background: rgba(247,243,239,.85);
+  position: fixed; inset: 0; background: rgba(247,243,239,.9);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  z-index: 999; gap: 12px;
+  z-index: 999; gap: 14px;
 }
 .loading-overlay.hidden { display: none; }
 .loading-spinner {
@@ -202,6 +303,40 @@ select.inp { cursor: pointer; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--accent2); letter-spacing: 2px; }
+
+/* ── MOBILE ── */
+@media (max-width: 600px) {
+  h1 { font-size: 32px; }
+  header { padding: 24px 12px 14px; }
+
+  /* Nascondi tabella, mostra cards */
+  .budget-table-wrap { display: none; }
+  .budget-card-list { display: block; }
+
+  .budget-summary { gap: 6px; }
+  .bstat-num { font-size: 17px; }
+  .bstat-label { font-size: 7px; }
+
+  .panel { padding: 12px 10px; }
+
+  .form-row { flex-direction: column; }
+  .inp { min-width: 0; width: 100%; font-size: 16px; /* prevent zoom iOS */ }
+  select.inp { font-size: 16px; }
+
+  .btn { width: 100%; text-align: center; }
+  .btn-sm { width: auto; }
+
+  .task-title { font-size: 14px; }
+
+  .supplier-card { flex-wrap: wrap; }
+  .supplier-actions { flex-direction: row; }
+
+  .sync-bar { font-size: 10px; }
+
+  /* Budget disponibile form */
+  .budget-avail-row { flex-direction: column !important; }
+  .budget-avail-row > div { flex: unset !important; width: 100%; }
+}
 </style>
 </head>
 <body>
@@ -252,7 +387,7 @@ select.inp { cursor: pointer; }
 
   <div class="card" style="margin-bottom:12px;">
     <div class="section-title" style="font-size:15px;margin-bottom:12px;">💶 Budget disponibile</div>
-    <div class="form-row">
+    <div class="form-row budget-avail-row">
       <div style="flex:1">
         <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Budget totale €</div>
         <input class="inp" id="input-disponibile" type="number" min="0" placeholder="10000"
@@ -270,7 +405,8 @@ select.inp { cursor: pointer; }
     </div>
   </div>
 
-  <div class="card" style="padding:0;overflow:hidden;">
+  <!-- Tabella desktop -->
+  <div class="budget-table-wrap card" style="padding:0;overflow:hidden;">
     <table class="budget-table">
       <thead>
         <tr>
@@ -286,6 +422,9 @@ select.inp { cursor: pointer; }
       <tbody id="budgetBody"></tbody>
     </table>
   </div>
+
+  <!-- Cards mobile -->
+  <div class="budget-card-list" id="budgetCardList"></div>
 
   <div style="margin-top:10px;font-size:11px;color:var(--muted);text-align:center;">
     💡 Tutti i campi sono modificabili · Trascina le righe per riordinarle · Clicca ✕ per eliminare una voce
@@ -689,6 +828,7 @@ function renderBudget() {
   mEl.textContent = (margine >= 0 ? '+€' : '−€') + Math.abs(margine).toLocaleString('it');
   mEl.closest('.bstat').className = 'bstat ' + (margine >= 0 ? 'ok' : 'neg');
 
+  // ── Tabella desktop ──
   const body = document.getElementById('budgetBody');
   body.innerHTML = state.budget.map((r, i) => {
     const pct = r.stimato > 0 ? Math.round(r.speso / r.stimato * 100) : 0;
@@ -697,7 +837,7 @@ function renderBudget() {
       ondragover="dragOver(event)"
       ondrop="dropRow(${i})">
       <td class="voce">
-        <input class="note-input" value="${escHtml(r.voce)}"
+        <input class="voce-input" value="${escHtml(r.voce)}"
           onchange="updateField(${i}, 'voce', this.value)">
         <div class="progress-wrap"><div class="progress-bar" style="width:${Math.min(pct,100)}%"></div></div>
       </td>
@@ -727,9 +867,50 @@ function renderBudget() {
     <td colspan="3"><b>TOTALE</b></td>
     <td class="num"><b>€${totalStimato.toLocaleString('it')}</b></td>
     <td class="num"><b>€${totalSpeso.toLocaleString('it')}</b></td>
-    <td style="font-size:11px;color:var(--muted)">Budget disponibile: €${disponibile.toLocaleString('it')}</td>
+    <td style="font-size:11px;color:var(--muted)">Disponibile: €${disponibile.toLocaleString('it')}</td>
     <td></td>
   </tr>`;
+
+  // ── Cards mobile ──
+  const cardList = document.getElementById('budgetCardList');
+  cardList.innerHTML = state.budget.map((r, i) => {
+    const pct = r.stimato > 0 ? Math.round(r.speso / r.stimato * 100) : 0;
+    return `<div class="budget-card-item">
+      <div class="bc-header">
+        <input class="bc-voce" value="${escHtml(r.voce)}" placeholder="Nome voce"
+          onchange="updateField(${i}, 'voce', this.value)">
+        <button class="bc-del" onclick="deleteBudgetItem(${i})">✕</button>
+      </div>
+      <div class="bc-nums">
+        <div class="bc-num-item">
+          <div class="bc-num-label">Min €</div>
+          <input class="bc-num-input" type="number" value="${r.min}"
+            onchange="updateField(${i}, 'min', this.value)">
+        </div>
+        <div class="bc-num-item">
+          <div class="bc-num-label">Stimato €</div>
+          <input class="bc-num-input" type="number" value="${r.stimato}"
+            onchange="updateField(${i}, 'stimato', this.value)">
+        </div>
+        <div class="bc-num-item">
+          <div class="bc-num-label">💳 Speso €</div>
+          <input class="bc-num-input speso-val" type="number" value="${r.speso}" min="0"
+            onchange="updateField(${i}, 'speso', this.value)"
+            onclick="this.select()">
+        </div>
+      </div>
+      <div class="progress-wrap" style="margin-bottom:8px;"><div class="progress-bar" style="width:${Math.min(pct,100)}%"></div></div>
+      <input class="bc-note" value="${escHtml(r.note)}" placeholder="Note…"
+        onchange="updateField(${i}, 'note', this.value)">
+    </div>`;
+  }).join('') + `<div class="card" style="text-align:center;font-size:13px;">
+    <span style="color:var(--muted);">Totale stimato</span>
+    <span style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--accent2);margin-left:8px;">€${totalStimato.toLocaleString('it')}</span>
+    &nbsp;·&nbsp;
+    <span style="color:var(--muted);">Speso</span>
+    <span style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--green);margin-left:8px;">€${totalSpeso.toLocaleString('it')}</span>
+  </div>`;
+
   drawBudgetChart();
 }
 
