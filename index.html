@@ -628,6 +628,8 @@ html
 // ═══════════════════════════════════════════════════════
 let DATA = null;
 let clienti = [];
+// Wilson — dichiarato qui per evitare problemi di hoisting con let
+var WILSON_ORDINI = JSON.parse(localStorage.getItem('wilson_ordini') || '[]');
 let sortCol = 'fatt2024', sortDir = -1;
 let mChart = null;
 
@@ -1748,26 +1750,26 @@ caricaDati();
 
 <script>
 // ═══════════════════════════════════════════ WILSON PDF ENGINE ═══════
-let WILSON_ORDINI = JSON.parse(localStorage.getItem('wilson_ordini') || '[]');
 
 // ── CARICAMENTO pdf.js dinamico ──────────────────────────────────────
+const PDFJS_SRC    = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
 let _pdfLibReady = null;
 function loadPdfLib() {
   if (_pdfLibReady) return _pdfLibReady;
   _pdfLibReady = new Promise((resolve, reject) => {
     if (typeof pdfjsLib !== 'undefined') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
       return resolve(pdfjsLib);
     }
     const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.src = PDFJS_SRC;
     s.onload = () => {
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
       resolve(pdfjsLib);
     };
-    s.onerror = reject;
+    s.onerror = () => reject(new Error('pdf.js non caricato'));
     document.head.appendChild(s);
   });
   return _pdfLibReady;
@@ -1812,38 +1814,43 @@ function parseOrdine(testo, nomeFile) {
   const num_cliente   = find(/Numero di cliente\s+(\d+)/);
   const piva          = find(/Partita IVA\s+(IT\d+)/);
   const totStr        = find(/Totale ordine EUR\s+([\d\.,]+)/);
-  const pagamento     = find(/Condizioni Pagamento\s+(.+?)(?:\n|Spediz)/);
+  const pagamento     = find(/Condizioni Pagamento\s+(.+?)(?:Spediz|Porto)/);
   const totale        = totStr ? parseFloat(totStr.replace(/\./g,'').replace(',','.')) : 0;
 
-  // Articoli: 8 cifre → descrizione → quantità → UM → prezzo → UM → [sconti] → importo → 0
-  const reArt = /(\d{8})\s+(.+?)\s+([\d\.]+)\s+(PZ|CZ|KG)\s+([\d,]+)\s+(?:\d+\s+)?(PZ|CZ|KG)\s+([\d,\/\s\.]+?)?\s*([\d,]+)\s+0(?:\s|$)/g;
+  // ── ARTICOLI: split per codice Fischer (inizia sempre con 00) ──────
+  const blocchi = testo.split(/(?=\b00\d{6}\b)/);
+  const reArt = /^(00\d{6})\s+(.+?)\s+([\d\.]+)\s+(PZ|CZ|KG)\s+([\d,]+)\s+(?:\d+\s+)?(PZ|CZ|KG)\s+([\d,\/\s\.]+?)?\s*([\d,]+)\s+0\b/;
   const articoli = [];
-  let m;
-  while ((m = reArt.exec(testo)) !== null) {
-    const [, cod, desc, qty, um, prezzo, , sconti, importo] = m;
+
+  for (const blocco of blocchi) {
+    const m = reArt.exec(blocco.trim());
+    if (!m) continue;
+    const [, cod, desc, qty, um, prezzo,, sconti, importo] = m;
+    // Pulisce descrizione: rimuove EAN e testo magazzino
+    const descClean = desc.replace(/\d{13}/g, '').replace(/\s+/g,' ').trim().slice(0, 80);
     articoli.push({
-      cod_art:    cod,
-      descrizione: desc.trim().replace(/\s+/g,' '),
-      quantita:   parseFloat(qty.replace('.','').replace(',','.')),
+      cod_art:     cod,
+      descrizione: descClean,
+      quantita:    parseFloat(qty.replace(/\./g,'').replace(',','.')),
       um,
       prezzo_unit: parseFloat(prezzo.replace(',','.')),
-      sconti:     (sconti||'').trim(),
-      importo:    parseFloat(importo.replace('.','').replace(',','.'))
+      sconti:      (sconti||'').trim(),
+      importo:     parseFloat(importo.replace(/\./g,'').replace(',','.'))
     });
   }
 
   return {
-    id: numero_ordine || nomeFile,
+    id:           numero_ordine || nomeFile,
     numero_ordine,
     data,
-    cliente:    cliente.replace(/\s+/g,' ').trim(),
+    cliente:      cliente.replace(/\s+/g,' ').trim(),
     num_cliente,
     piva,
     totale,
-    pagamento:  pagamento.trim(),
-    n_articoli: articoli.length,
+    pagamento:    pagamento.trim(),
+    n_articoli:   articoli.length,
     articoli,
-    file:       nomeFile
+    file:         nomeFile
   };
 }
 
