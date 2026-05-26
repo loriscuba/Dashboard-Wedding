@@ -62,281 +62,217 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300
 .tab:hover { color: var(--accent); }
 .tab.active { color: var(--accent2); border-bottom-color: var(--accent); font-weight: 400; }
 
-/* ── PANELS ── */
-.panel { max-width: 720px; margin: 0 auto; padding: 16px 12px; display: none; }
-.panel.active { display: block; }
+  /* ── KPI CARDS ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+  .kpi-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+  .kpi-val { font-size: 22px; font-weight: 800; line-height: 1; color: var(--text); }
+  .kpi-sub { font-family: var(--mono); font-size: 10px; color: var(--muted2); margin-top: 5px; }
+  .kpi-delta { font-family: var(--mono); font-size: 11px; font-weight: 500; margin-top: 4px; display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 4px; }
+  .kpi-delta.pos { color: var(--ok); background: var(--ok-l); }
+  .kpi-delta.neg { color: var(--danger); background: var(--danger-l); }
+  .kpi-delta.neu { color: var(--muted); background: var(--surface2); }
 
-.section-title {
-  font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300;
-  color: var(--accent2); margin-bottom: 14px; padding-bottom: 8px;
-  border-bottom: 1px solid var(--soft); display: flex; justify-content: space-between; align-items: center;
-}
+  /* MESE CONFRONTO cards */
+  .mese-compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .mese-compare-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 18px; box-shadow: var(--shadow);
+  }
+  .mese-card-label { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; }
+  .mese-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  .mese-year { font-family: var(--mono); font-size: 10px; color: var(--muted2); }
+  .mese-val { font-family: var(--mono); font-size: 14px; font-weight: 700; }
+  .mese-divider { border: none; border-top: 1px dashed var(--border); margin: 8px 0; }
+  .mese-diff { display: flex; justify-content: space-between; align-items: center; }
+  .mese-diff-label { font-family: var(--mono); font-size: 10px; color: var(--muted); }
 
-.card { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
+  /* ── CHARTS ── */
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .chart-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; box-shadow: var(--shadow); }
+  .chart-box.full { grid-column: 1/-1; }
+  .chart-title { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 16px; }
+  .chart-wrap { position: relative; height: 210px; }
+  .chart-wrap.tall { height: 280px; }
 
-/* ── BUDGET SUMMARY ── */
-.budget-summary {
-  display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px;
-}
-.bstat { background: var(--white); padding: 12px 8px; text-align: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
-.bstat-num { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; }
-.bstat-label { font-size: 8px; letter-spacing: 1.5px; color: var(--muted); margin-top: 3px; text-transform: uppercase; }
-.bstat.neg .bstat-num { color: var(--red); }
-.bstat.ok .bstat-num { color: var(--green); }
+  /* ── TABELLA ── */
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .search-box {
+    flex: 1; min-width: 200px; background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 7px; padding: 8px 13px; color: var(--text);
+    font-family: var(--mono); font-size: 12px; outline: none;
+    box-shadow: var(--shadow);
+  }
+  .search-box:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-l); }
+  .filter-sel {
+    background: var(--surface); border: 1px solid var(--border2); border-radius: 7px;
+    padding: 8px 13px; color: var(--text); font-family: var(--mono); font-size: 11px;
+    outline: none; cursor: pointer; box-shadow: var(--shadow);
+  }
+  .filter-sel:focus { border-color: var(--accent); }
+  .tbl-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    background: var(--surface2); padding: 11px 14px;
+    text-align: left; font-family: var(--mono); font-size: 10px;
+    color: var(--muted); letter-spacing: .07em; text-transform: uppercase;
+    cursor: pointer; white-space: nowrap; user-select: none;
+    border-bottom: 1px solid var(--border);
+  }
+  thead th:hover { color: var(--accent); }
+  thead th.sort-asc::after  { content: ' ↑'; color: var(--accent); }
+  thead th.sort-desc::after { content: ' ↓'; color: var(--accent); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); cursor: pointer; }
+  tbody td { padding: 10px 14px; font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+  .td-nome { font-family: var(--sans); font-size: 13px; font-weight: 600; white-space: normal; max-width: 220px; color: var(--text); }
+  .td-nome small { display: block; font-family: var(--mono); font-size: 10px; font-weight: 400; color: var(--muted2); margin-top: 1px; }
 
-/* ── BUDGET TABLE (desktop) ── */
-.budget-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.budget-table th { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--soft); text-align: left; font-weight: 400; }
-.budget-table td { padding: 10px 8px; border-bottom: 1px solid #f0ebe5; vertical-align: middle; }
-.budget-table tr:last-child td { border-bottom: none; }
-.budget-table tr:hover td { background: #faf8f5; }
-.budget-table .voce { font-weight: 300; min-width: 160px; }
-.budget-table .num { text-align: right; font-variant-numeric: tabular-nums; }
-.budget-table .speso { font-weight: 400; }
-.budget-table tr.total-row td { font-weight: 400; background: #f7f3ef; border-top: 1px solid var(--soft); }
+  /* badges gamma */
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px;
+    font-family: var(--mono); letter-spacing: .04em; font-weight: 500;
+  }
+  .badge-edile     { background: #e6f4ee; color: #0d6e42; }
+  .badge-elettrico { background: #e8f0ff; color: #1a4fbf; }
+  .badge-its       { background: #f3e8ff; color: #6b21a8; }
+  .badge-ferr      { background: #fff8e6; color: #92400e; }
+  .badge-diy       { background: #fff0f0; color: #991b1b; }
+  .badge-default   { background: var(--surface2); color: var(--muted); }
 
-/* progress bar */
-.progress-wrap { width: 100%; height: 4px; background: var(--soft); border-radius: 2px; overflow: hidden; margin-top: 5px; }
-.progress-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width .6s ease; }
+  /* pill delta inline tabella */
+  .pill { display: inline-flex; align-items: center; gap: 2px; padding: 2px 7px; border-radius: 20px; font-family: var(--mono); font-size: 11px; }
+  .pill.pos { color: var(--ok); background: var(--ok-l); }
+  .pill.neg { color: var(--danger); background: var(--danger-l); }
 
-/* inline editable inputs */
-.speso-input {
-  border: none; background: transparent;
-  width: 72px; text-align: right;
-  font-size: 13px; font-family: 'Jost', sans-serif; color: var(--text);
-  border-bottom: 1px dashed var(--soft); outline: none; padding: 2px 0;
-  -webkit-appearance: none;
-}
-.speso-input:focus { border-bottom-color: var(--accent); }
+  /* ── MODAL ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(17,24,39,.5); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; width: min(960px, 95vw); max-height: 90vh;
+    overflow-y: auto; padding: 28px 32px; box-shadow: var(--shadow-md);
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+  .modal-title { font-size: 18px; font-weight: 800; color: var(--text); }
+  .modal-sub { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .close-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); border-radius: 7px; padding: 5px 11px; cursor: pointer; font-size: 18px; line-height: 1; }
+  .close-btn:hover { background: var(--border); color: var(--text); }
+  .modal-kpi { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
 
-/* voce & note inputs in table — bigger, more readable */
-.voce-input {
-  border: none; background: transparent; width: 100%;
-  font-size: 13px; font-weight: 300; font-family: 'Jost', sans-serif; color: var(--text);
-  border-bottom: 1px dashed transparent; outline: none; padding: 2px 0;
-  min-width: 140px;
-}
-.voce-input:focus { border-bottom-color: var(--accent); }
-.note-input {
-  border: none; background: transparent; width: 100%;
-  font-size: 12px; font-family: 'Jost', sans-serif; color: var(--muted);
-  border-bottom: 1px dashed transparent; outline: none; padding: 2px 0;
-  min-width: 100px;
-}
-.note-input:focus { border-bottom-color: var(--accent); }
+  /* SEZIONE MESE nel modal */
+  .modal-section-title { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin: 18px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .compare-block {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px;
+  }
+  .compare-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 16px;
+  }
+  .compare-card-title { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+  .compare-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
+  .compare-year { font-family: var(--mono); font-size: 10px; color: var(--muted2); }
+  .compare-val  { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+  .compare-diff { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .compare-diff-label { font-family: var(--mono); font-size: 10px; color: var(--muted); }
 
-/* ── BUDGET CARDS (mobile) ── */
-.budget-card-list { display: none; }
-.budget-card-item {
-  background: var(--white); border-radius: 12px; padding: 14px;
-  margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.04);
-  border-left: 3px solid var(--accent);
-}
-.bc-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
-.bc-voce {
-  font-size: 14px; font-weight: 400; color: var(--text); flex: 1;
-  border: none; background: transparent; font-family: 'Jost', sans-serif;
-  outline: none; border-bottom: 1px dashed transparent; padding: 0;
-}
-.bc-voce:focus { border-bottom-color: var(--accent); }
-.bc-del { background: none; border: 1px solid #f0ebe5; color: var(--muted); border-radius: 6px; padding: 3px 8px; font-size: 11px; cursor: pointer; flex-shrink: 0; }
-.bc-nums { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-.bc-num-item { text-align: center; }
-.bc-num-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
-.bc-num-input {
-  border: none; background: var(--bg); border-radius: 6px; padding: 6px 4px;
-  font-size: 14px; font-family: 'Cormorant Garamond', serif; font-weight: 400;
-  color: var(--text); text-align: center; width: 100%; outline: none;
-  border: 1px solid var(--soft);
-  -webkit-appearance: none;
-}
-.bc-num-input:focus { border-color: var(--accent); }
-.bc-num-input.speso-val { color: var(--accent2); font-weight: 500; }
-.bc-note {
-  border: none; background: transparent; width: 100%;
-  font-size: 12px; font-family: 'Jost', sans-serif; color: var(--muted);
-  border-bottom: 1px dashed var(--soft); outline: none; padding: 4px 0;
-}
-.bc-note:focus { border-bottom-color: var(--accent); }
-.bc-note::placeholder { color: #ccc; }
+  .modal-chart-wrap { position: relative; height: 200px; margin-bottom: 20px; }
 
-/* ── STATS / RSVP ── */
-.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
-.stat { background: var(--white); padding: 12px 8px; text-align: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
-.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; color: var(--accent2); }
-.stat-label { font-size: 8px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; }
+  /* Gamma nel modal */
+  .gamma-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .gamma-tab-btn {
+    font-family: var(--mono); font-size: 10px; padding: 4px 10px;
+    border: 1px solid var(--border2); border-radius: 20px;
+    cursor: pointer; color: var(--muted); background: var(--surface2);
+    transition: all .12s;
+  }
+  .gamma-tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .gamma-settore-panel { display: none; }
+  .gamma-settore-panel.active { display: block; }
+  .gamma-header-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .gamma-pct-pills { display: flex; gap: 6px; }
+  .pct-pill { font-family: var(--mono); font-size: 11px; padding: 3px 10px; border-radius: 20px; }
+  .pct-pill.imm { background: var(--ok-l); color: var(--ok); }
+  .pct-pill.str { background: var(--warn-l); color: var(--warn); }
+  .prod-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 6px; }
+  .prod-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 7px 10px; font-family: var(--mono); font-size: 11px;
+  }
+  .prod-item.has-value { border-left: 3px solid var(--ok); }
+  .prod-item.missing   { border-left: 3px solid var(--border2); opacity: .7; }
+  .prod-name { color: var(--text2); flex: 1; }
+  .prod-flag { font-size: 9px; padding: 1px 5px; border-radius: 10px; margin-left: 6px; flex-shrink: 0; }
+  .prod-flag.imm { background: var(--ok-l); color: var(--ok); }
+  .prod-flag.str { background: var(--warn-l); color: var(--warn); }
+  .prod-val { font-weight: 600; color: var(--text); flex-shrink: 0; margin-left: 10px; }
+  .prod-val.zero { color: var(--muted2); }
 
-.guest-card { background: var(--white); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; border-left: 3px solid var(--accent); box-shadow: 0 2px 6px rgba(0,0,0,.04); }
-.guest-name { font-weight: 400; font-size: 14px; margin-bottom: 3px; }
-.guest-meta { font-size: 11px; color: var(--muted); }
-.guest-meta span { margin-right: 12px; }
-.guest-allergy { color: var(--orange); font-size: 11px; margin-top: 3px; }
+  /* ── GAMMA PANEL overview ── */
+  .gamma-overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .gamma-sector-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; box-shadow: var(--shadow); }
+  .gs-title { font-weight: 700; font-size: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .gs-badge { font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 20px; background: var(--accent-l); color: var(--accent); }
+  .gs-stat { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center; }
+  .gs-stat-label { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .gauge-bar { height: 5px; background: var(--border); border-radius: 3px; margin: 3px 0 8px; overflow: hidden; }
+  .gauge-fill { height: 100%; border-radius: 3px; transition: width .5s ease; }
+  .gs-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .gs-row:last-child { border-bottom: none; margin-bottom: 0; }
+  .gs-name { font-size: 12px; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px; }
+  .gs-pct { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 
-/* ── TIMELINE ── */
-.timeline-filter { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-.filter-btn {
-  border: 1px solid var(--soft); background: var(--white); padding: 6px 12px;
-  border-radius: 20px; font-size: 11px; cursor: pointer; font-family: 'Jost';
-  color: var(--muted); transition: all .2s; -webkit-tap-highlight-color: transparent;
-}
-.filter-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+  /* ── UPLOAD ── */
+  .upload-zone { border: 2px dashed var(--border2); border-radius: 10px; padding: 32px; text-align: center; cursor: pointer; transition: all .15s; background: var(--surface); }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: var(--accent-l); }
+  .upload-icon { font-size: 32px; margin-bottom: 10px; }
+  .upload-note { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .upload-pattern { font-family: var(--mono); font-size: 10px; color: var(--muted2); margin-top: 4px; }
 
-.task-item {
-  background: var(--white); border-radius: 10px; padding: 13px 14px; margin-bottom: 8px;
-  display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 2px 6px rgba(0,0,0,.04);
-}
-.task-item.hidden { display: none; }
-.task-check {
-  width: 22px; height: 22px; min-width: 22px; border-radius: 50%;
-  border: 1.5px solid var(--soft); cursor: pointer;
-  display: flex; align-items: center; justify-content: center; margin-top: 1px;
-  transition: all .2s; -webkit-tap-highlight-color: transparent;
-}
-.task-check.done { background: var(--green); border-color: var(--green); }
-.task-check.done::after { content: '✓'; color: white; font-size: 11px; }
-.task-body { flex: 1; min-width: 0; }
-.task-title { font-size: 14px; font-weight: 300; line-height: 1.4; }
-.task-title.done-text { text-decoration: line-through; color: var(--muted); }
-.task-meta { display: flex; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
-.task-period { font-size: 10px; letter-spacing: 1px; color: var(--muted); }
-.task-note { font-size: 11px; color: var(--muted); font-style: italic; line-height: 1.4; }
-.task-priority { font-size: 10px; padding: 2px 8px; border-radius: 10px; }
-.p-alta { background: #fde8e7; color: var(--red); }
-.p-media { background: #fdeede; color: var(--orange); }
-.p-bassa { background: #fffbe6; color: var(--yellow); }
-.p-speciale { background: #e8f0fd; color: #5a80c0; }
+  /* ── RSVP ── */
+  .rsvp-status-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.04em; }
+  .rsvp-confermato  { background:#e6f7f2; color:#0d6e42; }
+  .rsvp-rifiutato   { background:#fff0f0; color:#dc2626; }
+  .rsvp-attesa      { background:#fff8e6; color:#d97706; }
+  .rsvp-gift-input  { width:100px;padding:4px 8px;border:1px solid var(--border2);border-radius:6px;font-family:var(--mono);font-size:12px;text-align:right;background:var(--surface);color:var(--text); }
+  .rsvp-gift-input:focus { border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-l); }
+  .rsvp-action-btn  { padding:4px 10px;border-radius:6px;font-family:var(--mono);font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);transition:all .12s; }
+  .rsvp-action-btn:hover { background:var(--border);color:var(--text); }
+  .rsvp-action-btn.danger:hover { background:#fee2e2;border-color:#fca5a5;color:var(--danger); }
+  .rsvp-add-form  { background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end; }
+  .rsvp-form-field { display:flex;flex-direction:column;gap:4px; }
+  .rsvp-form-label { font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase; }
+  .rsvp-form-input { padding:7px 11px;border:1px solid var(--border2);border-radius:7px;font-family:var(--mono);font-size:12px;background:var(--surface);color:var(--text);outline:none; }
+  .rsvp-form-input:focus { border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-l); }
+  .rsvp-form-select { padding:7px 11px;border:1px solid var(--border2);border-radius:7px;font-family:var(--mono);font-size:12px;background:var(--surface);color:var(--text);cursor:pointer;outline:none; }
+  .rsvp-form-select:focus { border-color:var(--accent); }
+  .rsvp-add-btn { padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;white-space:nowrap; }
+  .rsvp-add-btn:hover { opacity:.9; }
 
-/* ── FORMS ── */
-.add-task-form { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
-.form-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-.inp {
-  border: 1px solid var(--soft); border-radius: 8px; padding: 10px 12px;
-  font-size: 14px; font-family: 'Jost', sans-serif; background: var(--bg);
-  outline: none; flex: 1; min-width: 120px;
-  -webkit-appearance: none;
-}
-.inp:focus { border-color: var(--accent); }
-select.inp { cursor: pointer; }
-.btn {
-  background: var(--accent); color: white; border: none; padding: 10px 18px;
-  border-radius: 8px; cursor: pointer; font-size: 13px; font-family: 'Jost', sans-serif;
-  transition: background .2s; -webkit-tap-highlight-color: transparent;
-  min-height: 40px;
-}
-.btn:hover { background: var(--accent2); }
-.btn:active { background: var(--accent2); }
-.btn-sm { padding: 6px 12px; font-size: 12px; min-height: 32px; }
-.btn-ghost { background: transparent; border: 1px solid var(--soft); color: var(--muted); }
-.btn-ghost:hover, .btn-ghost:active { border-color: var(--accent); color: var(--accent); background: transparent; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  /* ── BUDGET ── */
+  .budget-progress-bar { height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:6px; }
+  .budget-progress-fill { height:100%;border-radius:4px;background:var(--accent);transition:width .5s ease; }
+  .budget-row { display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px; }
+  .budget-row:last-child { border-bottom:none; }
+  .budget-row-label { color:var(--text2); }
+  .budget-row-val { font-weight:700;color:var(--text); }
+  .budget-section-card { background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;box-shadow:var(--shadow);margin-bottom:16px; }
 
-/* ── SUPPLIERS ── */
-.supplier-card { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.04); display: flex; gap: 12px; align-items: flex-start; }
-.supplier-icon { width: 38px; height: 38px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 18px; min-width: 38px; }
-.supplier-body { flex: 1; min-width: 0; }
-.supplier-name { font-size: 14px; font-weight: 400; margin-bottom: 2px; }
-.supplier-cat { font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
-.supplier-details { font-size: 12px; color: var(--muted); margin-top: 6px; display: flex; gap: 10px; flex-wrap: wrap; }
-.supplier-status { font-size: 10px; padding: 3px 9px; border-radius: 10px; margin-top: 6px; display: inline-block; }
-.s-confirmed { background: #e4f3e5; color: var(--green); }
-.s-pending { background: #f7f3ef; color: var(--muted); border: 1px solid var(--soft); }
-.supplier-actions { display: flex; flex-direction: column; gap: 6px; }
-
-.add-supplier-form { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
-
-/* ── SYNC BAR ── */
-.sync-bar {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 12px; margin-bottom: 12px;
-  background: var(--white); border-radius: 10px;
-  font-size: 11px; color: var(--muted);
-  box-shadow: 0 2px 6px rgba(0,0,0,.04);
-  flex-wrap: wrap;
-}
-.sync-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--muted); flex-shrink: 0; transition: background .3s;
-}
-.sync-dot.syncing { background: var(--yellow); animation: pulse 1s infinite; }
-.sync-dot.ok { background: var(--green); }
-.sync-dot.error { background: var(--red); }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-.sync-text { flex: 1; min-width: 80px; font-size: 11px; }
-.sync-btn {
-  background: none; border: 1px solid var(--soft); color: var(--muted);
-  padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 10px; font-family:'Jost';
-  white-space: nowrap;
-}
-.sync-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-/* ── SAVE BADGE ── */
-.save-badge {
-  display: none; position: fixed; bottom: 20px; right: 16px;
-  background: var(--green); color: white; padding: 10px 16px;
-  border-radius: 20px; font-size: 12px; letter-spacing: 1px;
-  z-index: 300; opacity: 0; transition: opacity .3s;
-  box-shadow: 0 4px 16px rgba(0,0,0,.15);
-}
-.save-badge.show { display: block; opacity: 1; }
-.save-badge.error { background: var(--red); }
-
-/* ── PROGRESS RING ── */
-.progress-ring { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--white); border-radius: 12px; margin-bottom: 14px; }
-.ring-wrap { position: relative; width: 54px; height: 54px; flex-shrink: 0; }
-.ring-circle { fill: none; stroke: var(--soft); stroke-width: 4; }
-.ring-progress { fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset .6s ease; }
-.ring-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 13px; }
-.ring-label { font-size: 13px; color: var(--muted); }
-.ring-label b { font-size: 20px; font-family: 'Cormorant Garamond', serif; font-weight: 400; color: var(--text); display: block; }
-
-/* ── LOADING ── */
-.loading-overlay {
-  position: fixed; inset: 0; background: rgba(247,243,239,.9);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  z-index: 999; gap: 14px;
-}
-.loading-overlay.hidden { display: none; }
-.loading-spinner {
-  width: 36px; height: 36px; border: 3px solid var(--soft);
-  border-top-color: var(--accent); border-radius: 50%;
-  animation: spin .8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.loading-text { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--accent2); letter-spacing: 2px; }
-
-/* ── MOBILE ── */
-@media (max-width: 600px) {
-  h1 { font-size: 32px; }
-  header { padding: 24px 12px 14px; }
-
-  /* Nascondi tabella, mostra cards */
-  .budget-table-wrap { display: none; }
-  .budget-card-list { display: block; }
-
-  .budget-summary { gap: 6px; }
-  .bstat-num { font-size: 17px; }
-  .bstat-label { font-size: 7px; }
-
-  .panel { padding: 12px 10px; }
-
-  .form-row { flex-direction: column; }
-  .inp { min-width: 0; width: 100%; font-size: 16px; /* prevent zoom iOS */ }
-  select.inp { font-size: 16px; }
-
-  .btn { width: 100%; text-align: center; }
-  .btn-sm { width: auto; }
-
-  .task-title { font-size: 14px; }
-
-  .supplier-card { flex-wrap: wrap; }
-  .supplier-actions { flex-direction: row; }
-
-  .sync-bar { font-size: 10px; }
-
-  /* Budget disponibile form */
-  .budget-avail-row { flex-direction: column !important; }
-  .budget-avail-row > div { flex: unset !important; width: 100%; }
-}
+  @media (max-width: 640px) {
+    .charts-row { grid-template-columns: 1fr; }
+    .modal-kpi, .compare-block { grid-template-columns: 1fr 1fr; }
+    main { padding: 16px; }
+    header { padding: 12px 16px; }
+    .tabs-bar { padding: 0 12px; overflow-x: auto; }
+    .mese-compare-grid { grid-template-columns: 1fr; }
+    .rsvp-add-form { flex-direction:column; }
+  }
 </style>
 </head>
 <body>
@@ -353,14 +289,15 @@ select.inp { cursor: pointer; }
   <div class="header-date">29 AGOSTO 2026 · CA DI VOI, CALIZZANO</div>
 </header>
 
-<div class="countdown">
-  <div class="cd-box"><div class="cd-num" id="d">–</div><div class="cd-label">Giorni</div></div>
-  <div class="cd-sep">·</div>
-  <div class="cd-box"><div class="cd-num" id="h">–</div><div class="cd-label">Ore</div></div>
-  <div class="cd-sep">·</div>
-  <div class="cd-box"><div class="cd-num" id="m">–</div><div class="cd-label">Min</div></div>
-  <div class="cd-sep">·</div>
-  <div class="cd-box"><div class="cd-num" id="s">–</div><div class="cd-label">Sec</div></div>
+<div class="tabs-bar">
+  <button class="tab active" onclick="showPanel('overview',this)">Overview</button>
+  <button class="tab" onclick="showPanel('clienti',this)">Clienti</button>
+  <button class="tab" onclick="showPanel('gamma',this)">Gamma Prodotti</button>
+  <button class="tab" onclick="showPanel('pipeline',this)">Pipeline</button>
+  <button class="tab" onclick="showPanel('wilson',this)">Wilson Ordini</button>
+  <button class="tab" onclick="showPanel('rsvp',this)">Invitati / RSVP</button>
+  <button class="tab" onclick="showPanel('budget',this)">Budget Matrimonio</button>
+  <button class="tab" onclick="showPanel('upload',this)">Aggiorna Dati</button>
 </div>
 
 <div class="tabs">
@@ -536,6 +473,203 @@ select.inp { cursor: pointer; }
 
   <div id="supplierList"></div>
 </div>
+</div>
+
+<!-- ═══ RSVP ═══ -->
+<div class="panel" id="panel-rsvp">
+<div style="max-width:1100px;margin:0 auto;">
+
+  <!-- KPI RSVP -->
+  <div class="kpi-grid" id="rsvp-kpi" style="margin-bottom:24px;">
+    <div class="kpi"><div class="kpi-label">Totale invitati</div><div class="kpi-val" id="rsvp-k-totale">0</div></div>
+    <div class="kpi"><div class="kpi-label">Confermati</div><div class="kpi-val" id="rsvp-k-conf" style="color:var(--ok);">0</div></div>
+    <div class="kpi"><div class="kpi-label">Rifiutati</div><div class="kpi-val" id="rsvp-k-rif" style="color:var(--danger);">0</div></div>
+    <div class="kpi"><div class="kpi-label">In attesa</div><div class="kpi-val" id="rsvp-k-att" style="color:var(--warn);">0</div></div>
+    <div class="kpi"><div class="kpi-label">Regali ricevuti</div><div class="kpi-val" id="rsvp-k-regalo" style="color:var(--accent);">€ 0</div></div>
+  </div>
+
+  <!-- Form aggiungi invitato -->
+  <div class="section-title">Aggiungi invitato</div>
+  <div class="rsvp-add-form">
+    <div class="rsvp-form-field">
+      <label class="rsvp-form-label">Nome e cognome *</label>
+      <input class="rsvp-form-input" id="rsvp-nome" placeholder="Es. Mario Rossi" style="min-width:180px;">
+    </div>
+    <div class="rsvp-form-field">
+      <label class="rsvp-form-label">Gruppo / famiglia</label>
+      <input class="rsvp-form-input" id="rsvp-gruppo" placeholder="Es. Famiglia Rossi" style="min-width:150px;">
+    </div>
+    <div class="rsvp-form-field">
+      <label class="rsvp-form-label">Tavolo</label>
+      <input class="rsvp-form-input" id="rsvp-tavolo" placeholder="Es. 3" style="width:80px;">
+    </div>
+    <div class="rsvp-form-field">
+      <label class="rsvp-form-label">RSVP</label>
+      <select class="rsvp-form-select" id="rsvp-stato">
+        <option value="attesa">In attesa</option>
+        <option value="confermato">Confermato</option>
+        <option value="rifiutato">Rifiutato</option>
+      </select>
+    </div>
+    <button class="rsvp-add-btn" onclick="rsvpAddGuest()">+ Aggiungi</button>
+  </div>
+
+  <!-- Filtri e ricerca -->
+  <div class="toolbar" style="margin-bottom:14px;">
+    <input class="search-box" id="rsvp-search" placeholder="🔍  Cerca invitato, gruppo…" oninput="rsvpRender()">
+    <select class="filter-sel" id="rsvp-filter-stato" onchange="rsvpRender()">
+      <option value="">Tutti</option>
+      <option value="confermato">Confermati</option>
+      <option value="rifiutato">Rifiutati</option>
+      <option value="attesa">In attesa</option>
+    </select>
+    <button onclick="rsvpExportCSV()" style="font-family:var(--mono);font-size:11px;font-weight:600;padding:8px 14px;border:1px solid var(--border2);border-radius:7px;background:var(--surface2);cursor:pointer;color:var(--text2);">⬇ CSV</button>
+  </div>
+
+  <!-- Tabella invitati -->
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nome e cognome</th>
+          <th>Gruppo / famiglia</th>
+          <th>Tavolo</th>
+          <th>RSVP</th>
+          <th style="text-align:right;">Regalo ricevuto (€)</th>
+          <th>Note</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="rsvp-tbody">
+        <tr><td colspan="7" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:12px;padding:40px;">Nessun invitato ancora aggiunto</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="rsvp-count" style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:10px;"></div>
+
+</div>
+</div>
+
+<!-- ═══ BUDGET ═══ -->
+<div class="panel" id="panel-budget">
+<div style="max-width:800px;margin:0 auto;">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div>
+      <div style="font-size:20px;font-weight:800;letter-spacing:-.01em;">Budget Matrimonio</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px;font-family:var(--mono);">Regali ricevuti · Spese · Saldo</div>
+    </div>
+  </div>
+
+  <!-- KPI Budget -->
+  <div class="kpi-grid" style="margin-bottom:24px;">
+    <div class="kpi">
+      <div class="kpi-label">Totale regali</div>
+      <div class="kpi-val" id="bgt-k-regali" style="color:var(--ok);">€ 0</div>
+      <div class="kpi-sub" id="bgt-k-regali-n">da 0 invitati</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Totale spese</div>
+      <div class="kpi-val" id="bgt-k-spese" style="color:var(--danger);">€ 0</div>
+      <div class="kpi-sub" id="bgt-k-spese-n">0 voci</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Saldo netto</div>
+      <div class="kpi-val" id="bgt-k-saldo">€ 0</div>
+      <div class="kpi-sub">regali − spese</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Regalo medio</div>
+      <div class="kpi-val" id="bgt-k-media">€ 0</div>
+      <div class="kpi-sub">per invitato confermato</div>
+    </div>
+  </div>
+
+  <!-- Regali per gruppo -->
+  <div class="budget-section-card">
+    <div class="section-title" style="margin-bottom:14px;">Regali per gruppo / famiglia</div>
+    <div id="bgt-gruppi">
+      <div style="font-family:var(--mono);font-size:12px;color:var(--muted);padding:12px 0;">Nessun dato disponibile — aggiungi invitati nel tab RSVP.</div>
+    </div>
+  </div>
+
+  <!-- Spese matrimonio -->
+  <div class="budget-section-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div class="section-title" style="margin-bottom:0;">Voci di spesa</div>
+      <button onclick="bgtShowAddSpesa()" style="font-family:var(--mono);font-size:11px;font-weight:700;padding:6px 14px;background:var(--accent);color:#fff;border:none;border-radius:7px;cursor:pointer;">+ Aggiungi spesa</button>
+    </div>
+
+    <!-- Form aggiungi spesa (hidden) -->
+    <div id="bgt-spesa-form" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+      <div class="rsvp-form-field">
+        <label class="rsvp-form-label">Descrizione *</label>
+        <input class="rsvp-form-input" id="bgt-spesa-desc" placeholder="Es. Catering" style="min-width:180px;">
+      </div>
+      <div class="rsvp-form-field">
+        <label class="rsvp-form-label">Categoria</label>
+        <select class="rsvp-form-select" id="bgt-spesa-cat">
+          <option value="Catering">Catering</option>
+          <option value="Location">Location</option>
+          <option value="Fiori">Fiori &amp; Decorazioni</option>
+          <option value="Foto">Foto / Video</option>
+          <option value="Abiti">Abiti</option>
+          <option value="Musica">Musica / Intrattenimento</option>
+          <option value="Altro">Altro</option>
+        </select>
+      </div>
+      <div class="rsvp-form-field">
+        <label class="rsvp-form-label">Importo (€) *</label>
+        <input class="rsvp-form-input" id="bgt-spesa-imp" type="number" min="0" step="0.01" placeholder="0.00" style="width:110px;">
+      </div>
+      <div class="rsvp-form-field">
+        <label class="rsvp-form-label">Stato</label>
+        <select class="rsvp-form-select" id="bgt-spesa-stato">
+          <option value="preventivo">Preventivo</option>
+          <option value="confermato">Confermato</option>
+          <option value="pagato">Pagato</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="bgtAddSpesa()" class="rsvp-add-btn">Salva</button>
+        <button onclick="document.getElementById('bgt-spesa-form').style.display='none'" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--surface2);cursor:pointer;font-family:var(--mono);font-size:12px;">Annulla</button>
+      </div>
+    </div>
+
+    <div id="bgt-spese-list">
+      <div style="font-family:var(--mono);font-size:12px;color:var(--muted);padding:12px 0;">Nessuna spesa ancora registrata.</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+</main>
+
+<!-- ═══ MODAL ═══ -->
+<div class="modal-overlay" id="modal" onclick="closeModalBg(event)">
+  <div class="modal" id="modal-inner">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="m-nome"></div>
+        <div class="modal-sub" id="m-sub"></div>
+      </div>
+      <button class="close-btn" onclick="closeModalDirect()">×</button>
+    </div>
+
+    <div class="modal-kpi" id="m-kpi"></div>
+
+    <!-- Confronto mese -->
+    <div class="modal-section-title" id="m-mese-title">Confronto mese corrente</div>
+    <div class="compare-block" id="m-compare-block"></div>
+
+    <!-- Confronto progressivo -->
+    <div class="modal-section-title" id="m-prog-title">Confronto progressivo</div>
+    <div class="compare-block" id="m-prog-block"></div>
+
+    <!-- Chart mensile -->
+    <div class="modal-section-title" id="m-chart-title">Andamento mensile</div>
+    <div class="modal-chart-wrap"><canvas id="m-chart"></canvas></div>
 
 <!-- ========== RSVP ========== -->
 <div id="rsvp" class="panel">
@@ -1159,8 +1293,267 @@ async function loadRSVP() {
   }
 }
 
-// ===== INIT =====
-loadFromSheets().then(() => loadRSVP());
+// Init al caricamento
+wilsonRender();
+
+// ═══════════════════════════════════════════════════════
+//  RSVP — Gestione invitati
+// ═══════════════════════════════════════════════════════
+var RSVP_GUESTS = JSON.parse(localStorage.getItem('rsvp_guests') || '[]');
+var BGT_SPESE   = JSON.parse(localStorage.getItem('bgt_spese')   || '[]');
+
+function rsvpSave() {
+  localStorage.setItem('rsvp_guests', JSON.stringify(RSVP_GUESTS));
+}
+
+function rsvpAddGuest() {
+  const nome   = document.getElementById('rsvp-nome').value.trim();
+  const gruppo = document.getElementById('rsvp-gruppo').value.trim();
+  const tavolo = document.getElementById('rsvp-tavolo').value.trim();
+  const stato  = document.getElementById('rsvp-stato').value;
+  if (!nome) { alert('Inserisci il nome dell\'invitato.'); return; }
+  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo, tavolo, stato, regalo: '', note: '' });
+  rsvpSave();
+  document.getElementById('rsvp-nome').value   = '';
+  document.getElementById('rsvp-gruppo').value = '';
+  document.getElementById('rsvp-tavolo').value = '';
+  document.getElementById('rsvp-stato').value  = 'attesa';
+  rsvpRender();
+  rsvpUpdateKpi();
+  bgtRender();
+}
+
+function rsvpDeleteGuest(id) {
+  if (!confirm('Rimuovere questo invitato?')) return;
+  RSVP_GUESTS = RSVP_GUESTS.filter(g => g.id !== id);
+  rsvpSave();
+  rsvpRender();
+  rsvpUpdateKpi();
+  bgtRender();
+}
+
+function rsvpUpdateField(id, field, value) {
+  const g = RSVP_GUESTS.find(g => g.id === id);
+  if (!g) return;
+  if (field === 'regalo') {
+    g.regalo = value === '' ? '' : parseFloat(value) || 0;
+  } else {
+    g[field] = value;
+  }
+  rsvpSave();
+  rsvpUpdateKpi();
+  bgtRender();
+}
+
+function rsvpStatusBadge(stato) {
+  const map = {
+    confermato: ['rsvp-confermato', 'Confermato'],
+    rifiutato:  ['rsvp-rifiutato',  'Rifiutato'],
+    attesa:     ['rsvp-attesa',     'In attesa'],
+  };
+  const [cls, label] = map[stato] || map.attesa;
+  return `<span class="rsvp-status-badge ${cls}">${label}</span>`;
+}
+
+function rsvpUpdateKpi() {
+  const tot  = RSVP_GUESTS.length;
+  const conf = RSVP_GUESTS.filter(g => g.stato === 'confermato').length;
+  const rif  = RSVP_GUESTS.filter(g => g.stato === 'rifiutato').length;
+  const att  = RSVP_GUESTS.filter(g => g.stato === 'attesa').length;
+  const totRegali = RSVP_GUESTS.reduce((s, g) => s + (parseFloat(g.regalo) || 0), 0);
+  document.getElementById('rsvp-k-totale').textContent = tot;
+  document.getElementById('rsvp-k-conf').textContent   = conf;
+  document.getElementById('rsvp-k-rif').textContent    = rif;
+  document.getElementById('rsvp-k-att').textContent    = att;
+  document.getElementById('rsvp-k-regalo').textContent = '€ ' + totRegali.toLocaleString('it-IT', {minimumFractionDigits:0, maximumFractionDigits:0});
+}
+
+function rsvpRender() {
+  const search = (document.getElementById('rsvp-search')?.value || '').toLowerCase();
+  const filtro = document.getElementById('rsvp-filter-stato')?.value || '';
+  let list = RSVP_GUESTS.filter(g => {
+    const matchSearch = !search || g.nome.toLowerCase().includes(search) || (g.gruppo||'').toLowerCase().includes(search);
+    const matchFiltro = !filtro || g.stato === filtro;
+    return matchSearch && matchFiltro;
+  });
+
+  const tbody = document.getElementById('rsvp-tbody');
+  if (!tbody) return;
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);font-family:var(--mono);font-size:12px;padding:40px;">Nessun invitato trovato</td></tr>`;
+    document.getElementById('rsvp-count').textContent = '';
+    return;
+  }
+
+  tbody.innerHTML = list.map(g => `
+    <tr id="rsvp-row-${g.id}">
+      <td class="td-nome">${g.nome}</td>
+      <td style="font-family:var(--mono);font-size:12px;color:var(--muted2);">${g.gruppo || '—'}</td>
+      <td style="font-family:var(--mono);font-size:12px;text-align:center;">${g.tavolo || '—'}</td>
+      <td>
+        <select class="rsvp-form-select" style="font-size:11px;padding:3px 8px;"
+          onchange="rsvpUpdateField(${g.id},'stato',this.value);rsvpRender();">
+          <option value="attesa"     ${g.stato==='attesa'    ?'selected':''}>In attesa</option>
+          <option value="confermato" ${g.stato==='confermato'?'selected':''}>Confermato</option>
+          <option value="rifiutato"  ${g.stato==='rifiutato' ?'selected':''}>Rifiutato</option>
+        </select>
+      </td>
+      <td style="text-align:right;">
+        <input class="rsvp-gift-input" type="number" min="0" step="1"
+          value="${g.regalo !== '' ? g.regalo : ''}"
+          placeholder="—"
+          oninput="rsvpUpdateField(${g.id},'regalo',this.value)"
+          title="Importo regalo ricevuto in €">
+      </td>
+      <td>
+        <input class="rsvp-form-input" style="width:140px;font-size:11px;padding:4px 8px;"
+          value="${(g.note||'').replace(/"/g,'&quot;')}"
+          placeholder="Note…"
+          oninput="rsvpUpdateField(${g.id},'note',this.value)">
+      </td>
+      <td>
+        <button class="rsvp-action-btn danger" onclick="rsvpDeleteGuest(${g.id})">✕</button>
+      </td>
+    </tr>`).join('');
+
+  document.getElementById('rsvp-count').textContent = `${list.length} invitat${list.length === 1 ? 'o' : 'i'} mostrat${list.length === 1 ? 'o' : 'i'}`;
+}
+
+function rsvpExportCSV() {
+  if (!RSVP_GUESTS.length) return;
+  const rows = [['Nome','Gruppo','Tavolo','RSVP','Regalo (€)','Note']];
+  RSVP_GUESTS.forEach(g => rows.push([g.nome, g.gruppo, g.tavolo, g.stato, g.regalo, g.note]));
+  const csv  = rows.map(r => r.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['﻿'+csv], { type:'text/csv;charset=utf-8;' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `rsvp_invitati_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ═══════════════════════════════════════════════════════
+//  BUDGET matrimonio
+// ═══════════════════════════════════════════════════════
+function bgtSave() {
+  localStorage.setItem('bgt_spese', JSON.stringify(BGT_SPESE));
+}
+
+function bgtShowAddSpesa() {
+  const f = document.getElementById('bgt-spesa-form');
+  f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+}
+
+function bgtAddSpesa() {
+  const desc  = document.getElementById('bgt-spesa-desc').value.trim();
+  const cat   = document.getElementById('bgt-spesa-cat').value;
+  const imp   = parseFloat(document.getElementById('bgt-spesa-imp').value) || 0;
+  const stato = document.getElementById('bgt-spesa-stato').value;
+  if (!desc)    { alert('Inserisci una descrizione per la spesa.'); return; }
+  if (imp <= 0) { alert('Inserisci un importo valido.'); return; }
+  BGT_SPESE.push({ id: Date.now(), desc, cat, imp, stato });
+  bgtSave();
+  document.getElementById('bgt-spesa-desc').value = '';
+  document.getElementById('bgt-spesa-imp').value  = '';
+  document.getElementById('bgt-spesa-form').style.display = 'none';
+  bgtRender();
+}
+
+function bgtDeleteSpesa(id) {
+  if (!confirm('Eliminare questa voce di spesa?')) return;
+  BGT_SPESE = BGT_SPESE.filter(s => s.id !== id);
+  bgtSave();
+  bgtRender();
+}
+
+function bgtUpdateSpesaStato(id, stato) {
+  const s = BGT_SPESE.find(s => s.id === id);
+  if (s) { s.stato = stato; bgtSave(); bgtRender(); }
+}
+
+function bgtRender() {
+  const totRegali  = RSVP_GUESTS.reduce((s, g) => s + (parseFloat(g.regalo) || 0), 0);
+  const confCount  = RSVP_GUESTS.filter(g => g.stato === 'confermato').length;
+  const giftCount  = RSVP_GUESTS.filter(g => parseFloat(g.regalo) > 0).length;
+  const totSpese   = BGT_SPESE.reduce((s, v) => s + (v.imp || 0), 0);
+  const saldo      = totRegali - totSpese;
+  const mediaRegalo = giftCount > 0 ? totRegali / giftCount : 0;
+
+  const kv = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  kv('bgt-k-regali',   '€ ' + totRegali.toLocaleString('it-IT', {minimumFractionDigits:0}));
+  kv('bgt-k-regali-n', `da ${giftCount} invitat${giftCount===1?'o':'i'}`);
+  kv('bgt-k-spese',    '€ ' + totSpese.toLocaleString('it-IT',  {minimumFractionDigits:0}));
+  kv('bgt-k-spese-n',  `${BGT_SPESE.length} voc${BGT_SPESE.length===1?'e':'i'}`);
+
+  const saldoEl = document.getElementById('bgt-k-saldo');
+  if (saldoEl) {
+    saldoEl.textContent = (saldo >= 0 ? '+ ' : '− ') + '€ ' + Math.abs(saldo).toLocaleString('it-IT', {minimumFractionDigits:0});
+    saldoEl.style.color = saldo >= 0 ? 'var(--ok)' : 'var(--danger)';
+  }
+  kv('bgt-k-media', '€ ' + mediaRegalo.toLocaleString('it-IT', {minimumFractionDigits:0}));
+
+  // Gruppi
+  const gruppiEl = document.getElementById('bgt-gruppi');
+  if (gruppiEl) {
+    const byGruppo = {};
+    RSVP_GUESTS.forEach(g => {
+      const key = g.gruppo || '(senza gruppo)';
+      if (!byGruppo[key]) byGruppo[key] = { regali: 0, count: 0 };
+      byGruppo[key].regali += parseFloat(g.regalo) || 0;
+      byGruppo[key].count++;
+    });
+    const sorted = Object.entries(byGruppo).sort((a,b) => b[1].regali - a[1].regali);
+    if (!sorted.length) {
+      gruppiEl.innerHTML = '<div style="font-family:var(--mono);font-size:12px;color:var(--muted);padding:12px 0;">Nessun dato disponibile.</div>';
+    } else {
+      const maxVal = Math.max(...sorted.map(([,v]) => v.regali), 1);
+      gruppiEl.innerHTML = sorted.map(([nome, v]) => {
+        const pct = (v.regali / maxVal * 100).toFixed(0);
+        return `<div class="budget-row">
+          <div>
+            <div class="budget-row-label">${nome}</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);margin-top:2px;">${v.count} invitat${v.count===1?'o':'i'}</div>
+            <div class="budget-progress-bar" style="width:180px;"><div class="budget-progress-fill" style="width:${pct}%;"></div></div>
+          </div>
+          <div class="budget-row-val">${v.regali > 0 ? '€ ' + v.regali.toLocaleString('it-IT', {minimumFractionDigits:0}) : '—'}</div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // Spese
+  const speseEl = document.getElementById('bgt-spese-list');
+  if (speseEl) {
+    if (!BGT_SPESE.length) {
+      speseEl.innerHTML = '<div style="font-family:var(--mono);font-size:12px;color:var(--muted);padding:12px 0;">Nessuna spesa ancora registrata.</div>';
+    } else {
+      const statoMap = { preventivo:'warn', confermato:'neu', pagato:'ok' };
+      const statoLbl = { preventivo:'Preventivo', confermato:'Confermato', pagato:'Pagato' };
+      speseEl.innerHTML = BGT_SPESE.map(s => `
+        <div class="budget-row">
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);">${s.desc}</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);margin-top:2px;">${s.cat}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <select class="rsvp-form-select" style="font-size:10px;padding:2px 7px;"
+              onchange="bgtUpdateSpesaStato(${s.id},this.value)">
+              <option value="preventivo" ${s.stato==='preventivo'?'selected':''}>Preventivo</option>
+              <option value="confermato" ${s.stato==='confermato'?'selected':''}>Confermato</option>
+              <option value="pagato"     ${s.stato==='pagato'    ?'selected':''}>Pagato</option>
+            </select>
+            <div class="budget-row-val" style="min-width:90px;text-align:right;">€ ${(s.imp||0).toLocaleString('it-IT', {minimumFractionDigits:0})}</div>
+            <button class="rsvp-action-btn danger" onclick="bgtDeleteSpesa(${s.id})">✕</button>
+          </div>
+        </div>`).join('');
+    }
+  }
+}
+
+// Init RSVP + Budget
+rsvpUpdateKpi();
+rsvpRender();
+bgtRender();
 </script>
 </body>
 </html>
