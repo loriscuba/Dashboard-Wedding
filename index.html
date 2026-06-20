@@ -423,6 +423,26 @@ select.inp { cursor: pointer; }
   .rsvp-add-form { flex-direction:column; }
   .tbl-wrap { font-size:12px; }
 }
+
+/* ── IMPORT / SYNC ── */
+.import-textarea {
+  width:100%; min-height:110px; padding:10px 12px;
+  border:1px solid var(--soft); border-radius:8px;
+  font-family:'Jost',sans-serif; font-size:13px; background:var(--bg);
+  color:var(--text); resize:vertical; outline:none; margin-bottom:8px; display:block;
+}
+.import-textarea:focus { border-color:var(--accent); }
+.sync-result-box {
+  font-size:12px; background:var(--white); border-radius:8px;
+  padding:10px 14px; margin-bottom:12px;
+  border:1px solid var(--soft); line-height:1.8; white-space:pre-line;
+}
+.unmatched-pill {
+  display:inline-block; background:var(--bg); border:1px solid var(--soft);
+  border-radius:20px; padding:3px 10px; font-size:11px; margin:2px 3px;
+  cursor:pointer; transition:all .15s;
+}
+.unmatched-pill:hover { border-color:var(--accent); color:var(--accent2); background:var(--accent-l); }
 </style>
 </head>
 <body>
@@ -681,6 +701,22 @@ select.inp { cursor: pointer; }
     <button class="rsvp-add-btn" onclick="rsvpAddGuest()">+ Aggiungi</button>
   </div>
 
+  <!-- Importa lista invitati -->
+  <div id="rsvp-import-section" style="display:none;background:var(--white);border:1px solid var(--soft);border-radius:12px;padding:14px;margin-bottom:16px;">
+    <div class="section-title" style="font-size:15px;margin-bottom:10px;">📋 Importa lista invitati</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">
+      Un invitato per riga · Formato: <code>Nome Cognome</code> &nbsp;oppure&nbsp; <code>Nome Cognome, Gruppo, Tavolo</code><br>
+      Gli invitati già presenti vengono ignorati.
+    </div>
+    <textarea id="rsvp-import-textarea" class="import-textarea"
+      placeholder="Mario Rossi, Famiglia Rossi, 3&#10;Anna Bianchi, Amici sposa, 5&#10;Luca Verdi"></textarea>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="rsvp-add-btn" onclick="rsvpImportList()">Importa</button>
+      <button class="btn btn-sm btn-ghost" onclick="document.getElementById('rsvp-import-section').style.display='none'">Chiudi</button>
+      <span id="rsvp-import-result" style="font-size:12px;color:var(--green);margin-left:4px;"></span>
+    </div>
+  </div>
+
   <!-- Filtri e ricerca -->
   <div class="toolbar">
     <input class="search-box" id="rsvp-search" placeholder="🔍  Cerca invitato, gruppo…" oninput="rsvpRender()">
@@ -691,7 +727,12 @@ select.inp { cursor: pointer; }
       <option value="attesa">In attesa</option>
     </select>
     <button class="btn btn-sm btn-ghost" onclick="rsvpExportCSV()">⬇ CSV</button>
+    <button class="btn btn-sm btn-ghost" onclick="rsvpToggleImport()">📋 Importa</button>
+    <button class="btn btn-sm btn-ghost" id="rsvp-sync-btn" onclick="rsvpSyncWithForms()">🔄 Sincronizza RSVP</button>
   </div>
+
+  <!-- Risultato sincronizzazione -->
+  <div id="rsvp-sync-result" class="sync-result-box" style="display:none;"></div>
 
   <!-- Tabella invitati -->
   <div class="tbl-wrap">
@@ -1371,6 +1412,7 @@ async function loadRSVP() {
   try {
     const res = await fetch(RSVP_URL);
     const data = await res.json();
+    RSVP_FORMS_DATA = data;
     let ok = 0, all = 0;
     let allergyMap = {};
     const html = data.map(r => {
@@ -1408,8 +1450,9 @@ async function loadRSVP() {
 // ═══════════════════════════════════════════════════════
 //  RSVP — Gestione invitati
 // ═══════════════════════════════════════════════════════
-var RSVP_GUESTS = JSON.parse(localStorage.getItem('rsvp_guests') || '[]');
-var BGT_SPESE   = JSON.parse(localStorage.getItem('bgt_spese')   || '[]');
+var RSVP_GUESTS    = JSON.parse(localStorage.getItem('rsvp_guests') || '[]');
+var BGT_SPESE      = JSON.parse(localStorage.getItem('bgt_spese')   || '[]');
+var RSVP_FORMS_DATA = [];
 
 function rsvpSave() {
   localStorage.setItem('rsvp_guests', JSON.stringify(RSVP_GUESTS));
@@ -1649,6 +1692,126 @@ function bgtRender() {
         </div>`).join('');
     }
   }
+}
+
+// ═══════════════════════════════════════════════════════
+//  IMPORTA & SINCRONIZZA INVITATI
+// ═══════════════════════════════════════════════════════
+function rsvpToggleImport() {
+  const sec = document.getElementById('rsvp-import-section');
+  sec.style.display = sec.style.display === 'none' ? 'block' : 'none';
+  document.getElementById('rsvp-import-result').textContent = '';
+}
+
+function rsvpImportList() {
+  const raw = document.getElementById('rsvp-import-textarea').value.trim();
+  if (!raw) return;
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  let added = 0, skipped = 0;
+  lines.forEach((line, idx) => {
+    const parts = line.split(',').map(p => p.trim());
+    const nome = parts[0];
+    if (!nome) return;
+    const gruppo = parts[1] || '';
+    const tavolo = parts[2] || '';
+    if (RSVP_GUESTS.some(g => g.nome.toLowerCase() === nome.toLowerCase())) {
+      skipped++;
+      return;
+    }
+    RSVP_GUESTS.push({ id: Date.now() + idx, nome, gruppo, tavolo, stato: 'attesa', regalo: '', note: '' });
+    added++;
+  });
+  rsvpSave();
+  document.getElementById('rsvp-import-textarea').value = '';
+  document.getElementById('rsvp-import-result').textContent =
+    `✓ ${added} importat${added===1?'o':'i'}${skipped > 0 ? ` · ${skipped} già present${skipped===1?'e':'i'}` : ''}`;
+  rsvpRender();
+  rsvpUpdateKpi();
+  bgtRender();
+}
+
+async function rsvpSyncWithForms() {
+  const btn   = document.getElementById('rsvp-sync-btn');
+  const resEl = document.getElementById('rsvp-sync-result');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Sincronizzazione…'; }
+  if (resEl) resEl.style.display = 'none';
+
+  try {
+    const r = await fetch(RSVP_URL);
+    RSVP_FORMS_DATA = await r.json();
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 Sincronizza RSVP'; }
+    if (resEl) {
+      resEl.style.display = 'block';
+      resEl.textContent = '⚠️ Errore nel caricamento RSVP. Controlla la condivisione del foglio Google.';
+    }
+    return;
+  }
+
+  let updated = 0;
+  const notInList = [];
+
+  RSVP_FORMS_DATA.forEach(r => {
+    const nomeForm = (r.Nome || '').trim();
+    if (!nomeForm) return;
+    const nomeLC = nomeForm.toLowerCase();
+
+    // Match case-insensitive, anche parziale (es. solo cognome)
+    const match = RSVP_GUESTS.find(g => {
+      const gLC = g.nome.trim().toLowerCase();
+      return gLC === nomeLC || gLC.includes(nomeLC) || nomeLC.includes(gLC);
+    });
+
+    if (match) {
+      const confermato = /^s/i.test(r.Partecipazione || '');
+      const nuovoStato = confermato ? 'confermato' : 'rifiutato';
+      if (match.stato !== nuovoStato) { match.stato = nuovoStato; updated++; }
+      // Copia allergia nelle note se non già presente
+      if (r.Allergie && r.Allergie.trim().toLowerCase() !== 'no' && !match.note) {
+        match.note = '⚠️ ' + r.Allergie.trim();
+      }
+    } else {
+      notInList.push({ nome: r.Nome, si: /^s/i.test(r.Partecipazione || '') });
+    }
+  });
+
+  rsvpSave();
+  rsvpRender();
+  rsvpUpdateKpi();
+  bgtRender();
+  if (btn) { btn.disabled = false; btn.textContent = '🔄 Sincronizza RSVP'; }
+
+  if (resEl) {
+    resEl.style.display = 'block';
+    let html = `<b>✅ ${updated} invitat${updated===1?'o':'i'} aggiornati</b> da Google Forms`;
+    if (notInList.length) {
+      html += `\n<b>⚠️ ${notInList.length} risposta/e non abbinate</b> — non trovate in lista invitati:\n`;
+      html += notInList.map(n =>
+        `<span class="unmatched-pill" title="Clicca per aggiungere"
+          onclick="rsvpAddFromUnmatched('${escHtml(n.nome)}','${n.si?'confermato':'rifiutato'}')"
+        >${n.nome} ${n.si ? '✅' : '❌'}</span>`
+      ).join('');
+      html += `\n<span style="font-size:11px;color:var(--muted);">Clicca un nome per aggiungerlo alla lista.</span>`;
+    }
+    resEl.innerHTML = html;
+  }
+}
+
+function rsvpAddFromUnmatched(nome, stato) {
+  if (RSVP_GUESTS.some(g => g.nome.toLowerCase() === nome.toLowerCase())) return;
+  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo: '', tavolo: '', stato, regalo: '', note: '' });
+  rsvpSave();
+  rsvpRender();
+  rsvpUpdateKpi();
+  bgtRender();
+  // Rimuovi il pill
+  document.querySelectorAll('.unmatched-pill').forEach(p => {
+    if (p.textContent.startsWith(nome)) {
+      p.style.opacity = '0.4';
+      p.style.pointerEvents = 'none';
+      p.textContent = '✓ ' + nome;
+    }
+  });
 }
 
 // ===== INIT =====
