@@ -399,13 +399,13 @@ select.inp { cursor: pointer; }
 .rsvp-nome-edit {
   border:none; background:transparent; width:100%; min-width:130px;
   font-size:14px; font-weight:400; font-family:'Jost',sans-serif; color:var(--text);
-  outline:none; border-bottom:1px dashed transparent; padding:0;
+  outline:none; border-bottom:1px dashed var(--soft); padding:0;
 }
-.rsvp-nome-edit:focus { border-bottom-color:var(--accent); }
+.rsvp-nome-edit:focus { border-bottom-color:var(--accent); background:var(--accent-l); padding:1px 3px; border-radius:3px 3px 0 0; }
 .rsvp-canzone-edit {
-  border:none; background:transparent; width:100%; min-width:120px;
+  border:none; background:transparent; width:100%; min-width:130px;
   font-size:12px; font-family:'Jost',sans-serif; color:var(--muted);
-  outline:none; border-bottom:1px dashed transparent; padding:0;
+  outline:none; border-bottom:1px dashed var(--soft); padding:0;
 }
 .rsvp-canzone-edit:focus { border-bottom-color:var(--accent); }
 .rsvp-action-btn { padding:4px 9px; border-radius:6px; font-family:'Jost',sans-serif; font-size:10px; font-weight:600; cursor:pointer; border:1px solid var(--soft); background:var(--bg); color:var(--muted); transition:all .12s; }
@@ -745,6 +745,7 @@ select.inp { cursor: pointer; }
     <button class="btn btn-sm btn-ghost" onclick="rsvpExportCSV()">⬇ CSV</button>
     <button class="btn btn-sm btn-ghost" onclick="rsvpToggleImport()">📋 Importa</button>
     <button class="btn btn-sm btn-ghost" id="rsvp-sync-btn" onclick="rsvpSyncWithForms()">🔄 Sincronizza RSVP</button>
+    <button class="btn btn-sm btn-ghost" style="color:var(--red);border-color:#fca5a5;" onclick="rsvpClearAll()">🗑 Svuota lista</button>
   </div>
 
   <!-- Risultato sincronizzazione -->
@@ -756,12 +757,12 @@ select.inp { cursor: pointer; }
       <thead>
         <tr>
           <th>Nome e cognome</th>
+          <th>Canzone 🎵</th>
           <th>Gruppo</th>
           <th>Tavolo</th>
           <th>RSVP</th>
           <th style="text-align:right;">Regalo (€)</th>
           <th>Note</th>
-          <th>Canzone 🎵</th>
           <th></th>
         </tr>
       </thead>
@@ -1555,7 +1556,11 @@ function rsvpRender() {
     <tr>
       <td class="td-nome">
         <input class="rsvp-nome-edit" value="${escHtml(g.nome)}" placeholder="Nome…"
-          onchange="rsvpUpdateField(${g.id},'nome',this.value)">
+          oninput="rsvpUpdateField(${g.id},'nome',this.value)">
+      </td>
+      <td>
+        <input class="rsvp-canzone-edit" value="${escHtml(g.canzone||'')}" placeholder="Aggiungi canzone…"
+          oninput="rsvpUpdateField(${g.id},'canzone',this.value)">
       </td>
       <td style="font-size:12px;color:var(--muted);">${escHtml(g.gruppo) || '—'}</td>
       <td style="font-size:12px;text-align:center;">${escHtml(g.tavolo) || '—'}</td>
@@ -1580,16 +1585,24 @@ function rsvpRender() {
           oninput="rsvpUpdateField(${g.id},'note',this.value)">
       </td>
       <td>
-        <input class="rsvp-canzone-edit" value="${escHtml(g.canzone||'')}" placeholder="Canzone…"
-          onchange="rsvpUpdateField(${g.id},'canzone',this.value)">
-      </td>
-      <td>
         <button class="rsvp-action-btn danger" onclick="rsvpDeleteGuest(${g.id})">✕</button>
       </td>
     </tr>`).join('');
 
   const cnt = document.getElementById('rsvp-count');
   if (cnt) cnt.textContent = `${list.length} invitat${list.length === 1 ? 'o' : 'i'}`;
+}
+
+function rsvpClearAll() {
+  if (!RSVP_GUESTS.length) { alert('La lista è già vuota.'); return; }
+  if (!confirm(`Eliminare tutti i ${RSVP_GUESTS.length} invitati dalla lista?\nL'operazione non è reversibile.`)) return;
+  RSVP_GUESTS = [];
+  rsvpSave();
+  rsvpRender();
+  rsvpUpdateKpi();
+  bgtRender();
+  document.getElementById('rsvp-import-section').style.display = 'block';
+  document.getElementById('rsvp-import-result').textContent = '';
 }
 
 function rsvpExportCSV() {
