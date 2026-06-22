@@ -1591,13 +1591,21 @@ function rsvpRender() {
     return;
   }
 
-  const statoColor = { confermato: 'var(--green)', rifiutato: 'var(--red)', attesa: 'var(--orange)' };
-  const statoLabel = { confermato: 'Confermato', rifiutato: 'Rifiutato', attesa: 'In attesa' };
-  tbody.innerHTML = list.map(g => `
-    <tr>
-      <td class="td-nome">
+  const statoBorder = { confermato: 'var(--green)', rifiutato: 'var(--red)', attesa: 'var(--soft)' };
+  const statoBg     = { confermato: 'rgba(106,158,111,.06)', rifiutato: 'rgba(192,96,90,.05)', attesa: '' };
+  tbody.innerHTML = list.map(g => {
+    const formMatch = RSVP_FORMS_DATA.length > 0 && RSVP_FORMS_DATA.some(r => {
+      const nf = (r.Nome||'').trim().toLowerCase(), ng = g.nome.trim().toLowerCase();
+      return nf && (ng === nf || ng.includes(nf) || nf.includes(ng));
+    });
+    const syncBadge = formMatch
+      ? `<span style="font-size:9px;letter-spacing:1px;background:#e4f3e5;color:var(--green);border-radius:8px;padding:1px 5px;margin-left:5px;vertical-align:middle;">RSVP ✓</span>`
+      : '';
+    return `
+    <tr style="background:${statoBg[g.stato]||''};">
+      <td class="td-nome" style="border-left:3px solid ${statoBorder[g.stato]||'var(--soft)'}; padding-left:9px;">
         <input class="rsvp-nome-edit" value="${escHtml(g.nome)}" placeholder="Nome…"
-          oninput="rsvpUpdateField(${g.id},'nome',this.value)">
+          oninput="rsvpUpdateField(${g.id},'nome',this.value)">${syncBadge}
       </td>
       <td>
         <input class="rsvp-canzone-edit" value="${escHtml(g.canzone||'')}" placeholder="Aggiungi canzone…"
@@ -1628,7 +1636,8 @@ function rsvpRender() {
       <td>
         <button class="rsvp-action-btn danger" onclick="rsvpDeleteGuest(${g.id})">✕</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 
   const cnt = document.getElementById('rsvp-count');
   if (cnt) cnt.textContent = `${list.length} invitat${list.length === 1 ? 'o' : 'i'}`;
@@ -1846,6 +1855,10 @@ async function rsvpSyncWithForms() {
       const confermato = /^s/i.test(r.Partecipazione || '');
       const nuovoStato = confermato ? 'confermato' : 'rifiutato';
       if (match.stato !== nuovoStato) { match.stato = nuovoStato; updated++; }
+      // Copia canzone dal form se non già presente
+      if (r.Canzone && r.Canzone.trim() && !match.canzone) {
+        match.canzone = r.Canzone.trim();
+      }
       // Copia allergia nelle note se non già presente
       if (r.Allergie && r.Allergie.trim().toLowerCase() !== 'no' && !match.note) {
         match.note = '⚠️ ' + r.Allergie.trim();
