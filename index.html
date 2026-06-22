@@ -396,6 +396,18 @@ select.inp { cursor: pointer; }
 .rsvp-attesa     { background:#fff8e6; color:var(--orange); }
 .rsvp-gift-input { width:90px; padding:4px 7px; border:1px solid var(--soft); border-radius:6px; font-family:'Jost',sans-serif; font-size:12px; text-align:right; background:var(--white); color:var(--text); }
 .rsvp-gift-input:focus { border-color:var(--accent); outline:none; }
+.rsvp-nome-edit {
+  border:none; background:transparent; width:100%; min-width:130px;
+  font-size:14px; font-weight:400; font-family:'Jost',sans-serif; color:var(--text);
+  outline:none; border-bottom:1px dashed transparent; padding:0;
+}
+.rsvp-nome-edit:focus { border-bottom-color:var(--accent); }
+.rsvp-canzone-edit {
+  border:none; background:transparent; width:100%; min-width:120px;
+  font-size:12px; font-family:'Jost',sans-serif; color:var(--muted);
+  outline:none; border-bottom:1px dashed transparent; padding:0;
+}
+.rsvp-canzone-edit:focus { border-bottom-color:var(--accent); }
 .rsvp-action-btn { padding:4px 9px; border-radius:6px; font-family:'Jost',sans-serif; font-size:10px; font-weight:600; cursor:pointer; border:1px solid var(--soft); background:var(--bg); color:var(--muted); transition:all .12s; }
 .rsvp-action-btn:hover { background:var(--soft); color:var(--text); }
 .rsvp-action-btn.danger:hover { background:#fee2e2; border-color:#fca5a5; color:var(--red); }
@@ -698,6 +710,10 @@ select.inp { cursor: pointer; }
         <option value="rifiutato">Rifiutato</option>
       </select>
     </div>
+    <div class="rsvp-form-field">
+      <label class="rsvp-form-label">Canzone 🎵</label>
+      <input class="rsvp-form-input" id="rsvp-canzone" placeholder="Es. Perfect – Ed Sheeran" style="min-width:180px;">
+    </div>
     <button class="rsvp-add-btn" onclick="rsvpAddGuest()">+ Aggiungi</button>
   </div>
 
@@ -745,11 +761,12 @@ select.inp { cursor: pointer; }
           <th>RSVP</th>
           <th style="text-align:right;">Regalo (€)</th>
           <th>Note</th>
+          <th>Canzone 🎵</th>
           <th></th>
         </tr>
       </thead>
       <tbody id="rsvp-tbody">
-        <tr><td colspan="7" style="text-align:center;color:var(--muted);font-size:12px;padding:36px;">Nessun invitato ancora aggiunto</td></tr>
+        <tr><td colspan="8" style="text-align:center;color:var(--muted);font-size:12px;padding:36px;">Nessun invitato ancora aggiunto</td></tr>
       </tbody>
     </table>
   </div>
@@ -1464,12 +1481,14 @@ function rsvpAddGuest() {
   const tavolo = document.getElementById('rsvp-tavolo').value.trim();
   const stato  = document.getElementById('rsvp-stato').value;
   if (!nome) { alert('Inserisci il nome dell\'invitato.'); return; }
-  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo, tavolo, stato, regalo: '', note: '' });
+  const canzone = document.getElementById('rsvp-canzone').value.trim();
+  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo, tavolo, stato, regalo: '', note: '', canzone });
   rsvpSave();
-  document.getElementById('rsvp-nome').value   = '';
-  document.getElementById('rsvp-gruppo').value = '';
-  document.getElementById('rsvp-tavolo').value = '';
-  document.getElementById('rsvp-stato').value  = 'attesa';
+  document.getElementById('rsvp-nome').value    = '';
+  document.getElementById('rsvp-gruppo').value  = '';
+  document.getElementById('rsvp-tavolo').value  = '';
+  document.getElementById('rsvp-stato').value   = 'attesa';
+  document.getElementById('rsvp-canzone').value = '';
   rsvpRender();
   rsvpUpdateKpi();
   bgtRender();
@@ -1524,7 +1543,7 @@ function rsvpRender() {
   if (!tbody) return;
 
   if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);font-size:12px;padding:36px;">Nessun invitato trovato</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);font-size:12px;padding:36px;">Nessun invitato trovato</td></tr>`;
     const cnt = document.getElementById('rsvp-count');
     if (cnt) cnt.textContent = '';
     return;
@@ -1534,7 +1553,10 @@ function rsvpRender() {
   const statoLabel = { confermato: 'Confermato', rifiutato: 'Rifiutato', attesa: 'In attesa' };
   tbody.innerHTML = list.map(g => `
     <tr>
-      <td class="td-nome">${escHtml(g.nome)}</td>
+      <td class="td-nome">
+        <input class="rsvp-nome-edit" value="${escHtml(g.nome)}" placeholder="Nome…"
+          onchange="rsvpUpdateField(${g.id},'nome',this.value)">
+      </td>
       <td style="font-size:12px;color:var(--muted);">${escHtml(g.gruppo) || '—'}</td>
       <td style="font-size:12px;text-align:center;">${escHtml(g.tavolo) || '—'}</td>
       <td>
@@ -1552,10 +1574,14 @@ function rsvpRender() {
           oninput="rsvpUpdateField(${g.id},'regalo',this.value)">
       </td>
       <td>
-        <input class="rsvp-form-input" style="width:130px;font-size:11px;padding:4px 7px;"
+        <input class="rsvp-form-input" style="width:120px;font-size:11px;padding:4px 7px;"
           value="${(g.note||'').replace(/"/g,'&quot;')}"
           placeholder="Note…"
           oninput="rsvpUpdateField(${g.id},'note',this.value)">
+      </td>
+      <td>
+        <input class="rsvp-canzone-edit" value="${escHtml(g.canzone||'')}" placeholder="Canzone…"
+          onchange="rsvpUpdateField(${g.id},'canzone',this.value)">
       </td>
       <td>
         <button class="rsvp-action-btn danger" onclick="rsvpDeleteGuest(${g.id})">✕</button>
@@ -1568,8 +1594,8 @@ function rsvpRender() {
 
 function rsvpExportCSV() {
   if (!RSVP_GUESTS.length) return;
-  const rows = [['Nome','Gruppo','Tavolo','RSVP','Regalo (€)','Note']];
-  RSVP_GUESTS.forEach(g => rows.push([g.nome, g.gruppo, g.tavolo, g.stato, g.regalo, g.note]));
+  const rows = [['Nome','Gruppo','Tavolo','RSVP','Regalo (€)','Note','Canzone']];
+  RSVP_GUESTS.forEach(g => rows.push([g.nome, g.gruppo, g.tavolo, g.stato, g.regalo, g.note, g.canzone||'']));
   const csv  = rows.map(r => r.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob(['﻿'+csv], { type:'text/csv;charset=utf-8;' });
   const a    = document.createElement('a');
@@ -1799,7 +1825,7 @@ async function rsvpSyncWithForms() {
 
 function rsvpAddFromUnmatched(nome, stato) {
   if (RSVP_GUESTS.some(g => g.nome.toLowerCase() === nome.toLowerCase())) return;
-  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo: '', tavolo: '', stato, regalo: '', note: '' });
+  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo: '', tavolo: '', stato, regalo: '', note: '', canzone: '' });
   rsvpSave();
   rsvpRender();
   rsvpUpdateKpi();
