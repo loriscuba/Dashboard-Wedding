@@ -678,6 +678,13 @@ select.inp { cursor: pointer; }
 <!-- ========== INVITATI / RSVP ========== -->
 <div id="invitati" class="panel">
 
+  <div class="sync-bar" id="syncBarInvitati">
+    <div class="sync-dot" id="dotInvitati"></div>
+    <div class="sync-text" id="syncTextInvitati">Pronto</div>
+    <button class="sync-btn" onclick="forceSave('Invitati')">💾 Salva ora</button>
+    <button class="sync-btn" onclick="loadFromSheets()">🔄 Ricarica</button>
+  </div>
+
   <!-- KPI -->
   <div class="kpi-grid">
     <div class="kpi"><div class="kpi-label">Totale invitati</div><div class="kpi-val" id="rsvp-k-totale">0</div></div>
@@ -926,8 +933,9 @@ let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
 
 // ===== SYNC STATUS =====
 function setSyncStatus(section, status, msg) {
-  const key = section.toLowerCase() === 'budget' ? 'Budget' :
-               section.toLowerCase() === 'timeline' ? 'Timeline' : 'Fornitori';
+  const map = { budget:'Budget', timeline:'Timeline', fornitori:'Fornitori', invitati:'Invitati' };
+  const key = map[section.toLowerCase()];
+  if (!key) return;
   const dotId = 'dot' + key;
   const textId = 'syncText' + key;
   const dot = document.getElementById(dotId);
@@ -966,6 +974,10 @@ async function saveToSheet(section) {
       rows.push([s.id, s.cat, s.name, s.zona || '', s.contact || '', s.price || '', s.status, s.note || '']);
     });
     rows.push(['__nextId__', state.nextSupplierId, '', '', '', '', '', '']);
+  } else if (section === 'Invitati') {
+    RSVP_GUESTS.forEach(g => {
+      rows.push([g.id, g.nome, g.gruppo || '', g.tavolo || '', g.stato, g.regalo !== '' ? g.regalo : '', g.note || '', g.canzone || '']);
+    });
   }
 
   try {
@@ -1079,9 +1091,37 @@ async function loadFromSheets() {
     setSyncStatus('Fornitori', 'error', 'Dati locali (Sheets non raggiungibile)');
   }
 
+  // Load Invitati
+  try {
+    const res = await fetch(`${READ_BASE}/Invitati`);
+    const rows = await res.json();
+    if (rows && rows.length > 0) {
+      RSVP_GUESTS = rows.map(r => ({
+        id: parseInt(r.id) || Date.now(),
+        nome: r.nome || '',
+        gruppo: r.gruppo || '',
+        tavolo: r.tavolo || '',
+        stato: ['confermato','rifiutato','attesa'].includes(r.stato) ? r.stato : 'attesa',
+        regalo: r.regalo !== '' && r.regalo != null ? (parseFloat(r.regalo) || '') : '',
+        note: r.note || '',
+        canzone: r.canzone || '',
+      }));
+      localStorage.setItem('rsvp_guests', JSON.stringify(RSVP_GUESTS));
+      setSyncStatus('Invitati', 'ok', 'Caricato da Sheets');
+    } else {
+      setSyncStatus('Invitati', 'ok', 'Pronto (foglio vuoto)');
+    }
+  } catch(e) {
+    console.warn('Invitati load failed, using localStorage', e);
+    setSyncStatus('Invitati', 'error', 'Dati locali (Sheets non raggiungibile)');
+  }
+
   renderBudget();
   renderTasks();
   renderSuppliers();
+  rsvpRender();
+  rsvpUpdateKpi();
+  bgtRender();
   document.getElementById('loadingOverlay').classList.add('hidden');
 }
 
@@ -1474,6 +1514,7 @@ var RSVP_FORMS_DATA = [];
 
 function rsvpSave() {
   localStorage.setItem('rsvp_guests', JSON.stringify(RSVP_GUESTS));
+  scheduleSave('Invitati');
 }
 
 function rsvpAddGuest() {
