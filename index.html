@@ -506,6 +506,7 @@ select.inp { cursor: pointer; }
     <div class="bstat"><div class="bstat-num" id="bs-stimato">€0</div><div class="bstat-label">Stimato</div></div>
     <div class="bstat"><div class="bstat-num" id="bs-speso">€0</div><div class="bstat-label">Speso</div></div>
     <div class="bstat neg"><div class="bstat-num" id="bs-margine">–</div><div class="bstat-label">vs Disponibile</div></div>
+    <div class="bstat" style="border-left:2px solid var(--green);"><div class="bstat-num" id="bs-regali" style="color:var(--green);">€0</div><div class="bstat-label">Regali ricevuti</div></div>
   </div>
 
   <div class="card" style="margin-bottom:12px;">
@@ -1175,6 +1176,9 @@ function renderBudget() {
   const mEl = document.getElementById('bs-margine');
   mEl.textContent = (margine >= 0 ? '+€' : '−€') + Math.abs(margine).toLocaleString('it');
   mEl.closest('.bstat').className = 'bstat ' + (margine >= 0 ? 'ok' : 'neg');
+  const totRegaliBS = RSVP_GUESTS.reduce((s, g) => s + (parseFloat(g.regalo) || 0), 0);
+  const bsRegali = document.getElementById('bs-regali');
+  if (bsRegali) bsRegali.textContent = '€' + totRegaliBS.toLocaleString('it');
 
   // ── Tabella desktop ──
   const body = document.getElementById('budgetBody');
