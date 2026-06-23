@@ -1607,8 +1607,11 @@ function rsvpRender() {
     return `
     <tr style="background:${statoBg[g.stato]||''};">
       <td class="td-nome" style="border-left:3px solid ${statoBorder[g.stato]||'var(--soft)'}; padding-left:9px;">
-        <input class="rsvp-nome-edit" value="${escHtml(g.nome)}" placeholder="Nome…"
-          oninput="rsvpUpdateField(${g.id},'nome',this.value)">${syncBadge}
+        <div style="display:flex;flex-direction:column;align-items:flex-start;gap:3px;">
+          <input class="rsvp-nome-edit" value="${escHtml(g.nome)}" placeholder="Nome…"
+            oninput="rsvpUpdateField(${g.id},'nome',this.value)">
+          ${syncBadge}
+        </div>
       </td>
       <td>
         <input class="rsvp-canzone-edit" value="${escHtml(g.canzone||'')}" placeholder="Aggiungi canzone…"
