@@ -964,7 +964,7 @@ async function saveToSheet(section) {
 
   if (section === 'Budget') {
     // First row: budget meta (disponibile, contributo)
-    rows.push(['__meta__', state.budgetDisponibile || 0, state.budgetContributo || 0, '', '', '']);
+    rows.push(['__meta__', state.budgetDisponibile || 0, state.budgetContributo || 0, '', '', '', '']);
     state.budget.forEach(r => {
       rows.push([r.voce, r.min, r.max, r.stimato, r.speso, r.note, r.pagato_personale ? '1' : '0']);
     });
