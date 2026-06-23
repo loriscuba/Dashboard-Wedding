@@ -883,19 +883,19 @@ const RSVP_URL = `https://opensheet.elk.sh/1NgE7A6qhfGfxz5Wu9llxuKYlEUagRL8O5vFx
 // ===== DEFAULT STATE (fallback se sheets vuoti) =====
 const DEFAULT_STATE = {
   budget: [
-    { voce: 'Agriturismo – Pranzo adulti', min: 4800, max: 5600, stimato: 5200, speso: 0, note: '80 adulti × €60' },
-    { voce: 'Agriturismo – Pranzo bambini', min: 400, max: 400, stimato: 400, speso: 0, note: '20 bambini × €20' },
-    { voce: 'Agriturismo – Gazebo', min: 1800, max: 1800, stimato: 1800, speso: 0, note: 'Affitto fisso' },
-    { voce: 'Comune di Quiliano', min: 250, max: 250, stimato: 250, speso: 0, note: 'Villa Maria' },
-    { voce: 'Aperitivo - Fabio', min: 500, max: 750, stimato: 500, speso: 0, note: 'Sentire Fabio per fattibilità' },
-    { voce: 'Fotografo', min: 1200, max: 1500, stimato: 1350, speso: 0, note: '' },
-    { voce: 'Service audio', min: 500, max: 800, stimato: 650, speso: 0, note: 'Noleggio + setup' },
-    { voce: 'Fiori e decorazioni', min: 800, max: 1000, stimato: 900, speso: 0, note: 'Bouquet, centrotavola, arco' },
-    { voce: 'Abito sposa + look sposo', min: 1000, max: 1000, stimato: 1000, speso: 0, note: '' },
-    { voce: 'Trucco e acconciatura', min: 100, max: 100, stimato: 100, speso: 0, note: 'Prova inclusa' },
-    { voce: 'Torta nuziale', min: 300, max: 400, stimato: 350, speso: 0, note: 'Chiedere a Ivano' },
-    { voce: 'Partecipazioni + bomboniere', min: 300, max: 400, stimato: 350, speso: 0, note: '' },
-    { voce: 'Imprevisti', min: 300, max: 300, stimato: 300, speso: 0, note: 'Fondo di riserva' },
+    { voce: 'Agriturismo – Pranzo adulti', min: 4800, max: 5600, stimato: 5200, speso: 0, note: '80 adulti × €60', pagato_personale: false },
+    { voce: 'Agriturismo – Pranzo bambini', min: 400, max: 400, stimato: 400, speso: 0, note: '20 bambini × €20', pagato_personale: false },
+    { voce: 'Agriturismo – Gazebo', min: 1800, max: 1800, stimato: 1800, speso: 0, note: 'Affitto fisso', pagato_personale: false },
+    { voce: 'Comune di Quiliano', min: 250, max: 250, stimato: 250, speso: 0, note: 'Villa Maria', pagato_personale: false },
+    { voce: 'Aperitivo - Fabio', min: 500, max: 750, stimato: 500, speso: 0, note: 'Sentire Fabio per fattibilità', pagato_personale: false },
+    { voce: 'Fotografo', min: 1200, max: 1500, stimato: 1350, speso: 0, note: '', pagato_personale: false },
+    { voce: 'Service audio', min: 500, max: 800, stimato: 650, speso: 0, note: 'Noleggio + setup', pagato_personale: false },
+    { voce: 'Fiori e decorazioni', min: 800, max: 1000, stimato: 900, speso: 0, note: 'Bouquet, centrotavola, arco', pagato_personale: false },
+    { voce: 'Abito sposa + look sposo', min: 1000, max: 1000, stimato: 1000, speso: 0, note: '', pagato_personale: false },
+    { voce: 'Trucco e acconciatura', min: 100, max: 100, stimato: 100, speso: 0, note: 'Prova inclusa', pagato_personale: false },
+    { voce: 'Torta nuziale', min: 300, max: 400, stimato: 350, speso: 0, note: 'Chiedere a Ivano', pagato_personale: false },
+    { voce: 'Partecipazioni + bomboniere', min: 300, max: 400, stimato: 350, speso: 0, note: '', pagato_personale: false },
+    { voce: 'Imprevisti', min: 300, max: 300, stimato: 300, speso: 0, note: 'Fondo di riserva', pagato_personale: false },
   ],
   budgetDisponibile: 10000,
   budgetContributo: 750,
@@ -966,7 +966,7 @@ async function saveToSheet(section) {
     // First row: budget meta (disponibile, contributo)
     rows.push(['__meta__', state.budgetDisponibile || 0, state.budgetContributo || 0, '', '', '']);
     state.budget.forEach(r => {
-      rows.push([r.voce, r.min, r.max, r.stimato, r.speso, r.note]);
+      rows.push([r.voce, r.min, r.max, r.stimato, r.speso, r.note, r.pagato_personale ? '1' : '0']);
     });
   } else if (section === 'Timeline') {
     state.tasks.forEach(t => {
@@ -1032,6 +1032,7 @@ async function loadFromSheets() {
           stimato: parseFloat(r.stimato) || 0,
           speso: parseFloat(r.speso) || 0,
           note: r.note || '',
+          pagato_personale: r.pagato_personale === '1' || r.pagato_personale === 'true',
         }));
       loaded.budget = true;
       setSyncStatus('Budget', 'ok', 'Caricato da Sheets');
@@ -1160,8 +1161,8 @@ function tab(id, el) {
 // ===== BUDGET =====
 function renderBudget() {
   const disponibile = (state.budgetDisponibile || 10000) + (state.budgetContributo || 0);
-  const totalStimato = state.budget.reduce((a, r) => a + r.stimato, 0);
-  const totalSpeso = state.budget.reduce((a, r) => a + r.speso, 0);
+  const totalStimato = state.budget.reduce((a, r) => a + (r.pagato_personale ? 0 : r.stimato), 0);
+  const totalSpeso = state.budget.reduce((a, r) => a + (r.pagato_personale ? 0 : r.speso), 0);
   const totRegaliDisp = RSVP_GUESTS.reduce((s, g) => s + (parseFloat(g.regalo) || 0), 0);
   const margine = disponibile + totRegaliDisp - totalStimato;
 
@@ -1187,7 +1188,8 @@ function renderBudget() {
     return `<tr draggable="true"
       ondragstart="dragStart(${i})"
       ondragover="dragOver(event)"
-      ondrop="dropRow(${i})">
+      ondrop="dropRow(${i})"
+      style="background: ${r.pagato_personale ? 'rgba(120,120,120,0.05)' : ''}; opacity: ${r.pagato_personale ? '0.65' : '1'};">
       <td class="voce">
         <input class="voce-input" value="${escHtml(r.voce)}"
           onchange="updateField(${i}, 'voce', this.value)">
@@ -1211,7 +1213,8 @@ function renderBudget() {
           onclick="this.select()">
       </td>
       <td><input class="note-input" value="${escHtml(r.note)}" onchange="updateField(${i}, 'note', this.value)" placeholder="–"></td>
-      <td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-sm btn-ghost" title="Pagato di persona (escludi dal conto)" onclick="togglePagPersonale(${i})" style="font-size:11px;padding:2px 6px;margin-right:4px;${r.pagato_personale ? 'background:var(--accent-l);color:var(--accent2);border:1px solid var(--accent2);' : 'color:var(--muted);'}">👤</button>
         <button class="btn btn-sm btn-ghost" onclick="deleteBudgetItem(${i})">✕</button>
       </td>
     </tr>`;
@@ -1227,11 +1230,14 @@ function renderBudget() {
   const cardList = document.getElementById('budgetCardList');
   cardList.innerHTML = state.budget.map((r, i) => {
     const pct = r.stimato > 0 ? Math.round(r.speso / r.stimato * 100) : 0;
-    return `<div class="budget-card-item">
+    return `<div class="budget-card-item" style="${r.pagato_personale ? 'opacity:0.65;' : ''}">
       <div class="bc-header">
         <input class="bc-voce" value="${escHtml(r.voce)}" placeholder="Nome voce"
           onchange="updateField(${i}, 'voce', this.value)">
-        <button class="bc-del" onclick="deleteBudgetItem(${i})">✕</button>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <button class="btn btn-sm btn-ghost" title="Pagato di persona" onclick="togglePagPersonale(${i})" style="font-size:11px;padding:2px 6px;${r.pagato_personale ? 'background:var(--accent-l);color:var(--accent2);border:1px solid var(--accent2);' : 'color:var(--muted);'}">👤</button>
+          <button class="bc-del" onclick="deleteBudgetItem(${i})">✕</button>
+        </div>
       </div>
       <div class="bc-nums">
         <div class="bc-num-item">
@@ -1296,6 +1302,12 @@ function deleteBudgetItem(i){
   scheduleSave('Budget');
 }
 
+function togglePagPersonale(i) {
+  state.budget[i].pagato_personale = !state.budget[i].pagato_personale;
+  renderBudget();
+  scheduleSave('Budget');
+}
+
 function updateDisponibile(field, val) {
   state[field] = parseFloat(val) || 0;
   renderBudget();
@@ -1309,7 +1321,7 @@ function addBudgetItem(){
   const max = parseFloat(document.getElementById('new-budget-max').value) || 0;
   const stimato = parseFloat(document.getElementById('new-budget-stimato').value) || 0;
   const note = document.getElementById('new-budget-note').value.trim();
-  state.budget.push({ voce, min, max, stimato, speso: 0, note });
+  state.budget.push({ voce, min, max, stimato, speso: 0, note, pagato_personale: false });
   ['new-budget-voce','new-budget-min','new-budget-max','new-budget-stimato','new-budget-note']
     .forEach(id => document.getElementById(id).value = '');
   renderBudget();
@@ -1321,8 +1333,8 @@ function drawBudgetChart(){
   if(!c) return;
   const ctx = c.getContext('2d');
   c.width = c.parentElement.clientWidth - 32;
-  const totalStimato = state.budget.reduce((a,r)=>a+r.stimato,0);
-  const totalSpeso = state.budget.reduce((a,r)=>a+r.speso,0);
+  const totalStimato = state.budget.reduce((a,r)=>a+(r.pagato_personale?0:r.stimato),0);
+  const totalSpeso = state.budget.reduce((a,r)=>a+(r.pagato_personale?0:r.speso),0);
   ctx.clearRect(0,0,c.width,c.height);
   const w = c.width * 0.35;
   const max = Math.max(totalStimato,1);
