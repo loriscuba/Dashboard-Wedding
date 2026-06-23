@@ -1837,11 +1837,11 @@ async function rsvpSyncWithForms() {
     return;
   }
 
-  let updated = 0;
+  let updated = 0, canzoneUpdated = 0;
   const notInList = [];
 
-  RSVP_FORMS_DATA.forEach(r => {
-    const nomeForm = (r.Nome || '').trim();
+  RSVP_FORMS_DATA.forEach(row => {
+    const nomeForm = (row.Nome || '').trim();
     if (!nomeForm) return;
     const nomeLC = nomeForm.toLowerCase();
 
@@ -1852,19 +1852,21 @@ async function rsvpSyncWithForms() {
     });
 
     if (match) {
-      const confermato = /^s/i.test(r.Partecipazione || '');
+      const confermato = /^s/i.test(row.Partecipazione || '');
       const nuovoStato = confermato ? 'confermato' : 'rifiutato';
       if (match.stato !== nuovoStato) { match.stato = nuovoStato; updated++; }
-      // Copia canzone dal form se non già presente
-      if (r.Canzone && r.Canzone.trim() && !match.canzone) {
-        match.canzone = r.Canzone.trim();
+      // Canzone: aggiorna sempre dal form (il form è source of truth)
+      const canzoneForm = (row.Canzone || '').trim();
+      if (canzoneForm && match.canzone !== canzoneForm) {
+        match.canzone = canzoneForm;
+        canzoneUpdated++;
       }
       // Copia allergia nelle note se non già presente
-      if (r.Allergie && r.Allergie.trim().toLowerCase() !== 'no' && !match.note) {
-        match.note = '⚠️ ' + r.Allergie.trim();
+      if (row.Allergie && row.Allergie.trim().toLowerCase() !== 'no' && !match.note) {
+        match.note = '⚠️ ' + row.Allergie.trim();
       }
     } else {
-      notInList.push({ nome: r.Nome, si: /^s/i.test(r.Partecipazione || '') });
+      notInList.push({ nome: row.Nome, si: /^s/i.test(row.Partecipazione || '') });
     }
   });
 
@@ -1876,7 +1878,7 @@ async function rsvpSyncWithForms() {
 
   if (resEl) {
     resEl.style.display = 'block';
-    let html = `<b>✅ ${updated} invitat${updated===1?'o':'i'} aggiornati</b> da Google Forms`;
+    let html = `<b>✅ ${updated} stato aggiornato · 🎵 ${canzoneUpdated} canzoni importate</b> da Google Forms`;
     if (notInList.length) {
       html += `\n<b>⚠️ ${notInList.length} risposta/e non abbinate</b> — non trovate in lista invitati:\n`;
       html += notInList.map(n =>
