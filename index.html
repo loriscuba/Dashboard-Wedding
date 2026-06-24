@@ -42,7 +42,7 @@ body { font-family: 'Jost', sans-serif; background: var(--bg); color: var(--text
 header {
   text-align: center;
   padding: 36px 16px 16px;
-  background: linear-gradient(to bottom, #ede5db, var(--bg));
+  background: linear-gradient(to bottom, #dce8dc, var(--bg));
 }
 .header-sub { letter-spacing: 5px; font-size: 10px; color: var(--accent); font-weight: 300; text-transform: uppercase; }
 h1 { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300; margin: 6px 0 4px; letter-spacing: 2px; }
@@ -109,7 +109,7 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300
 .budget-table .voce { font-weight: 300; min-width: 160px; }
 .budget-table .num { text-align: right; font-variant-numeric: tabular-nums; }
 .budget-table .speso { font-weight: 400; }
-.budget-table tr.total-row td { font-weight: 400; background: #f7f3ef; border-top: 1px solid var(--soft); }
+.budget-table tr.total-row td { font-weight: 400; background: var(--bg); border-top: 1px solid var(--soft); }
 
 /* progress bar */
 .progress-wrap { width: 100%; height: 4px; background: var(--soft); border-radius: 2px; overflow: hidden; margin-top: 5px; }
@@ -155,7 +155,7 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300
   outline: none; border-bottom: 1px dashed transparent; padding: 0;
 }
 .bc-voce:focus { border-bottom-color: var(--accent); }
-.bc-del { background: none; border: 1px solid #f0ebe5; color: var(--muted); border-radius: 6px; padding: 3px 8px; font-size: 11px; cursor: pointer; flex-shrink: 0; }
+.bc-del { background: none; border: 1px solid var(--soft); color: var(--muted); border-radius: 6px; padding: 3px 8px; font-size: 11px; cursor: pointer; flex-shrink: 0; }
 .bc-nums { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
 .bc-num-item { text-align: center; }
 .bc-num-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
@@ -254,8 +254,8 @@ select.inp { cursor: pointer; }
 .supplier-cat { font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
 .supplier-details { font-size: 12px; color: var(--muted); margin-top: 6px; display: flex; gap: 10px; flex-wrap: wrap; }
 .supplier-status { font-size: 10px; padding: 3px 9px; border-radius: 10px; margin-top: 6px; display: inline-block; }
-.s-confirmed { background: #e4f3e5; color: var(--green); }
-.s-pending { background: #f7f3ef; color: var(--muted); border: 1px solid var(--soft); }
+.s-confirmed { background: var(--ok-l); color: var(--green); }
+.s-pending { background: var(--bg); color: var(--muted); border: 1px solid var(--soft); }
 .supplier-actions { display: flex; flex-direction: column; gap: 6px; }
 
 .add-supplier-form { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
@@ -424,7 +424,7 @@ select.inp { cursor: pointer; }
 /* ── BUDGET MATRIMONIO PANEL ── */
 .budget-progress-bar { height:6px; background:var(--soft); border-radius:3px; overflow:hidden; margin-top:4px; }
 .budget-progress-fill { height:100%; border-radius:3px; background:var(--accent); transition:width .5s ease; }
-.budget-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f0ebe5; }
+.budget-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--soft); }
 .budget-row:last-child { border-bottom:none; }
 .budget-row-label { font-size:13px; color:var(--text); }
 .budget-row-val { font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:400; color:var(--text); }
@@ -490,7 +490,7 @@ select.inp { cursor: pointer; }
   <button class="tab" onclick="tab('regali',this)">🎁 Regali & Spese</button>
 </div>
 <div style="text-align:center;font-size:9px;letter-spacing:1.5px;color:var(--muted);padding:4px 0;background:var(--white);border-bottom:1px solid var(--soft);">
-  v2026-06-24 18:00 UTC
+  v2026-06-24 19:00 UTC
 </div>
 
 <!-- ========== BUDGET ========== -->
@@ -1341,9 +1341,9 @@ function drawBudgetChart(){
   const h = c.height;
   const hs = (totalStimato/max) * (h - 30);
   const hp = (totalSpeso/max) * (h - 30);
-  ctx.fillStyle='#c8a27c';
+  ctx.fillStyle='#7e9e7b';
   ctx.fillRect(40, h - hs - 20, w, hs);
-  ctx.fillStyle='#6a9e6f';
+  ctx.fillStyle='#5d9462';
   ctx.fillRect(40 + w + 20, h - hp - 20, w, hp);
   ctx.fillStyle='#999';
   ctx.font='11px Jost, sans-serif';
