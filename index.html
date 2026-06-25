@@ -493,7 +493,7 @@ select.inp { cursor: pointer; }
   <button class="tab" onclick="tab('regali',this)">🎁 Regali & Spese</button>
 </div>
 <div style="text-align:center;font-size:9px;letter-spacing:1.5px;color:var(--muted);padding:4px 0;background:var(--white);border-bottom:1px solid var(--soft);">
-  v2026-06-24 20:00 UTC
+  v2026-06-24 20:30 UTC
 </div>
 
 <!-- ========== BUDGET ========== -->
@@ -818,7 +818,7 @@ select.inp { cursor: pointer; }
 
   <!-- Regali per gruppo -->
   <div class="budget-section-card">
-    <div class="section-title" style="font-size:16px;margin-bottom:12px;">Regali per gruppo / famiglia</div>
+    <div class="section-title" style="font-size:16px;margin-bottom:12px;">Lista regali ricevuti</div>
     <div id="bgt-gruppi">
       <div style="font-size:12px;color:var(--muted);padding:10px 0;">Aggiungi invitati nel tab Invitati per vedere i dati.</div>
     </div>
@@ -1751,30 +1751,26 @@ function bgtRender() {
   }
   kv('bgt-k-media', '€ ' + mediaRegalo.toLocaleString('it-IT', {minimumFractionDigits:0}));
 
-  // Gruppi
+  // Lista invitati con regalo
   const gruppiEl = document.getElementById('bgt-gruppi');
   if (gruppiEl) {
-    const byGruppo = {};
-    RSVP_GUESTS.forEach(g => {
-      const key = g.gruppo || '(senza gruppo)';
-      if (!byGruppo[key]) byGruppo[key] = { regali: 0, count: 0 };
-      byGruppo[key].regali += parseFloat(g.regalo) || 0;
-      byGruppo[key].count++;
-    });
-    const sorted = Object.entries(byGruppo).sort((a,b) => b[1].regali - a[1].regali);
-    if (!sorted.length) {
-      gruppiEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:10px 0;">Nessun dato — aggiungi invitati nel tab Invitati.</div>';
+    const conRegalo = RSVP_GUESTS
+      .filter(g => parseFloat(g.regalo) > 0)
+      .sort((a, b) => (parseFloat(b.regalo) || 0) - (parseFloat(a.regalo) || 0));
+    if (!conRegalo.length) {
+      gruppiEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:10px 0;">Nessun regalo registrato — inserisci gli importi nel tab Invitati.</div>';
     } else {
-      const maxVal = Math.max(...sorted.map(([,v]) => v.regali), 1);
-      gruppiEl.innerHTML = sorted.map(([nome, v]) => {
-        const pct = (v.regali / maxVal * 100).toFixed(0);
+      const maxVal = Math.max(...conRegalo.map(g => parseFloat(g.regalo) || 0), 1);
+      gruppiEl.innerHTML = conRegalo.map(g => {
+        const imp = parseFloat(g.regalo) || 0;
+        const pct = (imp / maxVal * 100).toFixed(0);
         return `<div class="budget-row">
-          <div>
-            <div class="budget-row-label">${escHtml(nome)}</div>
-            <div style="font-size:10px;color:var(--muted);margin-top:2px;">${v.count} invitat${v.count===1?'o':'i'}</div>
-            <div class="budget-progress-bar" style="width:160px;"><div class="budget-progress-fill" style="width:${pct}%;"></div></div>
+          <div style="flex:1;">
+            <div class="budget-row-label">${escHtml(g.nome)}</div>
+            ${g.gruppo ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;">${escHtml(g.gruppo)}</div>` : ''}
+            <div class="budget-progress-bar" style="width:160px;margin-top:4px;"><div class="budget-progress-fill" style="width:${pct}%;"></div></div>
           </div>
-          <div class="budget-row-val">${v.regali > 0 ? '€ ' + v.regali.toLocaleString('it-IT', {minimumFractionDigits:0}) : '—'}</div>
+          <div class="budget-row-val">€ ${imp.toLocaleString('it-IT', {minimumFractionDigits:0})}</div>
         </div>`;
       }).join('');
     }
