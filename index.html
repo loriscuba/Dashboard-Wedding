@@ -323,8 +323,77 @@ select.inp { cursor: pointer; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--accent2); letter-spacing: 2px; }
 
+/* ── DESKTOP SIDEBAR ── */
+@media (min-width: 900px) {
+  body { display: flex; flex-direction: row; min-height: 100vh; align-items: stretch; }
+
+  .sidebar {
+    width: 230px; min-width: 230px; flex-shrink: 0;
+    background: var(--white); border-right: 1px solid var(--soft);
+    display: flex; flex-direction: column;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    box-shadow: 2px 0 16px rgba(0,0,0,.04);
+  }
+
+  .main-content { flex: 1; min-width: 0; overflow-y: auto; height: 100vh; }
+
+  /* Header nel sidebar */
+  header {
+    background: linear-gradient(to bottom, var(--accent-l), var(--white));
+    padding: 28px 20px 16px; text-align: center; flex-shrink: 0;
+  }
+  h1 { font-size: 26px; }
+  .header-date { font-size: 8px; }
+
+  /* Countdown 2×2 nel sidebar */
+  .countdown {
+    display: grid; grid-template-columns: 1fr 1fr;
+    padding: 12px 16px; border-top: 1px solid var(--soft); border-bottom: none;
+    flex-shrink: 0; background: var(--white);
+  }
+  .cd-sep { display: none; }
+  .cd-box { min-width: 0; padding: 8px 4px; }
+  .cd-num { font-size: 22px; }
+  .cd-label { font-size: 7px; }
+
+  /* Tabs verticali nel sidebar */
+  .tabs {
+    display: flex; flex-direction: column;
+    border-top: 1px solid var(--soft); border-bottom: none;
+    position: static; overflow-x: visible; white-space: normal;
+    flex: 1; padding: 10px 0; background: var(--white);
+  }
+  .tab {
+    text-align: left; padding: 11px 22px;
+    font-size: 11px; letter-spacing: 1.5px;
+    border-bottom: none; border-left: 3px solid transparent;
+    border-radius: 0; white-space: nowrap;
+  }
+  .tab:hover { color: var(--accent2); background: var(--accent-l); border-left-color: var(--soft); }
+  .tab.active {
+    color: var(--accent2); background: var(--accent-l);
+    border-left-color: var(--accent); border-bottom-color: transparent;
+    font-weight: 400;
+  }
+
+  /* Pannelli — usa larghezza disponibile */
+  .panel { max-width: 960px; padding: 28px 36px; margin: 0; }
+
+  /* Griglie più ampie */
+  .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+  .budget-summary { grid-template-columns: repeat(4, 1fr); }
+  .stats { grid-template-columns: repeat(4, 1fr); }
+  .note-input { min-width: 180px; }
+  .budget-avail-row { flex-direction: row; gap: 16px; }
+
+  /* Sincronizzazione bar */
+  .sync-bar { border-radius: 8px; margin-bottom: 16px; }
+}
+
 /* ── MOBILE ── */
 @media (max-width: 600px) {
+  .sidebar { display: contents; }
+  .main-content { display: contents; }
   h1 { font-size: 32px; }
   header { padding: 24px 12px 14px; }
 
@@ -468,6 +537,7 @@ select.inp { cursor: pointer; }
   <div class="loading-text">Caricamento dati…</div>
 </div>
 
+<div class="sidebar">
 <header>
   <div class="header-sub">Wedding Dashboard</div>
   <h1>Loris &amp; Michela</h1>
@@ -492,8 +562,11 @@ select.inp { cursor: pointer; }
   <button class="tab" onclick="tab('invitati',this)">👥 Invitati</button>
   <button class="tab" onclick="tab('regali',this)">🎁 Regali & Spese</button>
 </div>
+</div><!-- /.sidebar -->
+
+<div class="main-content">
 <div style="text-align:center;font-size:9px;letter-spacing:1.5px;color:var(--muted);padding:4px 0;background:var(--white);border-bottom:1px solid var(--soft);">
-  v2026-06-24 20:30 UTC
+  v2026-06-25 09:00 UTC
 </div>
 
 <!-- ========== BUDGET ========== -->
@@ -870,6 +943,8 @@ select.inp { cursor: pointer; }
   </div>
 
 </div>
+
+</div><!-- /.main-content -->
 
 <div class="save-badge" id="saveBadge">✓ SALVATO</div>
 
