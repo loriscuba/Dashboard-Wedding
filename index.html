@@ -826,13 +826,10 @@ select.inp { cursor: pointer; }
 
   <!-- Spese matrimonio -->
   <div class="budget-section-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <div class="section-title" style="font-size:16px;margin-bottom:0;">Voci di spesa</div>
-      <button class="btn btn-sm" onclick="bgtShowAddSpesa()">+ Aggiungi spesa</button>
-    </div>
+    <div class="section-title" style="font-size:16px;margin-bottom:14px;">Voci di spesa</div>
 
-    <!-- Form aggiungi spesa -->
-    <div id="bgt-spesa-form" style="display:none;background:var(--bg);border:1px solid var(--soft);border-radius:10px;padding:12px 14px;margin-bottom:12px;flex-wrap:wrap;gap:8px;align-items:flex-end;">
+    <!-- Form aggiungi spesa rimosso -->
+    <div id="bgt-spesa-form" style="display:none;">
       <div class="rsvp-form-field">
         <label class="rsvp-form-label">Descrizione *</label>
         <input class="rsvp-form-input" id="bgt-spesa-desc" placeholder="Es. Catering" style="min-width:160px;">
