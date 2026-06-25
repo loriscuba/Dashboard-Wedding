@@ -493,6 +493,19 @@ select.inp { cursor: pointer; }
 .rsvp-add-btn { padding:9px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-family:'Jost',sans-serif; font-size:13px; font-weight:400; cursor:pointer; white-space:nowrap; }
 .rsvp-add-btn:hover { background:var(--accent2); }
 
+/* ── INVITATI SUBTABS ── */
+.inv-subtabs { display:flex; gap:6px; margin-bottom:16px; }
+.inv-subtab { padding:7px 18px; border:1px solid var(--soft); border-radius:20px; font-family:'Jost',sans-serif; font-size:12px; font-weight:400; letter-spacing:.5px; background:var(--white); color:var(--muted); cursor:pointer; transition:all .2s; }
+.inv-subtab:hover { border-color:var(--accent); color:var(--accent2); }
+.inv-subtab.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.bambini-table-wrap { overflow-x:auto; border-radius:12px; box-shadow:var(--shadow); }
+.bambini-table-wrap table { width:100%; border-collapse:collapse; background:var(--white); }
+.bambini-table-wrap th { background:var(--accent-l); font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--accent2); padding:10px 14px; text-align:left; font-weight:400; }
+.bambini-table-wrap td { padding:10px 14px; border-bottom:1px solid var(--soft); font-size:13px; vertical-align:middle; }
+.bambini-table-wrap tr:last-child td { border-bottom:none; }
+.bambini-nome-edit { border:none; background:transparent; font-family:'Jost',sans-serif; font-size:13px; color:var(--text); outline:none; width:100%; min-width:120px; }
+.bambini-nome-edit:focus { border-bottom:1px solid var(--accent); }
+
 /* ── BUDGET MATRIMONIO PANEL ── */
 .budget-progress-bar { height:6px; background:var(--soft); border-radius:3px; overflow:hidden; margin-top:4px; }
 .budget-progress-fill { height:100%; border-radius:3px; background:var(--accent); transition:width .5s ease; }
@@ -765,6 +778,14 @@ select.inp { cursor: pointer; }
     <button class="sync-btn" onclick="loadFromSheets()">🔄 Ricarica</button>
   </div>
 
+  <!-- Subtab navigation -->
+  <div class="inv-subtabs">
+    <button class="inv-subtab active" id="invtab-adulti" onclick="invitatiTabSwitch('adulti')">👥 Adulti</button>
+    <button class="inv-subtab" id="invtab-bambini" onclick="invitatiTabSwitch('bambini')">👶 Bambini</button>
+  </div>
+
+  <div id="invitati-tab-adulti">
+
   <!-- KPI -->
   <div class="kpi-grid">
     <div class="kpi"><div class="kpi-label">Totale invitati</div><div class="kpi-val" id="rsvp-k-totale">0</div></div>
@@ -859,6 +880,61 @@ select.inp { cursor: pointer; }
     </table>
   </div>
   <div id="rsvp-count" style="font-size:11px;color:var(--muted);margin-top:8px;"></div>
+
+  </div><!-- /invitati-tab-adulti -->
+
+  <!-- ===== BAMBINI TAB ===== -->
+  <div id="invitati-tab-bambini" style="display:none;">
+
+    <!-- KPI bambini -->
+    <div class="kpi-grid" style="margin-bottom:16px;">
+      <div class="kpi"><div class="kpi-label">Totale bambini</div><div class="kpi-val" id="bam-k-tot">0</div></div>
+      <div class="kpi"><div class="kpi-label">Età media</div><div class="kpi-val" id="bam-k-eta">—</div></div>
+      <div class="kpi"><div class="kpi-label">Gruppi</div><div class="kpi-val" id="bam-k-gruppi">0</div></div>
+    </div>
+
+    <!-- Form aggiungi bambino -->
+    <div class="section-title">Aggiungi bambino</div>
+    <div class="rsvp-add-form">
+      <div class="rsvp-form-field">
+        <label class="rsvp-form-label">Nome e cognome *</label>
+        <input class="rsvp-form-input" id="bam-nome" placeholder="Es. Sofia Rossi" style="min-width:160px;">
+      </div>
+      <div class="rsvp-form-field">
+        <label class="rsvp-form-label">Gruppo / famiglia</label>
+        <input class="rsvp-form-input" id="bam-gruppo" placeholder="Es. Famiglia Rossi" style="min-width:140px;">
+      </div>
+      <div class="rsvp-form-field">
+        <label class="rsvp-form-label">Età</label>
+        <input class="rsvp-form-input" id="bam-eta" type="number" min="0" max="17" placeholder="Es. 5" style="width:70px;">
+      </div>
+      <div class="rsvp-form-field">
+        <label class="rsvp-form-label">Tavolo</label>
+        <input class="rsvp-form-input" id="bam-tavolo" placeholder="Es. 3" style="width:70px;">
+      </div>
+      <button class="rsvp-add-btn" onclick="bambiniAdd()">+ Aggiungi</button>
+    </div>
+
+    <!-- Tabella bambini -->
+    <div class="bambini-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome e cognome</th>
+            <th>Età</th>
+            <th>Gruppo / famiglia</th>
+            <th>Tavolo</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="bam-tbody">
+          <tr><td colspan="5" style="text-align:center;color:var(--muted);font-size:12px;padding:36px;">Nessun bambino ancora aggiunto</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="bam-count" style="font-size:11px;color:var(--muted);margin-top:8px;"></div>
+
+  </div><!-- /invitati-tab-bambini -->
 
 </div>
 
@@ -1604,6 +1680,7 @@ async function loadRSVP() {
 // ═══════════════════════════════════════════════════════
 var RSVP_GUESTS    = JSON.parse(localStorage.getItem('rsvp_guests') || '[]');
 var BGT_SPESE      = JSON.parse(localStorage.getItem('bgt_spese')   || '[]');
+var BAMBINI        = JSON.parse(localStorage.getItem('bambini_list') || '[]');
 var RSVP_FORMS_DATA = [];
 
 function rsvpSave() {
@@ -1664,6 +1741,93 @@ function rsvpUpdateKpi() {
   kv('rsvp-k-rif',    rif);
   kv('rsvp-k-att',    att);
   kv('rsvp-k-regalo', '€ ' + totRegali.toLocaleString('it-IT', {minimumFractionDigits:0}));
+}
+
+// ═══════════════════════════════════════════════════════
+//  BAMBINI — Gestione bambini
+// ═══════════════════════════════════════════════════════
+function invitatiTabSwitch(tab) {
+  document.getElementById('invitati-tab-adulti').style.display  = tab === 'adulti'  ? '' : 'none';
+  document.getElementById('invitati-tab-bambini').style.display = tab === 'bambini' ? '' : 'none';
+  document.getElementById('invtab-adulti').classList.toggle('active',  tab === 'adulti');
+  document.getElementById('invtab-bambini').classList.toggle('active', tab === 'bambini');
+  if (tab === 'bambini') bambiniRender();
+}
+
+function bambiniSave() {
+  localStorage.setItem('bambini_list', JSON.stringify(BAMBINI));
+}
+
+function bambiniAdd() {
+  const nome   = document.getElementById('bam-nome').value.trim();
+  const gruppo = document.getElementById('bam-gruppo').value.trim();
+  const eta    = document.getElementById('bam-eta').value.trim();
+  const tavolo = document.getElementById('bam-tavolo').value.trim();
+  if (!nome) { alert('Inserisci il nome del bambino.'); return; }
+  BAMBINI.push({ id: Date.now(), nome, gruppo, eta: eta !== '' ? parseInt(eta) : null, tavolo });
+  bambiniSave();
+  document.getElementById('bam-nome').value   = '';
+  document.getElementById('bam-gruppo').value = '';
+  document.getElementById('bam-eta').value    = '';
+  document.getElementById('bam-tavolo').value = '';
+  bambiniRender();
+}
+
+function bambiniDelete(id) {
+  if (!confirm('Rimuovere questo bambino?')) return;
+  BAMBINI = BAMBINI.filter(b => b.id !== id);
+  bambiniSave();
+  bambiniRender();
+}
+
+function bambiniUpdateField(id, field, value) {
+  const b = BAMBINI.find(b => b.id === id);
+  if (!b) return;
+  b[field] = field === 'eta' ? (value !== '' ? parseInt(value) : null) : value;
+  bambiniSave();
+  bambiniRender();
+}
+
+function bambiniRender() {
+  const tbody = document.getElementById('bam-tbody');
+  if (!tbody) return;
+
+  const kv = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  const tot = BAMBINI.length;
+  const ages = BAMBINI.filter(b => b.eta !== null && b.eta !== undefined).map(b => b.eta);
+  const avgAge = ages.length ? (ages.reduce((a,b) => a+b, 0) / ages.length).toFixed(1) : '—';
+  const gruppi = new Set(BAMBINI.filter(b => b.gruppo).map(b => b.gruppo)).size;
+  kv('bam-k-tot',    tot);
+  kv('bam-k-eta',    avgAge);
+  kv('bam-k-gruppi', gruppi);
+
+  const cnt = document.getElementById('bam-count');
+  if (!BAMBINI.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);font-size:12px;padding:36px;">Nessun bambino ancora aggiunto</td></tr>`;
+    if (cnt) cnt.textContent = '';
+    return;
+  }
+
+  const sorted = [...BAMBINI].sort((a, b) => (a.nome||'').localeCompare(b.nome||'', 'it'));
+  tbody.innerHTML = sorted.map(b => `
+    <tr>
+      <td style="border-left:3px solid var(--accent); padding-left:9px;">
+        <input class="bambini-nome-edit" value="${escHtml(b.nome)}" placeholder="Nome…"
+          oninput="bambiniUpdateField(${b.id},'nome',this.value)">
+      </td>
+      <td style="text-align:center;">
+        <input type="number" min="0" max="17"
+          style="width:50px;border:none;background:transparent;font-family:'Jost',sans-serif;font-size:13px;color:var(--text);text-align:center;outline:none;"
+          value="${b.eta !== null && b.eta !== undefined ? b.eta : ''}" placeholder="—"
+          onchange="bambiniUpdateField(${b.id},'eta',this.value)">
+      </td>
+      <td style="font-size:12px;color:var(--muted);">${escHtml(b.gruppo) || '—'}</td>
+      <td style="font-size:12px;text-align:center;">${escHtml(b.tavolo) || '—'}</td>
+      <td style="text-align:right;">
+        <button class="btn btn-sm btn-ghost" style="color:var(--red);" onclick="bambiniDelete(${b.id})">🗑</button>
+      </td>
+    </tr>`).join('');
+  if (cnt) cnt.textContent = `${tot} bambin${tot === 1 ? 'o' : 'i'}`;
 }
 
 function rsvpRender() {
