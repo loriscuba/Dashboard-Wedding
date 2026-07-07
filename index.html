@@ -901,8 +901,10 @@ select.inp { cursor: pointer; }
         <input class="rsvp-form-input" id="bam-nome" placeholder="Es. Sofia Rossi" style="min-width:160px;">
       </div>
       <div class="rsvp-form-field">
-        <label class="rsvp-form-label">Gruppo / famiglia</label>
-        <input class="rsvp-form-input" id="bam-gruppo" placeholder="Es. Famiglia Rossi" style="min-width:140px;">
+        <label class="rsvp-form-label">Adulto associato</label>
+        <select class="rsvp-form-select" id="bam-adulto" style="min-width:160px;">
+          <option value="">— Nessuno —</option>
+        </select>
       </div>
       <div class="rsvp-form-field">
         <label class="rsvp-form-label">Età</label>
@@ -922,7 +924,7 @@ select.inp { cursor: pointer; }
           <tr>
             <th>Nome e cognome</th>
             <th>Età</th>
-            <th>Gruppo / famiglia</th>
+            <th>Adulto associato</th>
             <th>Tavolo</th>
             <th></th>
           </tr>
@@ -1751,7 +1753,15 @@ function invitatiTabSwitch(tab) {
   document.getElementById('invitati-tab-bambini').style.display = tab === 'bambini' ? '' : 'none';
   document.getElementById('invtab-adulti').classList.toggle('active',  tab === 'adulti');
   document.getElementById('invtab-bambini').classList.toggle('active', tab === 'bambini');
-  if (tab === 'bambini') bambiniRender();
+  if (tab === 'bambini') { bambiniPopulateAdultSelect('bam-adulto'); bambiniRender(); }
+}
+
+function bambiniPopulateAdultSelect(selectId, currentVal) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const prev = currentVal !== undefined ? currentVal : sel.value;
+  sel.innerHTML = '<option value="">— Nessuno —</option>' +
+    RSVP_GUESTS.map(g => `<option value="${g.id}"${parseInt(prev)===g.id?' selected':''}>${escHtml(g.nome)}${g.gruppo?' ('+escHtml(g.gruppo)+')':''}</option>`).join('');
 }
 
 function bambiniSave() {
@@ -1759,15 +1769,22 @@ function bambiniSave() {
 }
 
 function bambiniAdd() {
-  const nome   = document.getElementById('bam-nome').value.trim();
-  const gruppo = document.getElementById('bam-gruppo').value.trim();
-  const eta    = document.getElementById('bam-eta').value.trim();
-  const tavolo = document.getElementById('bam-tavolo').value.trim();
+  const nome     = document.getElementById('bam-nome').value.trim();
+  const adultoId = parseInt(document.getElementById('bam-adulto').value) || null;
+  const eta      = document.getElementById('bam-eta').value.trim();
+  const tavolo   = document.getElementById('bam-tavolo').value.trim();
   if (!nome) { alert('Inserisci il nome del bambino.'); return; }
-  BAMBINI.push({ id: Date.now(), nome, gruppo, eta: eta !== '' ? parseInt(eta) : null, tavolo });
+  const adulto = adultoId ? RSVP_GUESTS.find(g => g.id === adultoId) : null;
+  BAMBINI.push({
+    id: Date.now(), nome,
+    adulto_id: adultoId,
+    gruppo: adulto ? (adulto.gruppo || adulto.nome) : '',
+    eta: eta !== '' ? parseInt(eta) : null,
+    tavolo: tavolo || (adulto ? adulto.tavolo : '')
+  });
   bambiniSave();
   document.getElementById('bam-nome').value   = '';
-  document.getElementById('bam-gruppo').value = '';
+  document.getElementById('bam-adulto').value = '';
   document.getElementById('bam-eta').value    = '';
   document.getElementById('bam-tavolo').value = '';
   bambiniRender();
@@ -1783,7 +1800,15 @@ function bambiniDelete(id) {
 function bambiniUpdateField(id, field, value) {
   const b = BAMBINI.find(b => b.id === id);
   if (!b) return;
-  b[field] = field === 'eta' ? (value !== '' ? parseInt(value) : null) : value;
+  if (field === 'eta') {
+    b.eta = value !== '' ? parseInt(value) : null;
+  } else if (field === 'adulto_id') {
+    b.adulto_id = parseInt(value) || null;
+    const adulto = b.adulto_id ? RSVP_GUESTS.find(g => g.id === b.adulto_id) : null;
+    b.gruppo = adulto ? (adulto.gruppo || adulto.nome) : '';
+  } else {
+    b[field] = value;
+  }
   bambiniSave();
   bambiniRender();
 }
@@ -1808,8 +1833,16 @@ function bambiniRender() {
     return;
   }
 
+  const adultoOptions = '<option value="">— Nessuno —</option>' +
+    RSVP_GUESTS.map(g => `<option value="${g.id}">${escHtml(g.nome)}${g.gruppo?' ('+escHtml(g.gruppo)+')':''}</option>`).join('');
+
   const sorted = [...BAMBINI].sort((a, b) => (a.nome||'').localeCompare(b.nome||'', 'it'));
-  tbody.innerHTML = sorted.map(b => `
+  tbody.innerHTML = sorted.map(b => {
+    const selOptions = adultoOptions.replace(
+      `value="${b.adulto_id}"`,
+      `value="${b.adulto_id}" selected`
+    );
+    return `
     <tr>
       <td style="border-left:3px solid var(--accent); padding-left:9px;">
         <input class="bambini-nome-edit" value="${escHtml(b.nome)}" placeholder="Nome…"
@@ -1821,12 +1854,18 @@ function bambiniRender() {
           value="${b.eta !== null && b.eta !== undefined ? b.eta : ''}" placeholder="—"
           onchange="bambiniUpdateField(${b.id},'eta',this.value)">
       </td>
-      <td style="font-size:12px;color:var(--muted);">${escHtml(b.gruppo) || '—'}</td>
+      <td>
+        <select style="border:none;background:transparent;font-family:'Jost',sans-serif;font-size:12px;color:var(--muted);outline:none;max-width:160px;"
+          onchange="bambiniUpdateField(${b.id},'adulto_id',this.value)">
+          ${selOptions}
+        </select>
+      </td>
       <td style="font-size:12px;text-align:center;">${escHtml(b.tavolo) || '—'}</td>
       <td style="text-align:right;">
         <button class="btn btn-sm btn-ghost" style="color:var(--red);" onclick="bambiniDelete(${b.id})">🗑</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
   if (cnt) cnt.textContent = `${tot} bambin${tot === 1 ? 'o' : 'i'}`;
 }
 
