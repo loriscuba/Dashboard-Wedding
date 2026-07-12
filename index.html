@@ -203,8 +203,16 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300
 .task-item {
   background: var(--white); border-radius: 10px; padding: 13px 14px; margin-bottom: 8px;
   display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 2px 6px rgba(0,0,0,.04);
+  transition: opacity .15s;
 }
 .task-item.hidden { display: none; }
+.task-drag-ghost {
+  position: fixed; z-index: 9999; pointer-events: none;
+  opacity: .82; border-radius: 10px; background: var(--white);
+  box-shadow: 0 10px 28px rgba(0,0,0,.18); border-left: 3px solid var(--accent);
+  padding: 13px 14px; font-family: 'Jost', sans-serif; font-size: 14px;
+  display: flex; align-items: center; gap: 10px; max-width: 480px;
+}
 .task-check {
   width: 22px; height: 22px; min-width: 22px; border-radius: 50%;
   border: 1.5px solid var(--soft); cursor: pointer;
@@ -1567,6 +1575,76 @@ function taskDragEnd() {
   document.querySelectorAll('.task-item').forEach(el => el.classList.remove('dragging', 'drag-over'));
 }
 
+// ── Touch drag & drop (iPad / iPhone) ──
+let _touchId   = null;
+let _touchGhost = null;
+let _touchOffY  = 0;
+
+function taskTouchStart(e, id) {
+  if (e.touches.length !== 1) return;
+  e.preventDefault();
+  _touchId = id;
+  const touch  = e.touches[0];
+  const srcEl  = document.getElementById('task-' + id);
+  const rect   = srcEl.getBoundingClientRect();
+  _touchOffY   = touch.clientY - rect.top;
+
+  // Create floating ghost
+  _touchGhost = document.createElement('div');
+  _touchGhost.className = 'task-drag-ghost';
+  _touchGhost.innerHTML = '⠿ &nbsp;' + srcEl.querySelector('.task-title').textContent;
+  _touchGhost.style.top   = (touch.clientY - _touchOffY) + 'px';
+  _touchGhost.style.left  = rect.left + 'px';
+  _touchGhost.style.width = rect.width + 'px';
+  document.body.appendChild(_touchGhost);
+  srcEl.classList.add('dragging');
+}
+
+function _taskTouchMove(e) {
+  if (_touchId === null || !_touchGhost) return;
+  e.preventDefault();
+  const touch = e.touches[0];
+  _touchGhost.style.top = (touch.clientY - _touchOffY) + 'px';
+
+  _touchGhost.style.display = 'none';
+  const below = document.elementFromPoint(touch.clientX, touch.clientY);
+  _touchGhost.style.display = '';
+
+  document.querySelectorAll('.task-item').forEach(el => el.classList.remove('drag-over'));
+  const targetEl = below?.closest('.task-item');
+  if (targetEl && targetEl.id !== 'task-' + _touchId) {
+    targetEl.classList.add('drag-over');
+  }
+}
+
+function _taskTouchEnd(e) {
+  if (_touchId === null) return;
+  const touch = e.changedTouches[0];
+
+  if (_touchGhost) { _touchGhost.remove(); _touchGhost = null; }
+  document.querySelectorAll('.task-item').forEach(el => el.classList.remove('dragging', 'drag-over'));
+
+  _touchGhost = null;
+  const below    = document.elementFromPoint(touch.clientX, touch.clientY);
+  const targetEl = below?.closest('.task-item');
+
+  if (targetEl && targetEl.id !== 'task-' + _touchId) {
+    const targetId = parseInt(targetEl.id.replace('task-', ''));
+    const si = state.tasks.findIndex(t => t.id === _touchId);
+    const ti = state.tasks.findIndex(t => t.id === targetId);
+    if (si >= 0 && ti >= 0) {
+      const [moved] = state.tasks.splice(si, 1);
+      state.tasks.splice(ti, 0, moved);
+      renderTasks(); scheduleSave('Timeline');
+    }
+  }
+  _touchId = null;
+}
+
+// Register with passive:false so e.preventDefault() works on iOS
+document.addEventListener('touchmove', _taskTouchMove, { passive: false });
+document.addEventListener('touchend',  _taskTouchEnd);
+
 // ── Inline edit ──
 function taskToggleEdit(id) {
   const row = document.getElementById('te-' + id);
@@ -1634,7 +1712,8 @@ function renderTasks() {
       ondragover="taskDragOver(event,${t.id})"
       ondrop="taskDrop(event,${t.id})"
       ondragend="taskDragEnd()">
-      <div class="task-drag-handle" title="Trascina per riordinare">⠿</div>
+      <div class="task-drag-handle" title="Trascina per riordinare"
+           ontouchstart="taskTouchStart(event,${t.id})">⠿</div>
       <div class="task-check${t.done?' done':''}" onclick="toggleTask(${t.id})"></div>
       <div class="task-body">
         <div class="task-title${t.done?' done-text':''}">${escHtml(t.title)}</div>
