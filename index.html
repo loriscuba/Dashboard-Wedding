@@ -225,6 +225,19 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300
 .p-bassa { background: #fffbe6; color: var(--yellow); }
 .p-speciale { background: #e8f0fd; color: #5a80c0; }
 
+/* ── TASK drag & drop + edit ── */
+.task-drag-handle { color: var(--soft); cursor: grab; padding: 0 6px 0 0; font-size: 20px; line-height: 1; user-select: none; flex-shrink: 0; align-self: center; }
+.task-drag-handle:hover { color: var(--accent); }
+.task-drag-handle:active { cursor: grabbing; }
+.task-item.dragging { opacity: .35; box-shadow: none; }
+.task-item.drag-over { border-top: 2px solid var(--accent); }
+.task-date-overdue { color: var(--red) !important; font-weight: 400; }
+.task-date-soon { color: var(--orange) !important; }
+.task-edit-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--soft); }
+.task-edit-inp { padding: 5px 9px; border: 1px solid var(--soft); border-radius: 7px; font-family: 'Jost', sans-serif; font-size: 12px; background: var(--bg); color: var(--text); outline: none; }
+.task-edit-inp:focus { border-color: var(--accent); }
+.task-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
 /* ── FORMS ── */
 .add-task-form { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
 .form-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
@@ -685,14 +698,7 @@ select.inp { cursor: pointer; }
     <div class="section-title" style="font-size:15px;margin-bottom:12px;">+ Nuova Task</div>
     <div class="form-row">
       <input class="inp" id="new-task-title" placeholder="Attività..." style="flex:2">
-      <select class="inp" id="new-task-period">
-        <option>Feb–Mar 2026</option>
-        <option>Aprile 2026</option>
-        <option>Maggio 2026</option>
-        <option>Giugno 2026</option>
-        <option>Luglio-Ago 2026</option>
-        <option>29 Ago 2026</option>
-      </select>
+      <input class="inp" id="new-task-date" type="date" style="width:160px;">
     </div>
     <div class="form-row">
       <select class="inp" id="new-task-priority">
@@ -709,6 +715,7 @@ select.inp { cursor: pointer; }
     <button class="filter-btn active" onclick="filterTasks('all',this)">Tutte</button>
     <button class="filter-btn" onclick="filterTasks('todo',this)">Da fare</button>
     <button class="filter-btn" onclick="filterTasks('done',this)">Fatte</button>
+    <button class="filter-btn" onclick="filterTasks('scadute',this)">⏰ Scadute</button>
     <button class="filter-btn" onclick="filterTasks('alta',this)">🔴 Alta</button>
     <button class="filter-btn" onclick="filterTasks('media',this)">🟠 Media</button>
     <button class="filter-btn" onclick="filterTasks('bassa',this)">🟡 Bassa</button>
@@ -1513,39 +1520,142 @@ function drawBudgetChart(){
 // ===== TASKS =====
 let taskFilter = 'all';
 
+// ── Task date helpers ──
+function taskDateInfo(t) {
+  const raw = t.scadenza || t.period || '';
+  if (!raw) return { label: '—', cls: '' };
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    const d = new Date(raw + 'T00:00:00');
+    const today = new Date(); today.setHours(0,0,0,0);
+    const diff = Math.round((d - today) / 86400000);
+    const label = d.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
+    let cls = '';
+    if (!t.done && diff < 0) cls = 'task-date-overdue';
+    else if (!t.done && diff <= 14) cls = 'task-date-soon';
+    return { label, cls };
+  }
+  return { label: raw, cls: '' };
+}
+
+// ── Drag & drop state ──
+let _dragSrcId = null;
+
+function taskDragStart(e, id) {
+  _dragSrcId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => { const el = document.getElementById('task-' + id); if(el) el.classList.add('dragging'); }, 0);
+}
+function taskDragOver(e, id) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.task-item').forEach(el => el.classList.remove('drag-over'));
+  if (_dragSrcId !== id) { const el = document.getElementById('task-' + id); if(el) el.classList.add('drag-over'); }
+}
+function taskDrop(e, targetId) {
+  e.preventDefault();
+  if (_dragSrcId === null || _dragSrcId === targetId) return;
+  const si = state.tasks.findIndex(t => t.id === _dragSrcId);
+  const ti = state.tasks.findIndex(t => t.id === targetId);
+  if (si < 0 || ti < 0) return;
+  const [moved] = state.tasks.splice(si, 1);
+  state.tasks.splice(ti, 0, moved);
+  _dragSrcId = null;
+  renderTasks(); scheduleSave('Timeline');
+}
+function taskDragEnd() {
+  _dragSrcId = null;
+  document.querySelectorAll('.task-item').forEach(el => el.classList.remove('dragging', 'drag-over'));
+}
+
+// ── Inline edit ──
+function taskToggleEdit(id) {
+  const row = document.getElementById('te-' + id);
+  if (!row) return;
+  const open = row.style.display !== 'none';
+  // close all others
+  document.querySelectorAll('[id^="te-"]').forEach(r => r.style.display = 'none');
+  if (!open) row.style.display = 'flex';
+}
+function taskSaveEdit(id) {
+  const t = state.tasks.find(t => t.id === id);
+  if (!t) return;
+  const newTitle = document.getElementById('te-title-' + id)?.value.trim();
+  if (newTitle) t.title = newTitle;
+  t.scadenza = document.getElementById('te-date-' + id)?.value || t.scadenza || null;
+  t.priority  = document.getElementById('te-prio-' + id)?.value || t.priority;
+  t.note      = document.getElementById('te-note-' + id)?.value.trim() ?? t.note;
+  renderTasks(); scheduleSave('Timeline');
+}
+
 function renderTasks() {
-  const done = state.tasks.filter(t => t.done).length;
+  const done  = state.tasks.filter(t => t.done).length;
   const total = state.tasks.length;
-  const pct = total > 0 ? done / total : 0;
-  const circ = 125.6;
+  const pct   = total > 0 ? done / total : 0;
+  const circ  = 125.6;
   document.getElementById('ringCircle').style.strokeDashoffset = circ * (1 - pct);
-  document.getElementById('ringText').textContent = Math.round(pct * 100) + '%';
-  document.getElementById('ringDone').textContent = `${done} / ${total}`;
+  document.getElementById('ringText').textContent  = Math.round(pct * 100) + '%';
+  document.getElementById('ringDone').textContent  = `${done} / ${total}`;
+
+  const today = new Date(); today.setHours(0,0,0,0);
 
   const list = document.getElementById('taskList');
+  if (!total) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:40px;">Nessuna task — aggiungine una sopra.</div>';
+    return;
+  }
+
   list.innerHTML = state.tasks.map(t => {
-    let priClass = '';
-    if (t.priority.includes('Alta')) priClass = 'p-alta';
+    let priClass = 'p-speciale';
+    if (t.priority.includes('Alta'))  priClass = 'p-alta';
     else if (t.priority.includes('Media')) priClass = 'p-media';
     else if (t.priority.includes('Bassa')) priClass = 'p-bassa';
-    else priClass = 'p-speciale';
+
+    const di = taskDateInfo(t);
+
     let hidden = false;
-    if (taskFilter === 'todo' && t.done) hidden = true;
-    if (taskFilter === 'done' && !t.done) hidden = true;
-    if (taskFilter === 'alta' && !t.priority.includes('Alta')) hidden = true;
+    if (taskFilter === 'todo'  && t.done)  hidden = true;
+    if (taskFilter === 'done'  && !t.done) hidden = true;
+    if (taskFilter === 'alta'  && !t.priority.includes('Alta'))  hidden = true;
     if (taskFilter === 'media' && !t.priority.includes('Media')) hidden = true;
     if (taskFilter === 'bassa' && !t.priority.includes('Bassa')) hidden = true;
-    return `<div class="task-item${hidden?' hidden':''}" id="task-${t.id}">
+    if (taskFilter === 'scadute') {
+      const d = (t.scadenza || t.period || '').match(/^\d{4}-\d{2}-\d{2}$/) ? new Date(t.scadenza + 'T00:00:00') : null;
+      if (!d || d >= today || t.done) hidden = true;
+    }
+
+    const curDate = t.scadenza || '';
+    const priOptions = ['🔴 Alta','🟠 Media','🟡 Bassa'].map(p =>
+      `<option value="${p}" ${t.priority===p?'selected':''}>${p}</option>`
+    ).join('');
+
+    return `<div class="task-item${hidden?' hidden':''}" id="task-${t.id}"
+      draggable="true"
+      ondragstart="taskDragStart(event,${t.id})"
+      ondragover="taskDragOver(event,${t.id})"
+      ondrop="taskDrop(event,${t.id})"
+      ondragend="taskDragEnd()">
+      <div class="task-drag-handle" title="Trascina per riordinare">⠿</div>
       <div class="task-check${t.done?' done':''}" onclick="toggleTask(${t.id})"></div>
       <div class="task-body">
         <div class="task-title${t.done?' done-text':''}">${escHtml(t.title)}</div>
         <div class="task-meta">
-          <span class="task-period">${t.period}</span>
+          <span class="task-period ${di.cls}">${di.label}</span>
           <span class="task-priority ${priClass}">${t.priority}</span>
           ${t.note ? `<span class="task-note">${escHtml(t.note)}</span>` : ''}
         </div>
+        <div class="task-edit-row" id="te-${t.id}" style="display:none;">
+          <input class="task-edit-inp" id="te-title-${t.id}" value="${escHtml(t.title)}" placeholder="Titolo…" style="flex:2;min-width:160px;">
+          <input class="task-edit-inp" id="te-date-${t.id}"  type="date" value="${curDate}" style="width:150px;">
+          <select class="task-edit-inp" id="te-prio-${t.id}" style="width:110px;">${priOptions}</select>
+          <input class="task-edit-inp" id="te-note-${t.id}"  value="${escHtml(t.note||'')}" placeholder="Note…" style="flex:1;min-width:110px;">
+          <button class="btn btn-sm" onclick="taskSaveEdit(${t.id})" style="background:var(--green);">✓ Salva</button>
+          <button class="btn btn-sm btn-ghost" onclick="taskToggleEdit(${t.id})">✕</button>
+        </div>
       </div>
-      <button class="btn btn-sm btn-ghost" onclick="deleteTask(${t.id})" style="min-width:28px;padding:4px 8px;">✕</button>
+      <div class="task-actions">
+        <button class="btn btn-sm btn-ghost" onclick="taskToggleEdit(${t.id})" title="Modifica" style="padding:4px 8px;">✏️</button>
+        <button class="btn btn-sm btn-ghost" onclick="deleteTask(${t.id})" title="Elimina" style="padding:4px 8px;">✕</button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1555,22 +1665,23 @@ function toggleTask(id) {
   if (t) { t.done = !t.done; renderTasks(); scheduleSave('Timeline'); }
 }
 function deleteTask(id) {
+  if (!confirm('Eliminare questa task?')) return;
   state.tasks = state.tasks.filter(t => t.id !== id);
   renderTasks(); scheduleSave('Timeline');
 }
 function addTask() {
   const title = document.getElementById('new-task-title').value.trim();
-  if (!title) return;
+  if (!title) { alert('Inserisci il titolo della task.'); return; }
   state.tasks.push({
     id: state.nextTaskId++,
     title,
-    period: document.getElementById('new-task-period').value,
+    scadenza: document.getElementById('new-task-date').value || null,
     priority: document.getElementById('new-task-priority').value,
     done: false,
     note: document.getElementById('new-task-note').value.trim()
   });
   document.getElementById('new-task-title').value = '';
-  document.getElementById('new-task-note').value = '';
+  document.getElementById('new-task-note').value  = '';
   renderTasks(); scheduleSave('Timeline');
 }
 function filterTasks(f, el) {
