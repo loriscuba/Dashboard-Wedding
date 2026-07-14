@@ -309,6 +309,84 @@ select.inp { cursor: pointer; }
 }
 .sync-btn:hover { border-color: var(--accent); color: var(--accent); }
 
+/* ── PENSIERINO MODAL ── */
+.pensierino-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(40,37,31,.45); backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.pensierino-overlay.hidden { display: none; }
+.pensierino-modal {
+  background: var(--white); border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  width: 100%; max-width: 480px; max-height: 90vh;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.pensierino-header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--soft);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+}
+.pensierino-guest-name {
+  font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400;
+  color: var(--accent2); line-height: 1.2;
+}
+.pensierino-close-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 18px; line-height: 1; padding: 2px;
+  flex-shrink: 0; margin-top: 2px;
+  transition: color .2s;
+}
+.pensierino-close-btn:hover { color: var(--text); }
+.pensierino-body {
+  padding: 18px 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 18px;
+}
+.pensierino-section-label {
+  font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px;
+}
+.pensierino-textarea {
+  width: 100%; resize: vertical; min-height: 90px;
+  padding: 10px 12px; border: 1px solid var(--soft); border-radius: 10px;
+  font-family: 'Jost', sans-serif; font-size: 13px; color: var(--text);
+  background: var(--bg); outline: none; line-height: 1.5;
+  transition: border-color .2s;
+}
+.pensierino-textarea:focus { border-color: var(--accent); }
+.bingo-grid { display: flex; flex-direction: column; gap: 8px; }
+.bingo-field-wrap { display: flex; align-items: center; gap: 8px; }
+.bingo-label { font-size: 11px; color: var(--muted); min-width: 62px; flex-shrink: 0; }
+.bingo-inp {
+  flex: 1; padding: 8px 11px; border: 1px solid var(--soft); border-radius: 8px;
+  font-family: 'Jost', sans-serif; font-size: 13px; color: var(--text);
+  background: var(--bg); outline: none;
+  transition: border-color .2s;
+}
+.bingo-inp:focus { border-color: var(--accent); }
+.pensierino-footer {
+  padding: 14px 20px 16px;
+  border-top: 1px solid var(--soft);
+  display: flex; gap: 8px; justify-content: flex-end;
+}
+.pensierino-save-btn {
+  background: var(--accent); color: white; border: none; border-radius: 8px;
+  padding: 9px 22px; font-family: 'Jost', sans-serif; font-size: 12px; letter-spacing: 1px;
+  cursor: pointer; transition: background .2s;
+}
+.pensierino-save-btn:hover { background: var(--accent2); }
+.pensierino-cancel-btn {
+  background: none; color: var(--muted); border: 1px solid var(--soft); border-radius: 8px;
+  padding: 9px 16px; font-family: 'Jost', sans-serif; font-size: 12px; letter-spacing: 1px;
+  cursor: pointer; transition: all .2s;
+}
+.pensierino-cancel-btn:hover { border-color: var(--accent); color: var(--accent); }
+.nome-pensierino-btn {
+  background: none; border: none; cursor: pointer; padding: 0 2px;
+  font-size: 13px; line-height: 1; color: var(--muted); opacity: .6;
+  vertical-align: middle; transition: opacity .2s;
+}
+.nome-pensierino-btn:hover { opacity: 1; }
+
 /* ── SAVE BADGE ── */
 .save-badge {
   display: none; position: fixed; bottom: 20px; right: 16px;
@@ -1040,6 +1118,43 @@ select.inp { cursor: pointer; }
 
 </div><!-- /.main-content -->
 
+<!-- ── PENSIERINO MODAL ── -->
+<div class="pensierino-overlay hidden" id="pensierinOverlay" onclick="chiudiPensierino(event)">
+  <div class="pensierino-modal" onclick="event.stopPropagation()">
+    <div class="pensierino-header">
+      <div class="pensierino-guest-name" id="pensierinNome">—</div>
+      <button class="pensierino-close-btn" onclick="chiudiPensierino()" title="Chiudi">✕</button>
+    </div>
+    <div class="pensierino-body">
+      <div>
+        <div class="pensierino-section-label">Pensierino</div>
+        <textarea class="pensierino-textarea" id="pensierinText" placeholder="Scrivi un pensiero per questo invitato…"></textarea>
+      </div>
+      <div>
+        <div class="pensierino-section-label">Bingo</div>
+        <div class="bingo-grid">
+          <div class="bingo-field-wrap">
+            <span class="bingo-label">Indizio 1</span>
+            <input class="bingo-inp" id="bingo1" type="text" placeholder="">
+          </div>
+          <div class="bingo-field-wrap">
+            <span class="bingo-label">Indizio 2</span>
+            <input class="bingo-inp" id="bingo2" type="text" placeholder="">
+          </div>
+          <div class="bingo-field-wrap">
+            <span class="bingo-label">Indizio 3</span>
+            <input class="bingo-inp" id="bingo3" type="text" placeholder="">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pensierino-footer">
+      <button class="pensierino-cancel-btn" onclick="chiudiPensierino()">Annulla</button>
+      <button class="pensierino-save-btn" onclick="salvaPensierino()">💾 Salva</button>
+    </div>
+  </div>
+</div>
+
 <div class="save-badge" id="saveBadge">✓ SALVATO</div>
 
 <script>
@@ -1149,7 +1264,7 @@ async function saveToSheet(section) {
     rows.push(['__nextId__', state.nextSupplierId, '', '', '', '', '', '']);
   } else if (section === 'Invitati') {
     RSVP_GUESTS.forEach(g => {
-      rows.push([g.id, g.nome, g.gruppo || '', g.tavolo || '', g.stato, g.regalo !== '' ? g.regalo : '', g.note || '', g.canzone || '']);
+      rows.push([g.id, g.nome, g.gruppo || '', g.tavolo || '', g.stato, g.regalo !== '' ? g.regalo : '', g.note || '', g.canzone || '', g.pensierino || '', g.indizio1 || '', g.indizio2 || '', g.indizio3 || '']);
     });
   }
 
@@ -1279,6 +1394,10 @@ async function loadFromSheets() {
         regalo: r.regalo !== '' && r.regalo != null ? (parseFloat(r.regalo) || '') : '',
         note: r.note || '',
         canzone: r.canzone || '',
+        pensierino: r.pensierino || '',
+        indizio1: r.indizio1 || '',
+        indizio2: r.indizio2 || '',
+        indizio3: r.indizio3 || '',
       }));
       localStorage.setItem('rsvp_guests', JSON.stringify(RSVP_GUESTS));
       setSyncStatus('Invitati', 'ok', 'Caricato da Sheets');
@@ -1888,7 +2007,7 @@ function rsvpAddGuest() {
   const stato  = document.getElementById('rsvp-stato').value;
   if (!nome) { alert('Inserisci il nome dell\'invitato.'); return; }
   const canzone = document.getElementById('rsvp-canzone').value.trim();
-  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo, tavolo, stato, regalo: '', note: '', canzone });
+  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo, tavolo, stato, regalo: '', note: '', canzone, pensierino: '', indizio1: '', indizio2: '', indizio3: '' });
   rsvpSave();
   document.getElementById('rsvp-nome').value    = '';
   document.getElementById('rsvp-gruppo').value  = '';
@@ -2069,6 +2188,47 @@ function bambiniRender() {
   if (cnt) cnt.textContent = `${tot} bambin${tot === 1 ? 'o' : 'i'}`;
 }
 
+// ===== PENSIERINO MODAL =====
+var _pensierinGuestId = null;
+
+function apriPensierino(id) {
+  const g = RSVP_GUESTS.find(x => x.id === id);
+  if (!g) return;
+  _pensierinGuestId = id;
+  document.getElementById('pensierinNome').textContent = g.nome;
+  document.getElementById('pensierinText').value = g.pensierino || '';
+  document.getElementById('bingo1').value = g.indizio1 || '';
+  document.getElementById('bingo2').value = g.indizio2 || '';
+  document.getElementById('bingo3').value = g.indizio3 || '';
+  document.getElementById('pensierinOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('pensierinText').focus(), 80);
+}
+
+function chiudiPensierino(e) {
+  if (e && e.type === 'click' && e.target !== document.getElementById('pensierinOverlay')) return;
+  document.getElementById('pensierinOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+  _pensierinGuestId = null;
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && _pensierinGuestId !== null) chiudiPensierino();
+});
+
+function salvaPensierino() {
+  if (_pensierinGuestId === null) return;
+  const g = RSVP_GUESTS.find(x => x.id === _pensierinGuestId);
+  if (!g) return;
+  g.pensierino = document.getElementById('pensierinText').value.trim();
+  g.indizio1   = document.getElementById('bingo1').value.trim();
+  g.indizio2   = document.getElementById('bingo2').value.trim();
+  g.indizio3   = document.getElementById('bingo3').value.trim();
+  rsvpSave();
+  document.getElementById('pensierinOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+  _pensierinGuestId = null;
+}
+
 function rsvpRender() {
   const search = (document.getElementById('rsvp-search')?.value || '').toLowerCase();
   const filtro = document.getElementById('rsvp-filter-stato')?.value || '';
@@ -2102,8 +2262,11 @@ function rsvpRender() {
     <tr style="background:${statoBg[g.stato]||''};">
       <td class="td-nome" style="border-left:3px solid ${statoBorder[g.stato]||'var(--soft)'}; padding-left:9px;">
         <div style="display:flex;flex-direction:column;align-items:flex-start;gap:3px;">
-          <input class="rsvp-nome-edit" value="${escHtml(g.nome)}" placeholder="Nome…"
-            oninput="rsvpUpdateField(${g.id},'nome',this.value)">
+          <div style="display:flex;align-items:center;gap:4px;width:100%;">
+            <input class="rsvp-nome-edit" value="${escHtml(g.nome)}" placeholder="Nome…"
+              oninput="rsvpUpdateField(${g.id},'nome',this.value)" style="flex:1;min-width:0;">
+            <button class="nome-pensierino-btn" onclick="apriPensierino(${g.id})" title="Pensierino &amp; Bingo">${g.pensierino||g.indizio1||g.indizio2||g.indizio3?'💭':'🔮'}</button>
+          </div>
           ${syncBadge}
         </div>
       </td>
@@ -2303,7 +2466,7 @@ function rsvpImportList() {
       skipped++;
       return;
     }
-    RSVP_GUESTS.push({ id: Date.now() + idx, nome, gruppo, tavolo, stato: 'attesa', regalo: '', note: '' });
+    RSVP_GUESTS.push({ id: Date.now() + idx, nome, gruppo, tavolo, stato: 'attesa', regalo: '', note: '', canzone: '', pensierino: '', indizio1: '', indizio2: '', indizio3: '' });
     added++;
   });
   rsvpSave();
@@ -2390,7 +2553,7 @@ async function rsvpSyncWithForms() {
 
 function rsvpAddFromUnmatched(nome, stato) {
   if (RSVP_GUESTS.some(g => g.nome.toLowerCase() === nome.toLowerCase())) return;
-  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo: '', tavolo: '', stato, regalo: '', note: '', canzone: '' });
+  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo: '', tavolo: '', stato, regalo: '', note: '', canzone: '', pensierino: '', indizio1: '', indizio2: '', indizio3: '' });
   rsvpSave();
   rsvpRender();
   rsvpUpdateKpi();
