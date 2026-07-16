@@ -241,9 +241,6 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300
 .task-item.drag-over { border-top: 2px solid var(--accent); }
 .task-date-overdue { color: var(--red) !important; font-weight: 400; }
 .task-date-soon { color: var(--orange) !important; }
-.task-edit-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--soft); }
-.task-edit-inp { padding: 5px 9px; border: 1px solid var(--soft); border-radius: 7px; font-family: 'Jost', sans-serif; font-size: 12px; background: var(--bg); color: var(--text); outline: none; }
-.task-edit-inp:focus { border-color: var(--accent); }
 .task-actions { display: flex; gap: 4px; flex-shrink: 0; }
 
 /* ── FORMS ── */
@@ -1119,6 +1116,44 @@ select.inp { cursor: pointer; }
 
 </div><!-- /.main-content -->
 
+<!-- ── TASK EDIT MODAL ── -->
+<div class="pensierino-overlay hidden" id="taskEditOverlay" onclick="chiudiTaskEdit(event)">
+  <div class="pensierino-modal" onclick="event.stopPropagation()">
+    <div class="pensierino-header">
+      <div class="pensierino-guest-name" style="font-size:18px;">✏️ Modifica Task</div>
+      <button class="pensierino-close-btn" onclick="chiudiTaskEdit()" title="Chiudi">✕</button>
+    </div>
+    <div class="pensierino-body">
+      <div>
+        <div class="pensierino-section-label">Titolo</div>
+        <input class="bingo-inp" id="tmod-title" type="text" placeholder="Titolo task…" style="width:100%;">
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:140px;">
+          <div class="pensierino-section-label">Scadenza</div>
+          <input class="bingo-inp" id="tmod-date" type="date" style="width:100%;">
+        </div>
+        <div style="flex:1;min-width:130px;">
+          <div class="pensierino-section-label">Priorità</div>
+          <select class="bingo-inp" id="tmod-prio" style="width:100%;">
+            <option value="🔴 Alta">🔴 Alta</option>
+            <option value="🟠 Media">🟠 Media</option>
+            <option value="🟡 Bassa">🟡 Bassa</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <div class="pensierino-section-label">Note</div>
+        <textarea class="pensierino-textarea" id="tmod-note" placeholder="Note aggiuntive…" style="min-height:70px;"></textarea>
+      </div>
+    </div>
+    <div class="pensierino-footer">
+      <button class="pensierino-cancel-btn" onclick="chiudiTaskEdit()">Annulla</button>
+      <button class="pensierino-save-btn" onclick="salvaTaskEdit()">💾 Salva</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── PENSIERINO MODAL ── -->
 <div class="pensierino-overlay hidden" id="pensierinOverlay" onclick="chiudiPensierino(event)">
   <div class="pensierino-modal" onclick="event.stopPropagation()">
@@ -1766,24 +1801,47 @@ document.addEventListener('touchmove', _taskTouchMove, { passive: false });
 document.addEventListener('touchend',  _taskTouchEnd);
 
 // ── Inline edit ──
+var _editTaskId = null;
+
 function taskToggleEdit(id) {
-  const row = document.getElementById('te-' + id);
-  if (!row) return;
-  const open = row.style.display !== 'none';
-  // close all others
-  document.querySelectorAll('[id^="te-"]').forEach(r => r.style.display = 'none');
-  if (!open) row.style.display = 'flex';
-}
-function taskSaveEdit(id) {
-  const t = state.tasks.find(t => t.id === id);
+  const t = state.tasks.find(x => x.id === id);
   if (!t) return;
-  const newTitle = document.getElementById('te-title-' + id)?.value.trim();
-  if (newTitle) t.title = newTitle;
-  t.scadenza = document.getElementById('te-date-' + id)?.value || t.scadenza || null;
-  t.priority  = document.getElementById('te-prio-' + id)?.value || t.priority;
-  t.note      = document.getElementById('te-note-' + id)?.value.trim() ?? t.note;
+  _editTaskId = id;
+  document.getElementById('tmod-title').value    = t.title || '';
+  document.getElementById('tmod-date').value     = t.scadenza || '';
+  document.getElementById('tmod-prio').value     = t.priority || '🟠 Media';
+  document.getElementById('tmod-note').value     = t.note || '';
+  document.getElementById('taskEditOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('tmod-title').focus(), 80);
+}
+function chiudiTaskEdit(e) {
+  if (e && e.type === 'click' && e.target !== document.getElementById('taskEditOverlay')) return;
+  document.getElementById('taskEditOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+  _editTaskId = null;
+}
+function salvaTaskEdit() {
+  if (_editTaskId === null) return;
+  const t = state.tasks.find(x => x.id === _editTaskId);
+  if (!t) return;
+  const newTitle = document.getElementById('tmod-title').value.trim();
+  if (!newTitle) { document.getElementById('tmod-title').focus(); return; }
+  t.title    = newTitle;
+  t.scadenza = document.getElementById('tmod-date').value || null;
+  t.priority = document.getElementById('tmod-prio').value;
+  t.note     = document.getElementById('tmod-note').value.trim();
+  document.getElementById('taskEditOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+  _editTaskId = null;
   renderTasks(); scheduleSave('Timeline');
 }
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (_editTaskId !== null) chiudiTaskEdit();
+    if (_pensierinGuestId !== null) chiudiPensierino();
+  }
+});
 
 function renderTasks() {
   const done  = state.tasks.filter(t => t.done).length;
@@ -1821,11 +1879,6 @@ function renderTasks() {
       if (!d || d >= today || t.done) hidden = true;
     }
 
-    const curDate = t.scadenza || '';
-    const priOptions = ['🔴 Alta','🟠 Media','🟡 Bassa'].map(p =>
-      `<option value="${p}" ${t.priority===p?'selected':''}>${p}</option>`
-    ).join('');
-
     return `<div class="task-item${hidden?' hidden':''}" id="task-${t.id}"
       draggable="true"
       ondragstart="taskDragStart(event,${t.id})"
@@ -1841,14 +1894,6 @@ function renderTasks() {
           <span class="task-period ${di.cls}">${di.label}</span>
           <span class="task-priority ${priClass}">${t.priority}</span>
           ${t.note ? `<span class="task-note">${escHtml(t.note)}</span>` : ''}
-        </div>
-        <div class="task-edit-row" id="te-${t.id}" style="display:none;">
-          <input class="task-edit-inp" id="te-title-${t.id}" value="${escHtml(t.title)}" placeholder="Titolo…" style="flex:2;min-width:160px;">
-          <input class="task-edit-inp" id="te-date-${t.id}"  type="date" value="${curDate}" style="width:150px;">
-          <select class="task-edit-inp" id="te-prio-${t.id}" style="width:110px;">${priOptions}</select>
-          <input class="task-edit-inp" id="te-note-${t.id}"  value="${escHtml(t.note||'')}" placeholder="Note…" style="flex:1;min-width:110px;">
-          <button class="btn btn-sm" onclick="taskSaveEdit(${t.id})" style="background:var(--green);">✓ Salva</button>
-          <button class="btn btn-sm btn-ghost" onclick="taskToggleEdit(${t.id})">✕</button>
         </div>
       </div>
       <div class="task-actions">
@@ -2212,9 +2257,6 @@ function chiudiPensierino(e) {
   document.body.style.overflow = '';
   _pensierinGuestId = null;
 }
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' && _pensierinGuestId !== null) chiudiPensierino();
-});
 
 function salvaPensierino() {
   if (_pensierinGuestId === null) return;
