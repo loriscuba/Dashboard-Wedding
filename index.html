@@ -383,9 +383,10 @@ select.inp { cursor: pointer; }
 .nome-pensierino-btn {
   background: none; border: none; cursor: pointer; padding: 0 2px;
   font-size: 13px; line-height: 1; color: var(--muted); opacity: .6;
-  vertical-align: middle; transition: opacity .2s;
+  vertical-align: middle; transition: opacity .2s, filter .2s;
 }
 .nome-pensierino-btn:hover { opacity: 1; }
+.nome-pensierino-btn.filled { opacity: 1; filter: drop-shadow(0 0 2px var(--green)); }
 
 /* ── SAVE BADGE ── */
 .save-badge {
@@ -2265,7 +2266,7 @@ function rsvpRender() {
           <div style="display:flex;align-items:center;gap:4px;width:100%;">
             <input class="rsvp-nome-edit" value="${escHtml(g.nome)}" placeholder="Nome…"
               oninput="rsvpUpdateField(${g.id},'nome',this.value)" style="flex:1;min-width:0;">
-            <button class="nome-pensierino-btn" onclick="apriPensierino(${g.id})" title="Pensierino &amp; Bingo">${g.pensierino||g.indizio1||g.indizio2||g.indizio3?'💭':'🔮'}</button>
+            <button class="nome-pensierino-btn${g.pensierino||g.indizio1||g.indizio2||g.indizio3?' filled':''}" onclick="apriPensierino(${g.id})" title="Pensierino &amp; Bingo">${g.pensierino||g.indizio1||g.indizio2||g.indizio3?'💭':'🔮'}</button>
           </div>
           ${syncBadge}
         </div>
