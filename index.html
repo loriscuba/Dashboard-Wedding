@@ -1316,6 +1316,23 @@ function setSyncStatus(section, status, msg) {
   text.textContent = msg;
 }
 
+function getSheetValue(row, candidates) {
+  if (!row || typeof row !== 'object') return '';
+  for (const candidate of candidates) {
+    if (candidate === undefined || candidate === null) continue;
+    const value = row[candidate];
+    if (value !== undefined && value !== null && value !== '') return value;
+  }
+  for (const candidate of candidates) {
+    if (candidate === undefined || candidate === null) continue;
+    const normalized = String(candidate).trim().toLowerCase();
+    const altKey = normalized.replace(/\s+/g, '_').replace(/[^a-z0-9]/g, '');
+    const value = row[altKey];
+    if (value !== undefined && value !== null && value !== '') return value;
+  }
+  return '';
+}
+
 // ===== SAVE TO SHEETS =====
 let saveTimers = {};
 
@@ -1477,19 +1494,19 @@ async function loadFromSheets() {
     const rows = await res.json();
     if (rows && rows.length > 0) {
       RSVP_GUESTS = rows.map(r => ({
-        id: parseInt(r.id) || Date.now(),
-        nome: r.nome || '',
-        gruppo: r.gruppo || '',
-        tavolo: r.tavolo || '',
-        stato: ['confermato','rifiutato','attesa'].includes(r.stato) ? r.stato : 'attesa',
-        regalo: r.regalo !== '' && r.regalo != null ? (parseFloat(r.regalo) || '') : '',
-        note: r.note || '',
-        canzone: r.canzone || '',
-        tipo_regalo: r.tipo_regalo || r[12] || '',
-        pensierino: r.pensierino || '',
-        indizio1: r.indizio1 || '',
-        indizio2: r.indizio2 || '',
-        indizio3: r.indizio3 || '',
+        id: parseInt(getSheetValue(r, ['id','ID'])) || Date.now(),
+        nome: getSheetValue(r, ['nome','Nome']) || '',
+        gruppo: getSheetValue(r, ['gruppo','Gruppo']) || '',
+        tavolo: getSheetValue(r, ['tavolo','Tavolo']) || '',
+        stato: ['confermato','rifiutato','attesa'].includes(getSheetValue(r, ['stato','Stato'])) ? getSheetValue(r, ['stato','Stato']) : 'attesa',
+        regalo: getSheetValue(r, ['regalo','Regalo']) !== '' && getSheetValue(r, ['regalo','Regalo']) != null ? (parseFloat(getSheetValue(r, ['regalo','Regalo'])) || '') : '',
+        note: getSheetValue(r, ['note','Note']) || '',
+        canzone: getSheetValue(r, ['canzone','Canzone']) || '',
+        tipo_regalo: getSheetValue(r, ['tipo_regalo','Tipo regalo','tipo regalo','tipoRegalo','TipoRegalo', 12]) || '',
+        pensierino: getSheetValue(r, ['pensierino','Pensierino']) || '',
+        indizio1: getSheetValue(r, ['indizio1','Indizio 1','indizio_1']) || '',
+        indizio2: getSheetValue(r, ['indizio2','Indizio 2','indizio_2']) || '',
+        indizio3: getSheetValue(r, ['indizio3','Indizio 3','indizio_3']) || '',
       }));
       localStorage.setItem('rsvp_guests', JSON.stringify(RSVP_GUESTS));
       setSyncStatus('Invitati', 'ok', 'Caricato da Sheets');
@@ -1507,11 +1524,11 @@ async function loadFromSheets() {
     const rows = await res.json();
     if (rows && rows.length > 0) {
       ALTRE_PERSONE = rows.map(r => ({
-        id: parseInt(r.id) || Date.now(),
-        nome: r.nome || '',
-        importo: r.importo !== '' && r.importo != null ? (parseFloat(r.importo) || 0) : 0,
-        tipo_regalo: r.tipo_regalo || '',
-        note: r.note || '',
+        id: parseInt(getSheetValue(r, ['id','ID'])) || Date.now(),
+        nome: getSheetValue(r, ['nome','Nome']) || '',
+        importo: getSheetValue(r, ['importo','Importo']) !== '' && getSheetValue(r, ['importo','Importo']) != null ? (parseFloat(getSheetValue(r, ['importo','Importo'])) || 0) : 0,
+        tipo_regalo: getSheetValue(r, ['tipo_regalo','Tipo regalo','tipo regalo','tipoRegalo','TipoRegalo', 3]) || '',
+        note: getSheetValue(r, ['note','Note']) || '',
       }));
       localStorage.setItem('altre_persone', JSON.stringify(ALTRE_PERSONE));
     }
