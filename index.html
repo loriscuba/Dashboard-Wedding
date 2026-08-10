@@ -1067,6 +1067,28 @@ select.inp { cursor: pointer; }
     </div>
   </div>
 
+  <div class="budget-section-card">
+    <div class="section-title" style="font-size:16px;margin-bottom:12px;">Contributi esterni</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin-bottom:10px;">
+      <div style="flex:1;min-width:180px;">
+        <label class="rsvp-form-label">Nome</label>
+        <input class="rsvp-form-input" id="altre-persone-nome" placeholder="Es. Marco Rossi">
+      </div>
+      <div style="flex:1;min-width:120px;">
+        <label class="rsvp-form-label">Importo (€)</label>
+        <input class="rsvp-form-input" id="altre-persone-importo" type="number" min="0" step="1" placeholder="0">
+      </div>
+      <div style="flex:1;min-width:180px;">
+        <label class="rsvp-form-label">Note</label>
+        <input class="rsvp-form-input" id="altre-persone-note" placeholder="Es. ha contribuito al regalo">
+      </div>
+      <button class="rsvp-add-btn" onclick="altrePersoneAdd()">Aggiungi</button>
+    </div>
+    <div id="altre-persone-list">
+      <div style="font-size:12px;color:var(--muted);padding:10px 0;">Nessun contributo esterno registrato.</div>
+    </div>
+  </div>
+
   <!-- Spese matrimonio -->
   <div class="budget-section-card">
     <div class="section-title" style="font-size:16px;margin-bottom:14px;">Voci di spesa</div>
@@ -1302,6 +1324,10 @@ async function saveToSheet(section) {
     RSVP_GUESTS.forEach(g => {
       rows.push([g.id, g.nome, g.gruppo || '', g.tavolo || '', g.stato, g.regalo !== '' ? g.regalo : '', g.note || '', g.canzone || '', g.pensierino || '', g.indizio1 || '', g.indizio2 || '', g.indizio3 || '']);
     });
+  } else if (section === 'Altre Persone') {
+    ALTRE_PERSONE.forEach(p => {
+      rows.push([p.id, p.nome || '', p.importo !== '' ? p.importo : '', p.note || '']);
+    });
   } else if (section === 'Bambini') {
     BAMBINI.forEach(b => {
       rows.push([b.id, b.nome, b.adulto_id || '', b.gruppo || '', b.eta || '', b.tavolo || '']);
@@ -1449,6 +1475,23 @@ async function loadFromSheets() {
     setSyncStatus('Invitati', 'error', 'Dati locali (Sheets non raggiungibile)');
   }
 
+  // Load Altre Persone
+  try {
+    const res = await fetch(`${READ_BASE}/${encodeURIComponent('Altre Persone')}`);
+    const rows = await res.json();
+    if (rows && rows.length > 0) {
+      ALTRE_PERSONE = rows.map(r => ({
+        id: parseInt(r.id) || Date.now(),
+        nome: r.nome || '',
+        importo: r.importo !== '' && r.importo != null ? (parseFloat(r.importo) || 0) : 0,
+        note: r.note || '',
+      }));
+      localStorage.setItem('altre_persone', JSON.stringify(ALTRE_PERSONE));
+    }
+  } catch(e) {
+    console.warn('Altre Persone load failed, using localStorage', e);
+  }
+
   // Load Bambini
   try {
     const res = await fetch(`${READ_BASE}/Bambini`);
@@ -1515,7 +1558,8 @@ function renderBudget() {
   const disponibile = (state.budgetDisponibile || 10000) + (state.budgetContributo || 0);
   const totalStimato = state.budget.reduce((a, r) => a + (r.pagato_personale ? 0 : r.stimato), 0);
   const totalSpeso = state.budget.reduce((a, r) => a + (r.pagato_personale ? 0 : r.speso), 0);
-  const totRegaliDisp = RSVP_GUESTS.reduce((s, g) => s + (parseFloat(g.regalo) || 0), 0);
+  const totRegaliDisp = RSVP_GUESTS.reduce((s, g) => s + (parseFloat(g.regalo) || 0), 0) +
+    ALTRE_PERSONE.reduce((s, p) => s + (parseFloat(p.importo) || 0), 0);
   const margine = disponibile + totRegaliDisp - totalStimato;
 
   const inpDisp = document.getElementById('input-disponibile');
@@ -2066,6 +2110,7 @@ async function loadRSVP() {
 // ═══════════════════════════════════════════════════════
 var RSVP_GUESTS    = JSON.parse(localStorage.getItem('rsvp_guests') || '[]');
 var BGT_SPESE      = JSON.parse(localStorage.getItem('bgt_spese')   || '[]');
+var ALTRE_PERSONE  = JSON.parse(localStorage.getItem('altre_persone') || '[]');
 var BAMBINI        = JSON.parse(localStorage.getItem('bambini_list') || '[]');
 var RSVP_FORMS_DATA = [];
 
@@ -2441,16 +2486,44 @@ function bgtUpdateSpesaStato(id, stato) {
   if (s) { s.stato = stato; bgtSave(); bgtRender(); }
 }
 
+function altrePersoneSave() {
+  localStorage.setItem('altre_persone', JSON.stringify(ALTRE_PERSONE));
+  scheduleSave('Altre Persone');
+}
+
+function altrePersoneAdd() {
+  const nome = document.getElementById('altre-persone-nome').value.trim();
+  const importo = parseFloat(document.getElementById('altre-persone-importo').value) || 0;
+  const note = document.getElementById('altre-persone-note').value.trim();
+  if (!nome) { alert('Inserisci il nome della persona esterna.'); return; }
+  if (importo <= 0) { alert('Inserisci un importo valido.'); return; }
+  ALTRE_PERSONE.push({ id: Date.now(), nome, importo, note });
+  altrePersoneSave();
+  document.getElementById('altre-persone-nome').value = '';
+  document.getElementById('altre-persone-importo').value = '';
+  document.getElementById('altre-persone-note').value = '';
+  bgtRender();
+}
+
+function altrePersoneDelete(id) {
+  if (!confirm('Rimuovere questo contributo esterno?')) return;
+  ALTRE_PERSONE = ALTRE_PERSONE.filter(p => p.id !== id);
+  altrePersoneSave();
+  bgtRender();
+}
+
 function bgtRender() {
-  const totRegali   = RSVP_GUESTS.reduce((s, g) => s + (parseFloat(g.regalo) || 0), 0);
-  const giftCount   = RSVP_GUESTS.filter(g => parseFloat(g.regalo) > 0).length;
+  const totRegali   = RSVP_GUESTS.reduce((s, g) => s + (parseFloat(g.regalo) || 0), 0) +
+                      ALTRE_PERSONE.reduce((s, p) => s + (parseFloat(p.importo) || 0), 0);
+  const giftCount   = RSVP_GUESTS.filter(g => parseFloat(g.regalo) > 0).length +
+                      ALTRE_PERSONE.filter(p => parseFloat(p.importo) > 0).length;
   const totSpese    = BGT_SPESE.reduce((s, v) => s + (v.imp || 0), 0);
   const saldo       = totRegali - totSpese;
   const mediaRegalo = giftCount > 0 ? totRegali / giftCount : 0;
 
   const kv = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   kv('bgt-k-regali',   '€ ' + totRegali.toLocaleString('it-IT', {minimumFractionDigits:0}));
-  kv('bgt-k-regali-n', `da ${giftCount} invitat${giftCount===1?'o':'i'}`);
+  kv('bgt-k-regali-n', `da ${giftCount} contribut${giftCount===1?'ore':'ori'}`);
   kv('bgt-k-spese',    '€ ' + totSpese.toLocaleString('it-IT',  {minimumFractionDigits:0}));
   kv('bgt-k-spese-n',  `${BGT_SPESE.length} voc${BGT_SPESE.length===1?'e':'i'}`);
 
@@ -2461,28 +2534,53 @@ function bgtRender() {
   }
   kv('bgt-k-media', '€ ' + mediaRegalo.toLocaleString('it-IT', {minimumFractionDigits:0}));
 
-  // Lista invitati con regalo
+  // Lista contributi ricevuti
   const gruppiEl = document.getElementById('bgt-gruppi');
   if (gruppiEl) {
-    const conRegalo = RSVP_GUESTS
-      .filter(g => parseFloat(g.regalo) > 0)
-      .sort((a, b) => (parseFloat(b.regalo) || 0) - (parseFloat(a.regalo) || 0));
+    const conRegalo = [
+      ...RSVP_GUESTS.filter(g => parseFloat(g.regalo) > 0).map(g => ({ ...g, tipo: 'invitato', imp: parseFloat(g.regalo) || 0 })),
+      ...ALTRE_PERSONE.filter(p => parseFloat(p.importo) > 0).map(p => ({ ...p, tipo: 'esterno', imp: parseFloat(p.importo) || 0, gruppo: '' }))
+    ].sort((a, b) => (b.imp || 0) - (a.imp || 0));
+
     if (!conRegalo.length) {
-      gruppiEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:10px 0;">Nessun regalo registrato — inserisci gli importi nel tab Invitati.</div>';
+      gruppiEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:10px 0;">Nessun regalo registrato — inserisci gli importi nel tab Invitati o aggiungi un contributo esterno qui sotto.</div>';
     } else {
-      const maxVal = Math.max(...conRegalo.map(g => parseFloat(g.regalo) || 0), 1);
+      const maxVal = Math.max(...conRegalo.map(g => g.imp || 0), 1);
       gruppiEl.innerHTML = conRegalo.map(g => {
-        const imp = parseFloat(g.regalo) || 0;
-        const pct = (imp / maxVal * 100).toFixed(0);
+        const pct = ((g.imp || 0) / maxVal * 100).toFixed(0);
+        const badge = g.tipo === 'esterno' ? '<span style="font-size:9px;letter-spacing:1px;background:rgba(92,115,165,.12);color:var(--accent2);border-radius:8px;padding:1px 6px;margin-left:6px;">ESTERNO</span>' : '';
         return `<div class="budget-row">
           <div style="flex:1;">
-            <div class="budget-row-label">${escHtml(g.nome)}</div>
+            <div class="budget-row-label">${escHtml(g.nome)}${badge}</div>
             ${g.gruppo ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;">${escHtml(g.gruppo)}</div>` : ''}
+            ${g.note ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;">${escHtml(g.note)}</div>` : ''}
             <div class="budget-progress-bar" style="width:160px;margin-top:4px;"><div class="budget-progress-fill" style="width:${pct}%;"></div></div>
           </div>
-          <div class="budget-row-val">€ ${imp.toLocaleString('it-IT', {minimumFractionDigits:0})}</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="budget-row-val">€ ${(g.imp || 0).toLocaleString('it-IT', {minimumFractionDigits:0})}</div>
+            ${g.tipo === 'esterno' ? `<button class="rsvp-action-btn danger" onclick="altrePersoneDelete(${g.id})">✕</button>` : ''}
+          </div>
         </div>`;
       }).join('');
+    }
+  }
+
+  const altrePersoneEl = document.getElementById('altre-persone-list');
+  if (altrePersoneEl) {
+    if (!ALTRE_PERSONE.length) {
+      altrePersoneEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:10px 0;">Nessun contributo esterno registrato.</div>';
+    } else {
+      altrePersoneEl.innerHTML = ALTRE_PERSONE.map(p => `
+        <div class="budget-row">
+          <div style="flex:1;">
+            <div class="budget-row-label">${escHtml(p.nome)}</div>
+            ${p.note ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;">${escHtml(p.note)}</div>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="budget-row-val">€ ${(p.importo || 0).toLocaleString('it-IT', {minimumFractionDigits:0})}</div>
+            <button class="rsvp-action-btn danger" onclick="altrePersoneDelete(${p.id})">✕</button>
+          </div>
+        </div>`).join('');
     }
   }
 
