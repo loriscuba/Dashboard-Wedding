@@ -1345,7 +1345,7 @@ async function saveToSheet(section) {
     rows.push(['__nextId__', state.nextSupplierId, '', '', '', '', '', '']);
   } else if (section === 'Invitati') {
     RSVP_GUESTS.forEach(g => {
-      rows.push([g.id, g.nome, g.gruppo || '', g.tavolo || '', g.stato, g.regalo !== '' ? g.regalo : '', g.note || '', g.canzone || '', g.pensierino || '', g.indizio1 || '', g.indizio2 || '', g.indizio3 || '']);
+      rows.push([g.id, g.nome, g.gruppo || '', g.tavolo || '', g.stato, g.regalo !== '' ? g.regalo : '', g.note || '', g.canzone || '', g.pensierino || '', g.indizio1 || '', g.indizio2 || '', g.indizio3 || '', g.tipo_regalo || '']);
     });
   } else if (section === 'Altre Persone') {
     ALTRE_PERSONE.forEach(p => {
@@ -1483,6 +1483,7 @@ async function loadFromSheets() {
         regalo: r.regalo !== '' && r.regalo != null ? (parseFloat(r.regalo) || '') : '',
         note: r.note || '',
         canzone: r.canzone || '',
+        tipo_regalo: r.tipo_regalo || r[12] || '',
         pensierino: r.pensierino || '',
         indizio1: r.indizio1 || '',
         indizio2: r.indizio2 || '',
@@ -2681,7 +2682,7 @@ function rsvpImportList() {
       skipped++;
       return;
     }
-    RSVP_GUESTS.push({ id: Date.now() + idx, nome, gruppo, tavolo, stato: 'attesa', regalo: '', note: '', canzone: '', pensierino: '', indizio1: '', indizio2: '', indizio3: '' });
+    RSVP_GUESTS.push({ id: Date.now() + idx, nome, gruppo, tavolo, stato: 'attesa', regalo: '', tipo_regalo: '', note: '', canzone: '', pensierino: '', indizio1: '', indizio2: '', indizio3: '' });
     added++;
   });
   rsvpSave();
@@ -2768,7 +2769,7 @@ async function rsvpSyncWithForms() {
 
 function rsvpAddFromUnmatched(nome, stato) {
   if (RSVP_GUESTS.some(g => g.nome.toLowerCase() === nome.toLowerCase())) return;
-  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo: '', tavolo: '', stato, regalo: '', note: '', canzone: '', pensierino: '', indizio1: '', indizio2: '', indizio3: '' });
+  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo: '', tavolo: '', stato, regalo: '', tipo_regalo: '', note: '', canzone: '', pensierino: '', indizio1: '', indizio2: '', indizio3: '' });
   rsvpSave();
   rsvpRender();
   rsvpUpdateKpi();
