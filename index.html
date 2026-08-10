@@ -1603,9 +1603,9 @@ function renderBudget() {
   const totalSpeso = state.budget.reduce((a, r) => a + (r.pagato_personale ? 0 : r.speso), 0);
   const giftStats = getGiftTotals({
     guests: RSVP_GUESTS,
-    externalContributors: ALTRE_PERSONE.map(p => ({ importo: p.importo || 0, tipo_regalo: 'Bonifico' }))
+    externalContributors: ALTRE_PERSONE.map(p => ({ importo: p.importo || 0, tipo_regalo: p.tipo_regalo || 'Bonifico' }))
   });
-  const disponibile = (state.budgetDisponibile || 0) + giftStats.bonifico;
+  const disponibile = (state.budgetDisponibile || 0) + giftStats.bonifico - totalSpeso;
 
   const inpDisp = document.getElementById('input-disponibile');
   if (inpDisp && document.activeElement !== inpDisp) inpDisp.value = state.budgetDisponibile || 0;
