@@ -691,22 +691,17 @@ select.inp { cursor: pointer; }
   <div class="budget-summary">
     <div class="bstat"><div class="bstat-num" id="bs-stimato">€0</div><div class="bstat-label">Stimato</div></div>
     <div class="bstat"><div class="bstat-num" id="bs-speso">€0</div><div class="bstat-label">Speso</div></div>
-    <div class="bstat neg"><div class="bstat-num" id="bs-margine">–</div><div class="bstat-label">vs Budget+Regali</div></div>
-    <div class="bstat" style="border-left:2px solid var(--green);"><div class="bstat-num" id="bs-regali" style="color:var(--green);">€0</div><div class="bstat-label">Regali ricevuti</div></div>
+    <div class="bstat" style="border-left:2px solid var(--green);"><div class="bstat-num" id="bs-bonifici" style="color:var(--green);">€0</div><div class="bstat-label">Bonifici</div></div>
+    <div class="bstat" style="border-left:2px solid var(--accent2);"><div class="bstat-num" id="bs-lista" style="color:var(--accent2);">€0</div><div class="bstat-label">Lista Nozze</div></div>
   </div>
 
   <div class="card" style="margin-bottom:12px;">
-    <div class="section-title" style="font-size:15px;margin-bottom:12px;">💶 Budget disponibile</div>
+    <div class="section-title" style="font-size:15px;margin-bottom:12px;">💶 Budget iniziale</div>
     <div class="form-row budget-avail-row">
       <div style="flex:1">
-        <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Budget totale €</div>
+        <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Budget iniziale €</div>
         <input class="inp" id="input-disponibile" type="number" min="0" placeholder="10000"
           onchange="updateDisponibile('budgetDisponibile', this.value)">
-      </div>
-      <div style="flex:1">
-        <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Contributo esterno €</div>
-        <input class="inp" id="input-contributo" type="number" min="0" placeholder="0"
-          onchange="updateDisponibile('budgetContributo', this.value)">
       </div>
       <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;">
         <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Netto disponibile</div>
@@ -1579,30 +1574,25 @@ function tab(id, el) {
 
 // ===== BUDGET =====
 function renderBudget() {
-  const disponibile = (state.budgetDisponibile || 10000) + (state.budgetContributo || 0);
   const totalStimato = state.budget.reduce((a, r) => a + (r.pagato_personale ? 0 : r.stimato), 0);
   const totalSpeso = state.budget.reduce((a, r) => a + (r.pagato_personale ? 0 : r.speso), 0);
   const giftStats = getGiftTotals({
     guests: RSVP_GUESTS,
     externalContributors: ALTRE_PERSONE.map(p => ({ importo: p.importo || 0, tipo_regalo: 'Bonifico' }))
   });
-  const totRegaliDisp = giftStats.bonifico;
-  const margine = disponibile + totRegaliDisp - totalStimato;
+  const disponibile = (state.budgetDisponibile || 0) + giftStats.bonifico;
 
   const inpDisp = document.getElementById('input-disponibile');
-  const inpContr = document.getElementById('input-contributo');
-  if (inpDisp && document.activeElement !== inpDisp) inpDisp.value = state.budgetDisponibile || 10000;
-  if (inpContr && document.activeElement !== inpContr) inpContr.value = state.budgetContributo || 0;
+  if (inpDisp && document.activeElement !== inpDisp) inpDisp.value = state.budgetDisponibile || 0;
   const nettoEl = document.getElementById('bs-netto');
   if (nettoEl) nettoEl.textContent = '€' + disponibile.toLocaleString('it');
 
   document.getElementById('bs-stimato').textContent = '€' + totalStimato.toLocaleString('it');
   document.getElementById('bs-speso').textContent = '€' + totalSpeso.toLocaleString('it');
-  const mEl = document.getElementById('bs-margine');
-  mEl.textContent = (margine >= 0 ? '+€' : '−€') + Math.abs(margine).toLocaleString('it');
-  mEl.closest('.bstat').className = 'bstat ' + (margine >= 0 ? 'ok' : 'neg');
-  const bsRegali = document.getElementById('bs-regali');
-  if (bsRegali) bsRegali.textContent = '€' + totRegaliDisp.toLocaleString('it');
+  const bsBonifici = document.getElementById('bs-bonifici');
+  if (bsBonifici) bsBonifici.textContent = '€' + giftStats.bonifico.toLocaleString('it');
+  const bsLista = document.getElementById('bs-lista');
+  if (bsLista) bsLista.textContent = '€' + giftStats.listaNozze.toLocaleString('it');
 
   // ── Tabella desktop ──
   const body = document.getElementById('budgetBody');
