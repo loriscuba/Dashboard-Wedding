@@ -913,6 +913,14 @@ select.inp { cursor: pointer; }
       <label class="rsvp-form-label">Canzone 🎵</label>
       <input class="rsvp-form-input" id="rsvp-canzone" placeholder="Es. Perfect – Ed Sheeran" style="min-width:180px;">
     </div>
+    <div class="rsvp-form-field">
+      <label class="rsvp-form-label">Tipo regalo</label>
+      <select class="rsvp-form-select" id="rsvp-gift-type">
+        <option value="">—</option>
+        <option value="Bonifico">Bonifico</option>
+        <option value="Lista Nozze">Lista Nozze</option>
+      </select>
+    </div>
     <button class="rsvp-add-btn" onclick="rsvpAddGuest()">+ Aggiungi</button>
   </div>
 
@@ -961,6 +969,7 @@ select.inp { cursor: pointer; }
           <th>Tavolo</th>
           <th>RSVP</th>
           <th style="text-align:right;">Regalo (€)</th>
+          <th>Tipo</th>
           <th>Note</th>
           <th></th>
         </tr>
@@ -1056,6 +1065,19 @@ select.inp { cursor: pointer; }
       <div class="kpi-label">Regalo medio</div>
       <div class="kpi-val" id="bgt-k-media">€ 0</div>
       <div class="kpi-sub">per invitato confermato</div>
+    </div>
+  </div>
+
+  <div class="kpi-grid" style="margin-top:8px;">
+    <div class="kpi">
+      <div class="kpi-label">Bonifici</div>
+      <div class="kpi-val" id="bgt-k-bonifici" style="color:var(--green);">€ 0</div>
+      <div class="kpi-sub" id="bgt-k-bonifici-n">0 contributi</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Lista Nozze</div>
+      <div class="kpi-val" id="bgt-k-lista" style="color:var(--accent2);">€ 0</div>
+      <div class="kpi-sub" id="bgt-k-lista-n">0 contributi</div>
     </div>
   </div>
 
@@ -1215,6 +1237,7 @@ select.inp { cursor: pointer; }
 
 <div class="save-badge" id="saveBadge">✓ SALVATO</div>
 
+<script src="gift-utils.js"></script>
 <script>
 // ===== CONFIG =====
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOGeynHpeljlUgWaLGz5fb-b17bHXcs2hVdKzZfoh5X6kOF2KX8YY50rkr_gkw9ka2/exec';
@@ -1558,8 +1581,11 @@ function renderBudget() {
   const disponibile = (state.budgetDisponibile || 10000) + (state.budgetContributo || 0);
   const totalStimato = state.budget.reduce((a, r) => a + (r.pagato_personale ? 0 : r.stimato), 0);
   const totalSpeso = state.budget.reduce((a, r) => a + (r.pagato_personale ? 0 : r.speso), 0);
-  const totRegaliDisp = RSVP_GUESTS.reduce((s, g) => s + (parseFloat(g.regalo) || 0), 0) +
-    ALTRE_PERSONE.reduce((s, p) => s + (parseFloat(p.importo) || 0), 0);
+  const giftStats = getGiftTotals({
+    guests: RSVP_GUESTS,
+    externalContributors: ALTRE_PERSONE.map(p => ({ importo: p.importo || 0, tipo_regalo: 'Bonifico' }))
+  });
+  const totRegaliDisp = giftStats.bonifico;
   const margine = disponibile + totRegaliDisp - totalStimato;
 
   const inpDisp = document.getElementById('input-disponibile');
@@ -2126,13 +2152,15 @@ function rsvpAddGuest() {
   const stato  = document.getElementById('rsvp-stato').value;
   if (!nome) { alert('Inserisci il nome dell\'invitato.'); return; }
   const canzone = document.getElementById('rsvp-canzone').value.trim();
-  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo, tavolo, stato, regalo: '', note: '', canzone, pensierino: '', indizio1: '', indizio2: '', indizio3: '' });
+  const giftType = document.getElementById('rsvp-gift-type').value;
+  RSVP_GUESTS.push({ id: Date.now(), nome, gruppo, tavolo, stato, regalo: '', tipo_regalo: giftType || '', note: '', canzone, pensierino: '', indizio1: '', indizio2: '', indizio3: '' });
   rsvpSave();
   document.getElementById('rsvp-nome').value    = '';
   document.getElementById('rsvp-gruppo').value  = '';
   document.getElementById('rsvp-tavolo').value  = '';
   document.getElementById('rsvp-stato').value   = 'attesa';
   document.getElementById('rsvp-canzone').value = '';
+  document.getElementById('rsvp-gift-type').value = '';
   rsvpRender();
   rsvpUpdateKpi();
   bgtRender();
@@ -2152,6 +2180,8 @@ function rsvpUpdateField(id, field, value) {
   if (!g) return;
   if (field === 'regalo') {
     g.regalo = value === '' ? '' : parseFloat(value) || 0;
+  } else if (field === 'tipo_regalo') {
+    g.tipo_regalo = value;
   } else {
     g[field] = value;
   }
@@ -2408,6 +2438,14 @@ function rsvpRender() {
           oninput="rsvpUpdateField(${g.id},'regalo',this.value)">
       </td>
       <td>
+        <select class="rsvp-form-select" style="font-size:11px;padding:3px 7px;"
+          onchange="rsvpUpdateField(${g.id},'tipo_regalo',this.value)">
+          <option value="" ${!g.tipo_regalo ? 'selected' : ''}>—</option>
+          <option value="Bonifico" ${g.tipo_regalo==='Bonifico' ? 'selected' : ''}>Bonifico</option>
+          <option value="Lista Nozze" ${g.tipo_regalo==='Lista Nozze' ? 'selected' : ''}>Lista Nozze</option>
+        </select>
+      </td>
+      <td>
         <input class="rsvp-form-input" style="width:120px;font-size:11px;padding:4px 7px;"
           value="${(g.note||'').replace(/"/g,'&quot;')}"
           placeholder="Note…"
@@ -2437,8 +2475,8 @@ function rsvpClearAll() {
 
 function rsvpExportCSV() {
   if (!RSVP_GUESTS.length) return;
-  const rows = [['Nome','Gruppo','Tavolo','RSVP','Regalo (€)','Note','Canzone']];
-  RSVP_GUESTS.forEach(g => rows.push([g.nome, g.gruppo, g.tavolo, g.stato, g.regalo, g.note, g.canzone||'']));
+  const rows = [['Nome','Gruppo','Tavolo','RSVP','Regalo (€)','Tipo regalo','Note','Canzone']];
+  RSVP_GUESTS.forEach(g => rows.push([g.nome, g.gruppo, g.tavolo, g.stato, g.regalo, g.tipo_regalo || '', g.note, g.canzone||'']));
   const csv  = rows.map(r => r.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob(['﻿'+csv], { type:'text/csv;charset=utf-8;' });
   const a    = document.createElement('a');
@@ -2513,10 +2551,12 @@ function altrePersoneDelete(id) {
 }
 
 function bgtRender() {
-  const totRegali   = RSVP_GUESTS.reduce((s, g) => s + (parseFloat(g.regalo) || 0), 0) +
-                      ALTRE_PERSONE.reduce((s, p) => s + (parseFloat(p.importo) || 0), 0);
-  const giftCount   = RSVP_GUESTS.filter(g => parseFloat(g.regalo) > 0).length +
-                      ALTRE_PERSONE.filter(p => parseFloat(p.importo) > 0).length;
+  const giftStats = getGiftTotals({
+    guests: RSVP_GUESTS,
+    externalContributors: ALTRE_PERSONE.map(p => ({ importo: p.importo || 0, tipo_regalo: 'Bonifico' }))
+  });
+  const totRegali   = giftStats.total;
+  const giftCount   = giftStats.bonificoCount + giftStats.listaNozzeCount;
   const totSpese    = BGT_SPESE.reduce((s, v) => s + (v.imp || 0), 0);
   const saldo       = totRegali - totSpese;
   const mediaRegalo = giftCount > 0 ? totRegali / giftCount : 0;
@@ -2524,6 +2564,10 @@ function bgtRender() {
   const kv = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   kv('bgt-k-regali',   '€ ' + totRegali.toLocaleString('it-IT', {minimumFractionDigits:0}));
   kv('bgt-k-regali-n', `da ${giftCount} contribut${giftCount===1?'ore':'ori'}`);
+  kv('bgt-k-bonifici', '€ ' + giftStats.bonifico.toLocaleString('it-IT', {minimumFractionDigits:0}));
+  kv('bgt-k-bonifici-n', `${giftStats.bonificoCount} contribut${giftStats.bonificoCount===1?'o':'i'}`);
+  kv('bgt-k-lista', '€ ' + giftStats.listaNozze.toLocaleString('it-IT', {minimumFractionDigits:0}));
+  kv('bgt-k-lista-n', `${giftStats.listaNozzeCount} contribut${giftStats.listaNozzeCount===1?'o':'i'}`);
   kv('bgt-k-spese',    '€ ' + totSpese.toLocaleString('it-IT',  {minimumFractionDigits:0}));
   kv('bgt-k-spese-n',  `${BGT_SPESE.length} voc${BGT_SPESE.length===1?'e':'i'}`);
 
@@ -2553,6 +2597,7 @@ function bgtRender() {
           <div style="flex:1;">
             <div class="budget-row-label">${escHtml(g.nome)}${badge}</div>
             ${g.gruppo ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;">${escHtml(g.gruppo)}</div>` : ''}
+            ${g.tipo_regalo ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;">Tipo: ${escHtml(g.tipo_regalo)}</div>` : ''}
             ${g.note ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;">${escHtml(g.note)}</div>` : ''}
             <div class="budget-progress-bar" style="width:160px;margin-top:4px;"><div class="budget-progress-fill" style="width:${pct}%;"></div></div>
           </div>
