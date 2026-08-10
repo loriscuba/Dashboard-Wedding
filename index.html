@@ -1096,6 +1096,13 @@ select.inp { cursor: pointer; }
         <input class="rsvp-form-input" id="altre-persone-importo" type="number" min="0" step="1" placeholder="0">
       </div>
       <div style="flex:1;min-width:180px;">
+        <label class="rsvp-form-label">Tipo</label>
+        <select class="rsvp-form-select" id="altre-persone-tipo">
+          <option value="Bonifico">Bonifico</option>
+          <option value="Lista Nozze">Lista Nozze</option>
+        </select>
+      </div>
+      <div style="flex:1;min-width:180px;">
         <label class="rsvp-form-label">Note</label>
         <input class="rsvp-form-input" id="altre-persone-note" placeholder="Es. ha contribuito al regalo">
       </div>
@@ -1344,7 +1351,7 @@ async function saveToSheet(section) {
     });
   } else if (section === 'Altre Persone') {
     ALTRE_PERSONE.forEach(p => {
-      rows.push([p.id, p.nome || '', p.importo !== '' ? p.importo : '', p.note || '']);
+      rows.push([p.id, p.nome || '', p.importo !== '' ? p.importo : '', p.tipo_regalo || '', p.note || '']);
     });
   } else if (section === 'Bambini') {
     BAMBINI.forEach(b => {
@@ -1503,6 +1510,7 @@ async function loadFromSheets() {
         id: parseInt(r.id) || Date.now(),
         nome: r.nome || '',
         importo: r.importo !== '' && r.importo != null ? (parseFloat(r.importo) || 0) : 0,
+        tipo_regalo: r.tipo_regalo || '',
         note: r.note || '',
       }));
       localStorage.setItem('altre_persone', JSON.stringify(ALTRE_PERSONE));
@@ -2523,13 +2531,15 @@ function altrePersoneSave() {
 function altrePersoneAdd() {
   const nome = document.getElementById('altre-persone-nome').value.trim();
   const importo = parseFloat(document.getElementById('altre-persone-importo').value) || 0;
+  const tipoRegalo = document.getElementById('altre-persone-tipo').value;
   const note = document.getElementById('altre-persone-note').value.trim();
   if (!nome) { alert('Inserisci il nome della persona esterna.'); return; }
   if (importo <= 0) { alert('Inserisci un importo valido.'); return; }
-  ALTRE_PERSONE.push({ id: Date.now(), nome, importo, note });
+  ALTRE_PERSONE.push({ id: Date.now(), nome, importo, tipo_regalo: tipoRegalo || 'Bonifico', note });
   altrePersoneSave();
   document.getElementById('altre-persone-nome').value = '';
   document.getElementById('altre-persone-importo').value = '';
+  document.getElementById('altre-persone-tipo').value = 'Bonifico';
   document.getElementById('altre-persone-note').value = '';
   bgtRender();
 }
@@ -2544,7 +2554,7 @@ function altrePersoneDelete(id) {
 function bgtRender() {
   const giftStats = getGiftTotals({
     guests: RSVP_GUESTS,
-    externalContributors: ALTRE_PERSONE.map(p => ({ importo: p.importo || 0, tipo_regalo: 'Bonifico' }))
+    externalContributors: ALTRE_PERSONE.map(p => ({ importo: p.importo || 0, tipo_regalo: p.tipo_regalo || 'Bonifico' }))
   });
   const totRegali   = giftStats.total;
   const giftCount   = giftStats.bonificoCount + giftStats.listaNozzeCount;
@@ -2574,7 +2584,7 @@ function bgtRender() {
   if (gruppiEl) {
     const conRegalo = [
       ...RSVP_GUESTS.filter(g => parseFloat(g.regalo) > 0).map(g => ({ ...g, tipo: 'invitato', imp: parseFloat(g.regalo) || 0 })),
-      ...ALTRE_PERSONE.filter(p => parseFloat(p.importo) > 0).map(p => ({ ...p, tipo: 'esterno', imp: parseFloat(p.importo) || 0, gruppo: '' }))
+      ...ALTRE_PERSONE.filter(p => parseFloat(p.importo) > 0).map(p => ({ ...p, tipo: 'esterno', imp: parseFloat(p.importo) || 0, gruppo: '', tipo_regalo: p.tipo_regalo || 'Bonifico' }))
     ].sort((a, b) => (b.imp || 0) - (a.imp || 0));
 
     if (!conRegalo.length) {
@@ -2610,6 +2620,7 @@ function bgtRender() {
         <div class="budget-row">
           <div style="flex:1;">
             <div class="budget-row-label">${escHtml(p.nome)}</div>
+            ${p.tipo_regalo ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;">Tipo: ${escHtml(p.tipo_regalo)}</div>` : ''}
             ${p.note ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;">${escHtml(p.note)}</div>` : ''}
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
