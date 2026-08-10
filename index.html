@@ -1302,6 +1302,10 @@ async function saveToSheet(section) {
     RSVP_GUESTS.forEach(g => {
       rows.push([g.id, g.nome, g.gruppo || '', g.tavolo || '', g.stato, g.regalo !== '' ? g.regalo : '', g.note || '', g.canzone || '', g.pensierino || '', g.indizio1 || '', g.indizio2 || '', g.indizio3 || '']);
     });
+  } else if (section === 'Bambini') {
+    BAMBINI.forEach(b => {
+      rows.push([b.id, b.nome, b.adulto_id || '', b.gruppo || '', b.eta || '', b.tavolo || '']);
+    });
   }
 
   try {
@@ -1445,12 +1449,36 @@ async function loadFromSheets() {
     setSyncStatus('Invitati', 'error', 'Dati locali (Sheets non raggiungibile)');
   }
 
+  // Load Bambini
+  try {
+    const res = await fetch(`${READ_BASE}/Bambini`);
+    const rows = await res.json();
+    if (rows && rows.length > 0) {
+      BAMBINI = rows.map(r => ({
+        id: parseInt(r.id) || Date.now(),
+        nome: r.nome || '',
+        adulto_id: r.adulto_id ? parseInt(r.adulto_id) : null,
+        gruppo: r.gruppo || '',
+        eta: r.eta ? parseInt(r.eta) : null,
+        tavolo: r.tavolo || '',
+      }));
+      localStorage.setItem('bambini_list', JSON.stringify(BAMBINI));
+      setSyncStatus('Bambini', 'ok', 'Caricato da Sheets');
+    } else {
+      setSyncStatus('Bambini', 'ok', 'Pronto (foglio vuoto)');
+    }
+  } catch(e) {
+    console.warn('Bambini load failed, using localStorage', e);
+    setSyncStatus('Bambini', 'error', 'Dati locali (Sheets non raggiungibile)');
+  }
+
   renderBudget();
   renderTasks();
   renderSuppliers();
   rsvpRender();
   rsvpUpdateKpi();
   bgtRender();
+  bambiniRender();
   document.getElementById('loadingOverlay').classList.add('hidden');
 }
 
@@ -2131,6 +2159,7 @@ function bambiniOnAdultoChange(val) {
 
 function bambiniSave() {
   localStorage.setItem('bambini_list', JSON.stringify(BAMBINI));
+  scheduleSave('Bambini');
 }
 
 function bambiniAdd() {
