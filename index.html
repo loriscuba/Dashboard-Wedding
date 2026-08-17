@@ -162,6 +162,56 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300
 .table-guest-option:hover { border-color: var(--accent); background: rgba(126,158,123,.04); }
 .table-guest-option input { accent-color: var(--accent2); }
 
+/* Guest picker with search & filters */
+.guest-picker-wrap { display: flex; flex-direction: column; gap: 10px; }
+.guest-search-bar { display: flex; flex-direction: column; gap: 8px; }
+.guest-search-input {
+  padding: 8px 12px; border: 1px solid var(--soft); border-radius: 8px;
+  font-size: 12px; font-family: 'Jost', sans-serif; outline: none; background: var(--white);
+  transition: border-color .2s;
+}
+.guest-search-input:focus { border-color: var(--accent); }
+.guest-filter-tabs {
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.guest-filter-btn {
+  padding: 5px 10px; font-size: 10px; letter-spacing: 1px; border-radius: 6px;
+  border: 1px solid var(--soft); background: var(--white); cursor: pointer;
+  color: var(--muted); text-transform: uppercase; transition: all .2s;
+  font-family: 'Jost', sans-serif; font-weight: 300;
+}
+.guest-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+.guest-filter-btn.active { background: var(--accent); color: var(--white); border-color: var(--accent); }
+.guest-dropdown {
+  display: none; max-height: 240px; overflow-y: auto; border: 1px solid var(--soft);
+  border-radius: 8px; background: var(--white); box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+.guest-dropdown.open { display: block; }
+.guest-dropdown-item {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid #f5f5f5;
+  cursor: pointer; transition: background .15s;
+}
+.guest-dropdown-item:last-child { border-bottom: none; }
+.guest-dropdown-item:hover { background: rgba(126,158,123,.04); }
+.guest-dropdown-item input { accent-color: var(--accent2); }
+
+/* Nearby tables visual */
+.nearby-tables-wrap {
+  background: rgba(126,158,123,.04); border-radius: 8px; padding: 10px;
+  margin-top: 8px; font-size: 11px;
+}
+.nearby-tables-title {
+  font-size: 9px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px;
+}
+.nearby-table-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 8px; background: var(--white); border-radius: 6px; margin-bottom: 5px;
+  border-left: 3px solid var(--accent);
+}
+.nearby-table-item:last-child { margin-bottom: 0; }
+.nearby-table-name { font-weight: 400; }
+.nearby-table-capacity { font-size: 10px; color: var(--muted); }
+
 /* ── BUDGET SUMMARY ── */
 .budget-summary {
   display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px;
@@ -3066,6 +3116,13 @@ function tavoliRender() {
 
     const availablePeople = getTableAssignableGuestsForTable(tavolo.id);
     const shapeClass = tavolo.tipo === 'quadrato' ? 'table-shape square' : 'table-shape round';
+    
+    // Nearby tables visual
+    const otherTables = TAVOLI.filter(t => t.id !== tavolo.id).sort((a, b) => {
+      const aAvail = parseInt(a.posti) - (a.invitati || []).length;
+      const bAvail = parseInt(b.posti) - (b.invitati || []).length;
+      return bAvail - aAvail;
+    }).slice(0, 3);
 
     return `
       <div class="table-card card">
@@ -3094,20 +3151,93 @@ function tavoliRender() {
             </div>
 
             <div class="table-section-label" style="margin-top:12px;">Seleziona invitati</div>
-            <div class="table-guest-picker">
-              ${availablePeople.length ? availablePeople.map(person => `
-                <label class="table-guest-option">
-                  <input type="checkbox" ${((tavolo.invitati || []).includes(person.id) ? 'checked' : '')}
-                    onchange="tavoliToggleGuest(${tavolo.id}, ${person.id}, this.checked)">
-                  <span>${person.tipo === 'bambino' ? '👶' : '👥'} ${escHtml(person.nome)}</span>
-                </label>
-              `).join('') : '<span style="font-size:12px;color:var(--muted);">Tutti gli invitati sono già assegnati a un altro tavolo.</span>'}
+            <div class="guest-picker-wrap">
+              <div class="guest-search-bar">
+                <input type="text" class="guest-search-input" placeholder="Cerca per nome..." 
+                  onkeyup="tavoliFilterGuests(${tavolo.id}, this)">
+                <div class="guest-filter-tabs">
+                  <button class="guest-filter-btn active" onclick="tavoliSetFilter(${tavolo.id}, 'all', this)">Tutti</button>
+                  <button class="guest-filter-btn" onclick="tavoliSetFilter(${tavolo.id}, 'adulti', this)">Adulti</button>
+                  <button class="guest-filter-btn" onclick="tavoliSetFilter(${tavolo.id}, 'bambini', this)">Bambini</button>
+                </div>
+              </div>
+              <div id="guest-dropdown-${tavolo.id}" class="guest-dropdown">
+                ${availablePeople.length ? availablePeople.map(person => `
+                  <label class="guest-dropdown-item">
+                    <input type="checkbox" data-type="${person.tipo}" ${((tavolo.invitati || []).includes(person.id) ? 'checked' : '')}
+                      onchange="tavoliToggleGuest(${tavolo.id}, ${person.id}, this.checked)">
+                    <span>${person.tipo === 'bambino' ? '👶' : '👥'} ${escHtml(person.nome)}</span>
+                  </label>
+                `).join('') : '<div style="padding:12px;font-size:11px;color:var(--muted);text-align:center;">Tutti gli invitati sono già assegnati.</div>'}
+              </div>
             </div>
+
+            ${otherTables.length ? `
+              <div class="nearby-tables-wrap">
+                <div class="nearby-tables-title">📍 Posti disponibili negli altri tavoli</div>
+                ${otherTables.map(t => {
+                  const avail = parseInt(t.posti) - (t.invitati || []).length;
+                  return `
+                    <div class="nearby-table-item">
+                      <div class="nearby-table-name">${escHtml(t.nome)}</div>
+                      <div class="nearby-table-capacity">${avail} posti</div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            ` : ''}
           </div>
         </div>
       </div>
     `;
   }).join('');
+  
+  // Open first dropdown by default
+  setTimeout(() => {
+    const firstDropdown = document.querySelector('[id^="guest-dropdown-"]');
+    if (firstDropdown) firstDropdown.classList.add('open');
+  }, 50);
+}
+
+function tavoliSetFilter(tableId, filter, btn) {
+  // Mark button as active
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.guest-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  // Filter items
+  const dropdown = document.getElementById(`guest-dropdown-${tableId}`);
+  const items = dropdown.querySelectorAll('.guest-dropdown-item');
+  
+  items.forEach(item => {
+    const checkbox = item.querySelector('input');
+    const dataType = checkbox.getAttribute('data-type');
+    
+    if (filter === 'all') {
+      item.style.display = 'flex';
+    } else if (filter === 'adulti' && dataType !== 'adulto') {
+      item.style.display = 'none';
+    } else if (filter === 'bambini' && dataType !== 'bambino') {
+      item.style.display = 'none';
+    } else {
+      item.style.display = 'flex';
+    }
+  });
+}
+
+function tavoliFilterGuests(tableId, input) {
+  const search = input.value.toLowerCase();
+  const dropdown = document.getElementById(`guest-dropdown-${tableId}`);
+  const items = dropdown.querySelectorAll('.guest-dropdown-item');
+  
+  items.forEach(item => {
+    const text = item.textContent.toLowerCase();
+    if (text.includes(search)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
 }
 
 // ===== INIT =====
