@@ -93,6 +93,75 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300
 
 .card { background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
 
+.table-summary {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px;
+}
+.table-summary .mini-stat {
+  background: var(--white); padding: 12px 10px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  border: 1px solid rgba(126,158,123,.15);
+}
+.table-summary .mini-stat .label {
+  font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+}
+.table-summary .mini-stat .value {
+  font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--accent2);
+}
+
+.table-card {
+  display: flex; flex-direction: column; gap: 16px; margin-top: 12px; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(249,246,242,0.96));
+  border: 1px solid rgba(126,158,123,.12);
+}
+.table-card-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.table-card-title {
+  font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 400; color: var(--accent2);
+  line-height: 1;
+}
+.table-card-sub {
+  color: var(--muted); font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+  margin-top: 4px;
+}
+.table-layout {
+  display: grid; grid-template-columns: 200px minmax(0,1fr); gap: 18px; align-items: start;
+}
+.table-shape {
+  position: relative; min-height: 190px; border: 2px solid var(--accent);
+  background: linear-gradient(135deg, rgba(126,158,123,.12), rgba(126,158,123,.03));
+  border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: inset 0 0 0 1px rgba(126,158,123,.1);
+}
+.table-shape.round { border-radius: 50%; }
+.table-shape.square { border-radius: 20px; }
+.table-shape-label {
+  font-weight: 400; color: var(--accent2); font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+  text-align: center;
+}
+.table-shape-count {
+  margin-top: 8px; font-family: 'Cormorant Garamond', serif; font-size: 34px; color: var(--text);
+}
+.table-panel-content {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.table-section-label {
+  font-size: 10px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase;
+}
+.table-assigned-list, .table-guest-picker {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.table-assigned-pill {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 12px; border-radius: 999px;
+  padding: 5px 10px; border: 1px solid var(--soft); background: var(--bg);
+}
+.table-assigned-pill.adult { background: rgba(126,158,123,.08); border-color: rgba(126,158,123,.2); }
+.table-assigned-pill.child { background: rgba(201,139,85,.08); border-color: rgba(201,139,85,.22); }
+.table-guest-option {
+  display: inline-flex; align-items: center; gap: 8px; font-size: 12px; border-radius: 999px;
+  border: 1px solid var(--soft); background: var(--white); padding: 6px 10px; cursor: pointer; transition: all .15s ease;
+}
+.table-guest-option:hover { border-color: var(--accent); background: rgba(126,158,123,.04); }
+.table-guest-option input { accent-color: var(--accent2); }
+
 /* ── BUDGET SUMMARY ── */
 .budget-summary {
   display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px;
@@ -1036,6 +1105,33 @@ select.inp { cursor: pointer; }
 
 </div>
 
+<!-- ========== TAVOLI ========== -->
+<div id="tavoli" class="panel">
+  <div class="card">
+    <div class="section-title" style="font-size:15px; margin-bottom:12px;">Composizione tavoli</div>
+    <div class="rsvp-add-form">
+      <div class="rsvp-form-field">
+        <label class="rsvp-form-label">Nome tavolo</label>
+        <input class="rsvp-form-input" id="tavolo-nome" placeholder="Es. Tavolo 1" style="min-width:160px;">
+      </div>
+      <div class="rsvp-form-field">
+        <label class="rsvp-form-label">Tipologia</label>
+        <select class="rsvp-form-select" id="tavolo-tipo">
+          <option value="rotondo">Rotondo</option>
+          <option value="quadrato">Quadrato</option>
+        </select>
+      </div>
+      <div class="rsvp-form-field">
+        <label class="rsvp-form-label">Numero posti</label>
+        <input class="rsvp-form-input" id="tavolo-posti" type="number" min="2" step="1" value="8" style="width:80px;">
+      </div>
+      <button class="rsvp-add-btn" onclick="tavoliAdd()">+ Crea tavolo</button>
+    </div>
+  </div>
+
+  <div id="tavoli-list"></div>
+</div>
+
 <!-- ========== REGALI & SPESE ========== -->
 <div id="regali" class="panel">
 
@@ -1304,7 +1400,7 @@ let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
 
 // ===== SYNC STATUS =====
 function setSyncStatus(section, status, msg) {
-  const map = { budget:'Budget', timeline:'Timeline', fornitori:'Fornitori', invitati:'Invitati' };
+  const map = { budget:'Budget', timeline:'Timeline', fornitori:'Fornitori', invitati:'Invitati', tavoli:'Tavoli' };
   const key = map[section.toLowerCase()];
   if (!key) return;
   const dotId = 'dot' + key;
@@ -1373,6 +1469,10 @@ async function saveToSheet(section) {
   } else if (section === 'Bambini') {
     BAMBINI.forEach(b => {
       rows.push([b.id, b.nome, b.adulto_id || '', b.gruppo || '', b.eta || '', b.tavolo || '']);
+    });
+  } else if (section === 'Tavoli') {
+    TAVOLI.forEach(t => {
+      rows.push([t.id, t.nome || '', t.tipo || 'rotondo', t.posti || 0, (t.invitati || []).join('|')]);
     });
   }
 
@@ -1560,6 +1660,28 @@ async function loadFromSheets() {
     setSyncStatus('Bambini', 'error', 'Dati locali (Sheets non raggiungibile)');
   }
 
+  // Load Tavoli
+  try {
+    const res = await fetch(`${READ_BASE}/Tavoli`);
+    const rows = await res.json();
+    if (rows && rows.length > 0) {
+      TAVOLI = rows.map(r => ({
+        id: parseInt(r.id) || Date.now() + Math.random(),
+        nome: r.nome || '',
+        tipo: ['rotondo','quadrato'].includes((r.tipo || '').toLowerCase()) ? (r.tipo || '').toLowerCase() : 'rotondo',
+        posti: parseInt(r.posti) || 8,
+        invitati: String(r.invitati || '').split('|').map(v => parseInt(v)).filter(v => !Number.isNaN(v)),
+      })).filter(t => t.nome);
+      localStorage.setItem('tavoli', JSON.stringify(TAVOLI));
+      setSyncStatus('Tavoli', 'ok', 'Caricato da Sheets');
+    } else {
+      setSyncStatus('Tavoli', 'ok', 'Pronto (foglio vuoto)');
+    }
+  } catch(e) {
+    console.warn('Tavoli load failed, using localStorage', e);
+    setSyncStatus('Tavoli', 'error', 'Dati locali (Sheets non raggiungibile)');
+  }
+
   renderBudget();
   renderTasks();
   renderSuppliers();
@@ -1567,6 +1689,7 @@ async function loadFromSheets() {
   rsvpUpdateKpi();
   bgtRender();
   bambiniRender();
+  tavoliRender();
   document.getElementById('loadingOverlay').classList.add('hidden');
 }
 
@@ -2155,6 +2278,7 @@ var RSVP_GUESTS    = JSON.parse(localStorage.getItem('rsvp_guests') || '[]');
 var BGT_SPESE      = JSON.parse(localStorage.getItem('bgt_spese')   || '[]');
 var ALTRE_PERSONE  = JSON.parse(localStorage.getItem('altre_persone') || '[]');
 var BAMBINI        = JSON.parse(localStorage.getItem('bambini_list') || '[]');
+var TAVOLI         = JSON.parse(localStorage.getItem('tavoli') || '[]');
 var RSVP_FORMS_DATA = [];
 
 function rsvpSave() {
@@ -2805,11 +2929,192 @@ function rsvpAddFromUnmatched(nome, stato) {
   });
 }
 
+// ===== TAVOLI =====
+var TAVOLI = JSON.parse(localStorage.getItem('tavoli') || '[]');
+
+function tavoliSave() {
+  localStorage.setItem('tavoli', JSON.stringify(TAVOLI));
+  scheduleSave('Tavoli');
+}
+
+function tavoliAdd() {
+  const nome = document.getElementById('tavolo-nome').value.trim();
+  const tipo = document.getElementById('tavolo-tipo').value;
+  const posti = parseInt(document.getElementById('tavolo-posti').value, 10) || 0;
+  if (!nome) { alert('Inserisci il nome del tavolo.'); return; }
+  if (posti < 2) { alert('Il tavolo deve avere almeno 2 posti.'); return; }
+
+  TAVOLI.push({
+    id: Date.now(),
+    nome,
+    tipo,
+    posti,
+    invitati: []
+  });
+
+  tavoliSave();
+  document.getElementById('tavolo-nome').value = '';
+  document.getElementById('tavolo-tipo').value = 'rotondo';
+  document.getElementById('tavolo-posti').value = '8';
+  tavoliRender();
+}
+
+function tavoliDelete(id) {
+  if (!confirm('Eliminare questo tavolo e le assegnazioni?')) return;
+
+  const tavolo = TAVOLI.find(t => t.id === id);
+  if (tavolo) {
+    (tavolo.invitati || []).forEach(guestId => {
+      const adult = RSVP_GUESTS.find(g => g.id === guestId);
+      if (adult) adult.tavolo = '';
+      const child = BAMBINI.find(b => b.id === guestId);
+      if (child) child.tavolo = '';
+    });
+  }
+
+  TAVOLI = TAVOLI.filter(t => t.id !== id);
+  tavoliSave();
+  rsvpSave();
+  bambiniSave();
+  tavoliRender();
+  rsvpRender();
+  bambiniRender();
+}
+
+function tavoliToggleGuest(tableId, guestId, checked) {
+  const tavolo = TAVOLI.find(t => t.id === tableId);
+  if (!tavolo) return;
+
+  const assigned = tavolo.invitati || [];
+  const currentCount = assigned.length;
+  const otherTables = TAVOLI.filter(t => t.id !== tableId).flatMap(t => t.invitati || []);
+  if (checked && otherTables.includes(guestId)) {
+    alert('Questo invitato è già assegnato a un altro tavolo.');
+    return;
+  }
+
+  if (checked && currentCount >= tavolo.posti) {
+    alert(`Il tavolo "${tavolo.nome}" è pieno (${tavolo.posti} posti).`);
+    return;
+  }
+
+  if (checked) {
+    tavolo.invitati = [...new Set([...assigned, guestId])];
+  } else {
+    tavolo.invitati = assigned.filter(id => id !== guestId);
+  }
+
+  const adult = RSVP_GUESTS.find(g => g.id === guestId);
+  if (adult) adult.tavolo = checked ? tavolo.nome : '';
+
+  const child = BAMBINI.find(b => b.id === guestId);
+  if (child) child.tavolo = checked ? tavolo.nome : '';
+
+  tavoliSave();
+  rsvpSave();
+  bambiniSave();
+  tavoliRender();
+  rsvpRender();
+  bambiniRender();
+}
+
+function getTableAssignableGuestsForTable(tableId) {
+  const assignedElsewhere = new Set(TAVOLI.filter(t => t.id !== tableId).flatMap(t => t.invitati || []));
+  const allGuests = getTableAssignableGuests({ guests: RSVP_GUESTS, children: BAMBINI });
+
+  return allGuests.filter(person => !assignedElsewhere.has(person.id));
+}
+
+function tavoliRender() {
+  const el = document.getElementById('tavoli-list');
+  if (!el) return;
+
+  if (!TAVOLI.length) {
+    el.innerHTML = '<div class="card" style="font-size:12px;color:var(--muted);padding:16px;">Nessun tavolo creato. Definisci il primo tavolo qui sopra.</div>';
+    return;
+  }
+
+  const totalCap = TAVOLI.reduce((sum, tavolo) => sum + (parseInt(tavolo.posti) || 0), 0);
+  const totalAssigned = TAVOLI.reduce((sum, tavolo) => sum + ((tavolo.invitati || []).length), 0);
+
+  const summary = `
+    <div class="table-summary">
+      <div class="mini-stat">
+        <div class="label">Tavoli</div>
+        <div class="value">${TAVOLI.length}</div>
+      </div>
+      <div class="mini-stat">
+        <div class="label">Posti</div>
+        <div class="value">${totalAssigned}/${totalCap}</div>
+      </div>
+      <div class="mini-stat">
+        <div class="label">Disponibili</div>
+        <div class="value">${Math.max(totalCap - totalAssigned, 0)}</div>
+      </div>
+    </div>
+  `;
+
+  el.innerHTML = summary + TAVOLI.map(tavolo => {
+    const assignedPeople = (tavolo.invitati || []).map(id => {
+      const adult = RSVP_GUESTS.find(g => g.id === id);
+      if (adult) return { id: adult.id, nome: adult.nome, tipo: 'adulto' };
+      const child = BAMBINI.find(b => b.id === id);
+      if (child) return { id: child.id, nome: child.nome, tipo: 'bambino' };
+      return null;
+    }).filter(Boolean);
+
+    const availablePeople = getTableAssignableGuestsForTable(tavolo.id);
+    const shapeClass = tavolo.tipo === 'quadrato' ? 'table-shape square' : 'table-shape round';
+
+    return `
+      <div class="table-card card">
+        <div class="table-card-header">
+          <div>
+            <div class="table-card-title">${escHtml(tavolo.nome)}</div>
+            <div class="table-card-sub">${tavolo.tipo === 'quadrato' ? 'Tavolo quadrato' : 'Tavolo rotondo'} · ${tavolo.posti} posti</div>
+          </div>
+          <button class="rsvp-action-btn danger" onclick="tavoliDelete(${tavolo.id})">✕</button>
+        </div>
+
+        <div class="table-layout">
+          <div class="${shapeClass}">
+            <div class="table-shape-label">${escHtml(tavolo.nome)}</div>
+            <div class="table-shape-count">${assignedPeople.length}/${tavolo.posti}</div>
+          </div>
+
+          <div class="table-panel-content">
+            <div class="table-section-label">Invitati assegnati</div>
+            <div class="table-assigned-list">
+              ${assignedPeople.length ? assignedPeople.map(p => `
+                <span class="table-assigned-pill ${p.tipo === 'bambino' ? 'child' : 'adult'}">
+                  ${p.tipo === 'bambino' ? '👶' : '👥'} ${escHtml(p.nome)}
+                </span>
+              `).join('') : '<span style="font-size:12px;color:var(--muted);">Nessun invitato assegnato</span>'}
+            </div>
+
+            <div class="table-section-label" style="margin-top:12px;">Seleziona invitati</div>
+            <div class="table-guest-picker">
+              ${availablePeople.length ? availablePeople.map(person => `
+                <label class="table-guest-option">
+                  <input type="checkbox" ${((tavolo.invitati || []).includes(person.id) ? 'checked' : '')}
+                    onchange="tavoliToggleGuest(${tavolo.id}, ${person.id}, this.checked)">
+                  <span>${person.tipo === 'bambino' ? '👶' : '👥'} ${escHtml(person.nome)}</span>
+                </label>
+              `).join('') : '<span style="font-size:12px;color:var(--muted);">Tutti gli invitati sono già assegnati a un altro tavolo.</span>'}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 // ===== INIT =====
 loadFromSheets().then(() => loadRSVP());
 rsvpUpdateKpi();
 rsvpRender();
 bgtRender();
+tavoliRender();
 </script>
 </body>
 </html>

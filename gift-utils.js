@@ -83,6 +83,24 @@ function getGiftTotals({ guests = [], externalContributors = [] } = {}) {
   };
 }
 
+function getTableAssignableGuests({ guests = [], children = [] } = {}) {
+  const adultGuests = (Array.isArray(guests) ? guests : []).map(g => ({
+    id: g && g.id,
+    nome: g && g.nome ? String(g.nome).trim() : '',
+    tipo: 'adulto',
+    tavolo: g && g.tavolo ? String(g.tavolo) : '',
+  })).filter(g => g.nome);
+
+  const childGuests = (Array.isArray(children) ? children : []).map(b => ({
+    id: b && b.id,
+    nome: b && b.nome ? String(b.nome).trim() : '',
+    tipo: 'bambino',
+    tavolo: b && b.tavolo ? String(b.tavolo) : '',
+  })).filter(g => g.nome);
+
+  return [...adultGuests, ...childGuests].sort((a, b) => a.nome.localeCompare(b.nome, 'it'));
+}
+
 module.exports = {
   getGiftTypeLabel,
   normalizeGiftType,
@@ -91,4 +109,5 @@ module.exports = {
   getGiftTotals,
   createExternalContributor,
   mergeExternalContributors,
+  getTableAssignableGuests,
 };
