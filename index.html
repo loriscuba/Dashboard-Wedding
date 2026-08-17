@@ -212,10 +212,10 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300
 .guest-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
 .guest-filter-btn.active { background: var(--accent); color: var(--white); border-color: var(--accent); }
 .guest-dropdown {
-  display: none; max-height: 240px; overflow-y: auto; border: 1px solid var(--soft);
+  max-height: 240px; overflow-y: auto; border: 1px solid var(--soft);
   border-radius: 8px; background: var(--white); box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  display: block;
 }
-.guest-dropdown.open { display: block; }
 .guest-dropdown-item {
   display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid #f5f5f5;
   cursor: pointer; transition: background .15s;
@@ -1679,7 +1679,7 @@ async function loadFromSheets() {
         gruppo: getSheetValue(r, ['gruppo','Gruppo']) || '',
         tavolo: getSheetValue(r, ['tavolo','Tavolo']) || '',
         stato: ['confermato','rifiutato','attesa'].includes(getSheetValue(r, ['stato','Stato'])) ? getSheetValue(r, ['stato','Stato']) : 'attesa',
-        regalo: getSheetValue(r, ['regalo','Regalo']) !== '' && getSheetValue(r, ['regalo','Regalo']) != null ? (parseFloat(getSheetValue(r, ['regalo','Regalo'])) || '') : '',
+        regalo: getSheetValue(r, ['regalo','Regalo']) !== '' && getSheetValue(r, ['regalo','Regalo']) != null ? (parseFloat(getSheetValue(r, ['regalo','Regalo'])) || 0) > 0 ? parseFloat(getSheetValue(r, ['regalo','Regalo'])) : '' : '',
         note: getSheetValue(r, ['note','Note']) || '',
         canzone: getSheetValue(r, ['canzone','Canzone']) || '',
         tipo_regalo: getSheetValue(r, ['tipo_regalo','Tipo regalo','tipo regalo','tipoRegalo','TipoRegalo', 12]) || '',
@@ -1709,7 +1709,7 @@ async function loadFromSheets() {
       importo: getSheetValue(r, ['importo','Importo']) !== '' && getSheetValue(r, ['importo','Importo']) != null ? (parseFloat(getSheetValue(r, ['importo','Importo'])) || 0) : 0,
       tipo_regalo: getSheetValue(r, ['tipo_regalo','Tipo regalo','tipo regalo','tipoRegalo','TipoRegalo', 3]) || '',
       note: getSheetValue(r, ['note','Note']) || '',
-    })).filter(p => p.nome && p.nome.trim()) : [];
+    })).filter(p => p.nome && p.nome.trim() && p.importo > 0) : [];
 
     ALTRE_PERSONE = mergeExternalContributors(localBackup, loadedContributors);
     localStorage.setItem('altre_persone', JSON.stringify(ALTRE_PERSONE));
