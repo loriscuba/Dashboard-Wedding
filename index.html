@@ -107,9 +107,38 @@ h1 { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300
   font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--accent2);
 }
 
+.table-summary + .table-card:nth-of-type(1),
+.table-summary ~ .table-card {
+  display: inline-block; width: calc(50% - 6px); margin-right: 12px; margin-top: 12px; vertical-align: top;
+}
+.table-summary ~ .table-card:nth-child(odd) {
+  margin-right: 12px;
+}
+.table-summary ~ .table-card:nth-child(even) {
+  margin-right: 0;
+}
+@media (max-width: 768px) {
+  .table-summary + .table-card:nth-of-type(1),
+  .table-summary ~ .table-card {
+    display: flex; width: 100%; margin-right: 0; margin-top: 12px;
+  }
+}
 .table-card {
-  display: flex; flex-direction: column; gap: 16px; margin-top: 12px; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(249,246,242,0.96));
-  border: 1px solid rgba(126,158,123,.12);
+  display: flex; flex-direction: column; gap: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(249,246,242,0.96));
+  border: 1px solid rgba(126,158,123,.12); margin-bottom: 14px;
+}
+
+/* Side-by-side tables layout */
+#tavoli-list {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+}
+#tavoli-list > .table-summary {
+  grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 0;
+}
+@media (max-width: 768px) {
+  #tavoli-list {
+    grid-template-columns: 1fr;
+  }
 }
 .table-card-header {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -1680,7 +1709,7 @@ async function loadFromSheets() {
       importo: getSheetValue(r, ['importo','Importo']) !== '' && getSheetValue(r, ['importo','Importo']) != null ? (parseFloat(getSheetValue(r, ['importo','Importo'])) || 0) : 0,
       tipo_regalo: getSheetValue(r, ['tipo_regalo','Tipo regalo','tipo regalo','tipoRegalo','TipoRegalo', 3]) || '',
       note: getSheetValue(r, ['note','Note']) || '',
-    })) : [];
+    })).filter(p => p.nome && p.nome.trim()) : [];
 
     ALTRE_PERSONE = mergeExternalContributors(localBackup, loadedContributors);
     localStorage.setItem('altre_persone', JSON.stringify(ALTRE_PERSONE));
@@ -3191,12 +3220,6 @@ function tavoliRender() {
       </div>
     `;
   }).join('');
-  
-  // Open first dropdown by default
-  setTimeout(() => {
-    const firstDropdown = document.querySelector('[id^="guest-dropdown-"]');
-    if (firstDropdown) firstDropdown.classList.add('open');
-  }, 50);
 }
 
 function tavoliSetFilter(tableId, filter, btn) {
