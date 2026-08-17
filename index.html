@@ -1522,16 +1522,17 @@ async function loadFromSheets() {
   try {
     const res = await fetch(`${READ_BASE}/${encodeURIComponent('Altre Persone')}`);
     const rows = await res.json();
-    if (rows && rows.length > 0) {
-      ALTRE_PERSONE = rows.map(r => ({
-        id: parseInt(getSheetValue(r, ['id','ID'])) || Date.now(),
-        nome: getSheetValue(r, ['nome','Nome']) || '',
-        importo: getSheetValue(r, ['importo','Importo']) !== '' && getSheetValue(r, ['importo','Importo']) != null ? (parseFloat(getSheetValue(r, ['importo','Importo'])) || 0) : 0,
-        tipo_regalo: getSheetValue(r, ['tipo_regalo','Tipo regalo','tipo regalo','tipoRegalo','TipoRegalo', 3]) || '',
-        note: getSheetValue(r, ['note','Note']) || '',
-      }));
-      localStorage.setItem('altre_persone', JSON.stringify(ALTRE_PERSONE));
-    }
+    const localBackup = JSON.parse(localStorage.getItem('altre_persone') || '[]');
+    const loadedContributors = rows && rows.length > 0 ? rows.map(r => ({
+      id: parseInt(getSheetValue(r, ['id','ID'])) || Date.now() + Math.random(),
+      nome: getSheetValue(r, ['nome','Nome']) || '',
+      importo: getSheetValue(r, ['importo','Importo']) !== '' && getSheetValue(r, ['importo','Importo']) != null ? (parseFloat(getSheetValue(r, ['importo','Importo'])) || 0) : 0,
+      tipo_regalo: getSheetValue(r, ['tipo_regalo','Tipo regalo','tipo regalo','tipoRegalo','TipoRegalo', 3]) || '',
+      note: getSheetValue(r, ['note','Note']) || '',
+    })) : [];
+
+    ALTRE_PERSONE = mergeExternalContributors(localBackup, loadedContributors);
+    localStorage.setItem('altre_persone', JSON.stringify(ALTRE_PERSONE));
   } catch(e) {
     console.warn('Altre Persone load failed, using localStorage', e);
   }
@@ -2552,7 +2553,9 @@ function altrePersoneAdd() {
   const note = document.getElementById('altre-persone-note').value.trim();
   if (!nome) { alert('Inserisci il nome della persona esterna.'); return; }
   if (importo <= 0) { alert('Inserisci un importo valido.'); return; }
-  ALTRE_PERSONE.push({ id: Date.now(), nome, importo, tipo_regalo: tipoRegalo || 'Bonifico', note });
+
+  const nuovoContributo = createExternalContributor(nome, importo, tipoRegalo, note, Date.now() + Math.random());
+  ALTRE_PERSONE = mergeExternalContributors(ALTRE_PERSONE, [nuovoContributo]);
   altrePersoneSave();
   document.getElementById('altre-persone-nome').value = '';
   document.getElementById('altre-persone-importo').value = '';

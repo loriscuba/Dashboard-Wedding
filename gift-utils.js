@@ -24,6 +24,36 @@ function isListaNozzeGift(value) {
   return normalizeGiftType(value) === 'lista_nozze';
 }
 
+function createExternalContributor(nome, importo, tipoRegalo = 'Bonifico', note = '', id = Date.now() + Math.random()) {
+  const trimmedName = String(nome || '').trim();
+  return {
+    id: Number.isFinite(id) ? id : Date.now() + Math.random(),
+    nome: trimmedName,
+    importo: parseFloat(importo) || 0,
+    tipo_regalo: tipoRegalo || 'Bonifico',
+    note: String(note || ''),
+  };
+}
+
+function mergeExternalContributors(existing = [], incoming = []) {
+  const merged = [...(Array.isArray(existing) ? existing : []), ...(Array.isArray(incoming) ? incoming : [])];
+  const deduplicated = [];
+  const seen = new Set();
+
+  merged.forEach(item => {
+    const key = item && item.id !== undefined && item.id !== null
+      ? `id:${String(item.id)}`
+      : `body:${String(item && item.nome || '')}|${String(item && item.importo || '')}|${String(item && item.tipo_regalo || '')}|${String(item && item.note || '')}`;
+
+    if (!seen.has(key)) {
+      seen.add(key);
+      deduplicated.push(item);
+    }
+  });
+
+  return deduplicated;
+}
+
 function getGiftTotals({ guests = [], externalContributors = [] } = {}) {
   const guestBonifico = guests
     .filter(g => isBonificoGift(g && g.tipo_regalo, true))
@@ -53,4 +83,12 @@ function getGiftTotals({ guests = [], externalContributors = [] } = {}) {
   };
 }
 
-module.exports = { getGiftTypeLabel, normalizeGiftType, isBonificoGift, isListaNozzeGift, getGiftTotals };
+module.exports = {
+  getGiftTypeLabel,
+  normalizeGiftType,
+  isBonificoGift,
+  isListaNozzeGift,
+  getGiftTotals,
+  createExternalContributor,
+  mergeExternalContributors,
+};

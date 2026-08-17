@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { getGiftTypeLabel, getGiftTotals } = require('../gift-utils.js');
+const { getGiftTypeLabel, getGiftTotals, createExternalContributor, mergeExternalContributors } = require('../gift-utils.js');
 
 assert.strictEqual(getGiftTypeLabel('Bonifico'), 'Bonifico');
 assert.strictEqual(getGiftTypeLabel('Lista Nozze'), 'Lista Nozze');
@@ -32,4 +32,12 @@ assert.strictEqual(mixedTotals.listaNozze, 70);
 assert.strictEqual(mixedTotals.total, 200);
 assert.strictEqual(mixedTotals.bonificoCount, 2);
 assert.strictEqual(mixedTotals.listaNozzeCount, 1);
+
+const firstContributor = { id: 1, nome: 'Alice', importo: 80, tipo_regalo: 'Bonifico', note: 'Prima' };
+const secondContributor = createExternalContributor('Bob', 50, 'Lista Nozze', 'Seconda', 2);
+const mergedContributors = mergeExternalContributors([firstContributor], [secondContributor]);
+assert.strictEqual(mergedContributors.length, 2);
+assert.strictEqual(mergedContributors[0].nome, 'Alice');
+assert.strictEqual(mergedContributors[1].nome, 'Bob');
+
 console.log('gift-utils tests passed');
